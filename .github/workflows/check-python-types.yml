@@ -1,4 +1,4 @@
-name: Typing
+name: Check Python types
 
 on: [push, pull_request]
 
