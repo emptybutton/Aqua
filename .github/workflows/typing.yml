@@ -1,0 +1,22 @@
+name: Typing
+
+on: [push, pull_request]
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: install poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: install dependencies
+        run: poetry install -C ./backend
+
+      - name: mypy
+        run: poetry run mypy .
