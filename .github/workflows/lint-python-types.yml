@@ -1,4 +1,4 @@
-name: Check Python types
+name: Lint Python types
 
 on: [push, pull_request]
 
