@@ -23,7 +23,11 @@ strict = true
 
 [tool.ruff]
 line-length = 80
-ignore-init-module-imports = true
+indent-width = 4
 
-[tool.ruff.extend-per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.lint]
+select = [
+    "ANN", "F", "W", "E", "B", "C90", "N", "UP", "YTT", "ASYNC", "PL", "RUF",
+    "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
+    "PERF", "FURB", 
+]
