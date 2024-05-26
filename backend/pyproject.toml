@@ -10,7 +10,20 @@ readme = "README.md"
 python = "^3.12"
 fastapi = "^0.111.0"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.0"
+ruff = "^0.4.5"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 80
+ignore-init-module-imports = true
+
+[tool.ruff.extend-per-file-ignores]
+"__init__.py" = ["F401"]
