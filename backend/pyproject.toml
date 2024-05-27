@@ -20,6 +20,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 strict = true
+explicit_package_bases = true
 
 [tool.ruff]
 line-length = 80
@@ -29,5 +30,6 @@ indent-width = 4
 select = [
     "ANN", "F", "W", "E", "B", "C90", "N", "UP", "YTT", "ASYNC", "PL", "RUF",
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
-    "PERF", "FURB", 
+    "PERF", 
 ]
+ignore = ["ANN101", "ANN102", "N818"]

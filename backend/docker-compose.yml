@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  app:
+  aqua:
     build: .
     container_name: aqua-app
     network_mode: host

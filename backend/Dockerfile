@@ -9,4 +9,4 @@ COPY . .
 
 RUN apk add poetry && poetry env use /usr/local/bin/python && poetry install --no-root
 
-CMD ["poetry", "run", "python", "-m", "uvicorn", "main:app", "--reload"]
+CMD ["poetry", "run", "python", "-m", "uvicorn", "src.main:app", "--reload"]
