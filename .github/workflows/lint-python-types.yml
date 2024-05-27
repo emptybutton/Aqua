@@ -12,11 +12,5 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: install poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
-
-      - name: install dependencies
-        run: poetry install -C ./backend
-
       - name: mypy
-        run: poetry run -C ./backend mypy .
+        run: cd backend && docker compose run aqua poetry run mypy .
