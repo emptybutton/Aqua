@@ -1,0 +1,16 @@
+name: Test Python
+
+on: [push, pull_request]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: pytest
+        run: cd backend && docker compose run aqua poetry run pytest
