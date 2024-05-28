@@ -1,6 +1,6 @@
 from typing import TypeVar, Generic
 
-from src.aqua.domain.ports.repos import Values
+from src.shared.domain.ports.repos import Values
 
 
 _ValueT = TypeVar("_ValueT")

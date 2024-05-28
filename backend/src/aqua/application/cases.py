@@ -2,8 +2,9 @@ from typing import Optional, Callable, TypeVar
 
 from src.aqua.domain import entities, value_objects
 from src.aqua.application import errors
-from src.aqua.application.repos import NoValues
-from src.aqua.application.ports import repos, uows
+from src.aqua.application.ports import repos
+from src.shared.application.ports import uows
+from src.shared.application.repos import NoValues
 
 
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
