@@ -1,5 +1,5 @@
-from src.auth.adapters.serializers import PasswordSerializer
 from src.auth.domain.value_objects import Password
+from src.auth.infrastructure.serializers import PasswordSerializer
 
 
 def test_password_hashing() -> None:
