@@ -6,13 +6,21 @@ _DeserializedValueT = TypeVar("_DeserializedValueT")
 _SerializedValueT = TypeVar("_SerializedValueT")
 
 
-class Serializer(Generic[_DeserializedValueT, _SerializedValueT], ABC):
+class AsymmetricSerializer(
+    Generic[_DeserializedValueT, _SerializedValueT],
+    ABC,
+):
     @abstractmethod
-    def serialize(self, value: _DeserializedValueT) -> _SerializedValueT:
+    def serialized(self, value: _DeserializedValueT) -> _SerializedValueT:
         ...
 
+
+class SymmetricSerializer(
+    Generic[_DeserializedValueT, _SerializedValueT],
+    AsymmetricSerializer[_DeserializedValueT, _SerializedValueT],
+):
     @abstractmethod
-    def deserialize(
+    def deserialized(
         self,
         value: _SerializedValueT,
     ) -> Optional[_DeserializedValueT]:

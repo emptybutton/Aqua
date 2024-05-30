@@ -1,16 +1,16 @@
 from dataclasses import dataclass
-from typing import Optional
 
-from src.auth.domain import entities
+from src.auth.domain import entities, value_objects
 
 
 @dataclass(frozen=True)
 class Registration:
     user: entities.User
+    refresh_token: value_objects.RefreshToken
     serialized_access_token: str
-    refresh_token_text: str
 
 
 @dataclass(frozen=True)
 class Authentication:
-    serialized_new_access_token: Optional[str] = None
+    new_refresh_token: value_objects.RefreshToken
+    serialized_new_access_token: str

@@ -1,19 +1,20 @@
 from typing import TypeAlias, Optional
+import hashlib
 
 import jwt
 
-from src.auth.domain.value_objects import AccessToken
-from src.auth.application.ports.serializers import Serializer
+from src.auth.domain.value_objects import AccessToken, Password, PasswordHash
+from src.auth.application.ports import serializers
 
 
 JWT: TypeAlias = str
 
 
-class AccessTokenSerializer(Serializer[AccessToken, JWT]):
+class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
     def __init__(self, secret: str) -> None:
         self.__secret = secret
 
-    def serialize(self, access_token: AccessToken) -> JWT:
+    def serialized(self, access_token: AccessToken) -> JWT:
         payload = {
             "user-id": access_token.user_id,
             "username": access_token.username.text,
@@ -25,7 +26,7 @@ class AccessTokenSerializer(Serializer[AccessToken, JWT]):
 
         return jwt.encode(payload, self.__secret, headers=headers)
 
-    def deserialize(
+    def deserialized(
         self,
         jwt_: JWT,
     ) -> Optional[AccessToken]:
@@ -39,3 +40,13 @@ class AccessTokenSerializer(Serializer[AccessToken, JWT]):
             decoded_jwt["payload"]["username"],
             decoded_jwt["header"]["exp"],
         )
+
+
+class PasswordSerializer(
+    serializers.AsymmetricSerializer[Password, PasswordHash],
+):
+    def serialized(self, password: Password) -> PasswordHash:
+        hash_object = hashlib.sha256()
+        hash_object.update(password.text.encode("utf-8"))
+
+        return PasswordHash(hash_object.hexdigest())
