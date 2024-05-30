@@ -11,10 +11,17 @@ class Users(ABC):
         ...
 
     @abstractmethod
-    def has_with_name(
+    def get_by_name(
         self,
         username: value_objects.Username
     ) -> Optional[entities.User]:
+        ...
+
+    @abstractmethod
+    def has_with_name(
+        self,
+        username: value_objects.Username
+    ) -> bool:
         ...
 
 

@@ -11,6 +11,13 @@ class Registration:
 
 
 @dataclass(frozen=True)
+class Authorization:
+    user: entities.User
+    refresh_token: value_objects.RefreshToken
+    serialized_access_token: str
+
+
+@dataclass(frozen=True)
 class Authentication:
     new_refresh_token: value_objects.RefreshToken
     serialized_new_access_token: str
