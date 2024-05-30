@@ -1,8 +1,7 @@
-from typing import Optional, TypeVar, Generic, Iterable, Never
+from typing import Optional, TypeVar, Generic, Iterable
 
 from src.auth.application.ports import places
 from src.auth.domain import entities, value_objects
-from src.shared.application.ports import uows
 
 
 _Value = TypeVar("_Value")
@@ -17,20 +16,6 @@ class Place(Generic[_Value], places.Place[_Value]):
 
     def set(self, value: Optional[_Value]) -> None:
         self.__value = value
-
-
-class UoW(uows.UoW[Never]):
-    def register_new(self, value: Never) -> None:
-        ...
-
-    def register_dirty(self, value: Never) -> None:
-        ...
-
-    def register_deleted(self, value: Never) -> None:
-        ...
-
-    async def __aexit__(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]  # noqa: ANN003, ANN002
-        ...
 
 
 class Users:

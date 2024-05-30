@@ -8,6 +8,7 @@ from src.auth.application.ports.places import Place  # noqa: TCH001
 from src.auth.domain import value_objects, errors as domain_errors
 from src.auth.infrastructure import serializers
 from src.auth.tests import adapters
+from src.shared.infrastructure import uows
 
 
 @mark.asyncio
@@ -18,7 +19,7 @@ async def test_register_user() -> None:
     register_user = partial(
         cases.register_user,
         users=users,
-        uow_for=lambda _: adapters.UoW(),
+        uow_for=lambda _: uows.UoW(),
         password_serializer=serializers.PasswordSerializer(),
         generate_refresh_token_text=token_hex,
         access_token_serializer=access_token_serializer,
