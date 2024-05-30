@@ -1,18 +1,23 @@
+from datetime import datetime
 from typing import TypeAlias, Optional
 import hashlib
 
 import jwt
 
-from src.auth.domain.value_objects import AccessToken, Password, PasswordHash
 from src.auth.application.ports import serializers
+from src.auth.domain.value_objects import (
+    AccessToken, Password, PasswordHash, Username
+)
+from src.auth.domain.errors import DomainError
 
 
 JWT: TypeAlias = str
 
 
 class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
-    def __init__(self, secret: str) -> None:
+    def __init__(self, secret: str, *, algorithm: str = "HS256") -> None:
         self.__secret = secret
+        self.__algorithm = algorithm
 
     def serialized(self, access_token: AccessToken) -> JWT:
         payload = {
@@ -24,22 +29,42 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
             "exp": access_token.expiration_date.timestamp(),
         }
 
-        return jwt.encode(payload, self.__secret, headers=headers)
+        return jwt.encode(
+            payload,
+            self.__secret,
+            headers=headers,
+            algorithm=self.__algorithm,
+        )
 
     def deserialized(
         self,
         jwt_: JWT,
     ) -> Optional[AccessToken]:
         try:
-            decoded_jwt = jwt.api_jwt.decode_complete(jwt_, self.__secret)
+            decoded_jwt = jwt.api_jwt.decode_complete(
+                jwt_,
+                self.__secret,
+                algorithms=[self.__algorithm],
+            )
         except jwt.exceptions.InvalidTokenError:
             return None
 
-        return AccessToken(
-            decoded_jwt["payload"]["user-id"],
-            decoded_jwt["payload"]["username"],
-            decoded_jwt["header"]["exp"],
-        )
+
+        timestamp = decoded_jwt["header"]["exp"]
+
+        try:
+            expiration_date = datetime.fromtimestamp(timestamp)
+        except Exception:
+            return None
+
+        try:
+            return AccessToken(
+                decoded_jwt["payload"]["user-id"],
+                Username(decoded_jwt["payload"]["username"]),
+                expiration_date,
+            )
+        except DomainError:
+            return None
 
 
 class PasswordSerializer(
