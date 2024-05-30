@@ -3,20 +3,21 @@ from typing import Callable, TypeVar, Optional
 from src.auth.domain import entities, value_objects
 from src.auth.application import errors, dtos
 from src.auth.application.ports import repos, serializers
+from src.auth.application.ports.places import Place
 from src.shared.application.ports import uows
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 _RefreshTokenContainerT = TypeVar(
     "_RefreshTokenContainerT",
-    bound=repos.Container[value_objects.RefreshToken],
+    bound=Place[value_objects.RefreshToken],
 )
 
 
 async def register_user(  # noqa: PLR0913
     name_text: str,
     password_text: str,
-    refresh_token_container: repos.Container[value_objects.RefreshToken],
+    refresh_token_place: Place[value_objects.RefreshToken],
     *,
     users: _UsersT,
     uow_for: Callable[[_UsersT], uows.UoW[entities.User]],
@@ -45,7 +46,7 @@ async def register_user(  # noqa: PLR0913
         users.add(user)
 
     refresh_token = value_objects.RefreshToken(generate_refresh_token_text())
-    refresh_token_container.set(refresh_token)
+    refresh_token_place.set(refresh_token)
 
     access_token = value_objects.AccessToken(user.id, user.name)
     serialized_access_token = access_token_serializer.serialized(access_token)
@@ -56,7 +57,7 @@ async def register_user(  # noqa: PLR0913
 def authorize_user(  # noqa: PLR0913
     name_text: str,
     password_text: str,
-    refresh_token_container: repos.Container[value_objects.RefreshToken],
+    refresh_token_place: Place[value_objects.RefreshToken],
     *,
     users: repos.Users,
     password_serializer: serializers.AsymmetricSerializer[
@@ -81,7 +82,7 @@ def authorize_user(  # noqa: PLR0913
         return None
 
     refresh_token = value_objects.RefreshToken(generate_refresh_token_text())
-    refresh_token_container.set(refresh_token)
+    refresh_token_place.set(refresh_token)
 
     access_token = value_objects.AccessToken(user.id, user.name)
     serialized_access_token = access_token_serializer.serialized(access_token)
@@ -91,7 +92,7 @@ def authorize_user(  # noqa: PLR0913
 
 def authenticate_user(
     serialized_access_token: str,
-    refresh_token_container: _RefreshTokenContainerT,
+    refresh_token_place: _RefreshTokenContainerT,
     *,
     access_token_serializer: serializers.SymmetricSerializer[
         value_objects.AccessToken,
@@ -107,7 +108,7 @@ def authenticate_user(
     if not access_token.is_expired:
         return None
 
-    refresh_token = refresh_token_container.get()
+    refresh_token = refresh_token_place.get()
 
     if refresh_token is None or refresh_token.is_expired:
         raise errors.UserIsNotAuthenticated()
@@ -120,7 +121,7 @@ def authenticate_user(
     new_refresh_token_text = generate_refresh_token_text()
     new_refresh_token = value_objects.RefreshToken(new_refresh_token_text)
 
-    refresh_token_container.set(new_refresh_token)
+    refresh_token_place.set(new_refresh_token)
 
     return dtos.Authentication(
         new_refresh_token,
