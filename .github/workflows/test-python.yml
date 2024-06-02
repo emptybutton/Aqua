@@ -13,4 +13,4 @@ jobs:
           python-version: 3.12
 
       - name: pytest
-        run: cd backend && docker compose run aqua poetry run pytest
+        run: cd backend && docker compose run aqua pytest
