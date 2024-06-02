@@ -39,7 +39,7 @@ async def register_user(  # noqa: PLR0913
     if users.has_with_name(username):
         raise errors.UserIsAlreadyRegistered()
 
-    user = entities.User(None, username, password_hash)
+    user = entities.User(username, password_hash)
 
     async with uow_for(users) as uow:
         uow.register_new(user)
