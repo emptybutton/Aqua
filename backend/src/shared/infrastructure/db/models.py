@@ -17,7 +17,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     password_hash: Mapped[str]
-    water_balance: Mapped[Optional[int]]
+    water_balance: Mapped[int]
     glass: Mapped[Optional[int]]
     weight: Mapped[Optional[int]]
 
