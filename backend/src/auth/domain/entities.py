@@ -1,11 +1,11 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from uuid import uuid4
 
 from src.auth.domain.value_objects import Username, PasswordHash
 
 
 @dataclass
 class User:
-    id: Optional[int]
     name: Username
     password_hash: PasswordHash
+    id: int = field(default_factory=lambda: uuid4().int)

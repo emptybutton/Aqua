@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
+from uuid import uuid4
 
 from src.aqua.domain.value_objects import Water, Weight
 from src.aqua.domain import errors
@@ -11,7 +12,7 @@ from src.shared.domain.ports import repos
 class Record:
     drunk_water: Water
     recording_time: datetime = field(default_factory=datetime.now)
-    id: Optional[int] = None
+    id: int = field(default_factory=lambda: uuid4().int)
 
 
 @dataclass
@@ -20,7 +21,7 @@ class User:
     water_balance: Optional[Water]
     glass: Optional[Water]
     weight: Optional[Weight]
-    id: Optional[int] = None
+    id: int = field(default_factory=lambda: uuid4().int)
 
     def __post_init__(self) -> None:
         if self.water_balance is None:
