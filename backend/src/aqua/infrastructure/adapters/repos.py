@@ -1,6 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import Connection, select, insert
+from sqlalchemy import select, insert
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.aqua.application.ports import repos
 from src.aqua.domain import entities, value_objects
@@ -8,10 +9,10 @@ from src.shared.infrastructure.db import tables
 
 
 class Users(repos.Users):
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
-    def add(self, user: entities.User) -> None:
+    async def add(self, user: entities.User) -> None:
         water_balance = user.water_balance.milligrams
         weight = None
         glass = None
@@ -29,9 +30,9 @@ class Users(repos.Users):
             glass=glass,
         )
 
-        self.__connection.execute(stmt)
+        await self.__connection.execute(stmt)
 
-    def get_by_id(self, user_id: int) -> Optional[entities.User]:
+    async def get_by_id(self, user_id: int) -> Optional[entities.User]:
         query = (
             select(
                 tables.AquaUser.id,
@@ -41,8 +42,8 @@ class Users(repos.Users):
             )
             .where(tables.AquaUser.id == user_id)
         )
-
-        raw_user = self.__connection.execute(query).first()
+        results = await self.__connection.execute(query)
+        raw_user = results.first()
 
         if raw_user is None:
             return None
@@ -56,10 +57,10 @@ class Users(repos.Users):
 
 
 class Records(repos.Records):
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
-    def add(self, record: entities.Record) -> None:
+    async def add(self, record: entities.Record) -> None:
         stmt = insert(tables.Record).values(
             id=record.id,
             drunk_water=record.drunk_water.milligrams,
@@ -67,4 +68,4 @@ class Records(repos.Records):
             user_id=record.user_id,
         )
 
-        self.__connection.execute(stmt)
+        await self.__connection.execute(stmt)

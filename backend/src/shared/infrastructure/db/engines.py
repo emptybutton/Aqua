@@ -1,4 +1,5 @@
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from src.shared.infrastructure.envs import env
 
@@ -12,4 +13,5 @@ db_url = URL.create(
     port=env.int("POSTGRES_PORT", default=5432),
 )
 
-engine = create_engine(db_url, echo=env.bool("POSTGRES_ECHO", default=False))
+_echo = env.bool("POSTGRES_ECHO", default=False)
+engine = create_async_engine(db_url, echo=_echo)

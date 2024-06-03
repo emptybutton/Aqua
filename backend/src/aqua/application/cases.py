@@ -19,7 +19,7 @@ async def register_user(  # noqa: PLR0913
     users: _UsersT,
     uow_for: Callable[[_UsersT], uows.UoW[entities.User]],
 ) -> entities.User:
-    user = users.get_by_id(user_id)
+    user = await users.get_by_id(user_id)
 
     if user is not None:
         return user
@@ -43,7 +43,7 @@ async def register_user(  # noqa: PLR0913
 
     async with uow_for(users) as uow:
         uow.register_new(user)
-        users.add(user)
+        await users.add(user)
 
     return user
 
@@ -56,7 +56,7 @@ async def write_water(
     records: _RecordsT,
     uow_for: Callable[[_RecordsT], uows.UoW[entities.Record]],
 ) -> entities.Record:
-    user = users.get_by_id(user_id)
+    user = await users.get_by_id(user_id)
 
     if user is None:
         raise errors.NoUser()
@@ -73,6 +73,6 @@ async def write_water(
 
     async with uow_for(records) as uow:
         uow.register_new(record)
-        records.add(record)
+        await records.add(record)
 
     return record

@@ -36,14 +36,14 @@ async def register_user(  # noqa: PLR0913
     password = value_objects.Password(password_text)
     password_hash = password_serializer.serialized(password)
 
-    if users.has_with_name(username):
+    if await users.has_with_name(username):
         raise errors.UserIsAlreadyRegistered()
 
     user = entities.User(username, password_hash)
 
     async with uow_for(users) as uow:
         uow.register_new(user)
-        users.add(user)
+        await users.add(user)
 
     refresh_token = value_objects.RefreshToken(generate_refresh_token_text())
     refresh_token_place.set(refresh_token)
@@ -54,7 +54,7 @@ async def register_user(  # noqa: PLR0913
     return dtos.Registration(user, refresh_token, serialized_access_token)
 
 
-def authorize_user(  # noqa: PLR0913
+async def authorize_user(  # noqa: PLR0913
     name_text: str,
     password_text: str,
     refresh_token_place: Place[value_objects.RefreshToken],
@@ -70,7 +70,7 @@ def authorize_user(  # noqa: PLR0913
     ],
     generate_refresh_token_text: Callable[[], str],
 ) -> Optional[dtos.Authorization]:
-    user = users.get_by_name(value_objects.Username(name_text))
+    user = await users.get_by_name(value_objects.Username(name_text))
 
     if user is None:
         return None
