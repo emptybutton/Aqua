@@ -4,7 +4,7 @@ from sqlalchemy import Connection, select
 
 from src.auth.application.ports import repos
 from src.auth.domain import entities, value_objects
-from src.shared.infrastructure.db import models
+from src.shared.infrastructure.db import tables
 
 
 class Users(repos.Users):
@@ -18,8 +18,12 @@ class Users(repos.Users):
         self, username: value_objects.Username
     ) -> Optional[entities.User]:
         query = (
-            select(models.User.id, models.User.name, models.User.password_hash)
-            .where(models.User.name == username.text)
+            select(
+                tables.AuthUser.id,
+                tables.AuthUser.name,
+                tables.AuthUser.password_hash,
+            )
+            .where(tables.AuthUser.name == username.text)
         )
         row_user = self.__connection.execute(query).first()
 
@@ -34,8 +38,8 @@ class Users(repos.Users):
 
     def has_with_name(self, username: value_objects.Username) -> bool:
         query = (
-            select(models.User)
-            .where(models.User.name == username.text)
+            select(tables.AuthUser)
+            .where(tables.AuthUser.name == username.text)
             .exists()
         )
 
