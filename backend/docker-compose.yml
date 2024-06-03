@@ -9,8 +9,6 @@ services:
       - nginx
     volumes:
       - .:/aqua
-    env_file:
-      - .env
     restart: unless-stopped
 
   postgres:
