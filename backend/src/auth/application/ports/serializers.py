@@ -11,8 +11,7 @@ class AsymmetricSerializer(
     ABC,
 ):
     @abstractmethod
-    def serialized(self, value: _DeserializedValueT) -> _SerializedValueT:
-        ...
+    def serialized(self, value: _DeserializedValueT) -> _SerializedValueT: ...
 
 
 class SymmetricSerializer(
@@ -23,5 +22,4 @@ class SymmetricSerializer(
     def deserialized(
         self,
         value: _SerializedValueT,
-    ) -> Optional[_DeserializedValueT]:
-        ...
+    ) -> Optional[_DeserializedValueT]: ...

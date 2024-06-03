@@ -6,7 +6,10 @@ import jwt
 
 from src.auth.application.ports import serializers
 from src.auth.domain.value_objects import (
-    AccessToken, Password, PasswordHash, Username
+    AccessToken,
+    Password,
+    PasswordHash,
+    Username,
 )
 from src.auth.domain.errors import DomainError
 
@@ -48,7 +51,6 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
             )
         except jwt.exceptions.InvalidTokenError:
             return None
-
 
         timestamp = decoded_jwt["header"]["exp"]
 

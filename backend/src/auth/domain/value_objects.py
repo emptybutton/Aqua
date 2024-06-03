@@ -58,9 +58,9 @@ class PasswordHash:
 @dataclass(frozen=True)
 class RefreshToken:
     text: str
-    expiration_date: datetime = field(default_factory=lambda: (
-        datetime.now() + timedelta(days=60)
-    ))
+    expiration_date: datetime = field(
+        default_factory=lambda: (datetime.now() + timedelta(days=60))
+    )
 
     @cached_property
     def is_expired(self) -> bool:
@@ -71,9 +71,9 @@ class RefreshToken:
 class AccessToken:
     user_id: Optional[int]
     username: Username
-    expiration_date: datetime = field(default_factory=lambda: (
-        datetime.now() + timedelta(minutes=15)
-    ))
+    expiration_date: datetime = field(
+        default_factory=lambda: (datetime.now() + timedelta(minutes=15))
+    )
 
     @cached_property
     def is_expired(self) -> bool:

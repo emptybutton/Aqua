@@ -3,6 +3,7 @@ from datetime import datetime
 from src.auth.domain.value_objects import Password, AccessToken, Username
 from src.auth.infrastructure import serializers
 
+
 def test_password_serializer() -> None:
     pasword_a = Password("123abcABC")
     pasword_b = Password("123abcABC")

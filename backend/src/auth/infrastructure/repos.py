@@ -17,18 +17,14 @@ class Users:
         pass
 
     def get_by_name(
-        self,
-        username: value_objects.Username
+        self, username: value_objects.Username
     ) -> Optional[entities.User]:
         stmt = select(models.User).where(models.User.name == username.text)
         user_model = self.__session.scalars(stmt).first()
 
         return None if user_model is None else Entities.user_of(user_model)
 
-    def has_with_name(
-        self,
-        username: value_objects.Username
-    ) -> bool:
+    def has_with_name(self, username: value_objects.Username) -> bool:
         stmt = (
             select(models.User)
             .where(models.User.name == username.text)

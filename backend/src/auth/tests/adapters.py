@@ -26,8 +26,7 @@ class Users:
         self.storage.append(user)
 
     def get_by_name(
-        self,
-        username: value_objects.Username
+        self, username: value_objects.Username
     ) -> Optional[entities.User]:
         for user in self.storage:
             if user.name == username:
@@ -35,8 +34,5 @@ class Users:
 
         return None
 
-    def has_with_name(
-        self,
-        username: value_objects.Username
-    ) -> bool:
+    def has_with_name(self, username: value_objects.Username) -> bool:
         return any(user.name == username for user in self.storage)

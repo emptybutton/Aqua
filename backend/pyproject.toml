@@ -37,6 +37,6 @@ indent-width = 4
 select = [
     "ANN", "F", "W", "E", "B", "C90", "N", "UP", "YTT", "ASYNC", "PL", "RUF",
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
-    "PERF", 
+    "PERF", "INP"
 ]
 ignore = ["ANN101", "ANN102", "N818"]
