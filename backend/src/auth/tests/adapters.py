@@ -1,6 +1,6 @@
 from typing import Optional, TypeVar, Generic, Iterable
 
-from src.auth.application.ports import places
+from src.auth.application.ports import places, repos
 from src.auth.domain import entities, value_objects
 
 
@@ -18,14 +18,14 @@ class Place(Generic[_Value], places.Place[_Value]):
         self.__value = value
 
 
-class Users:
+class Users(repos.Users):
     def __init__(self, users: Iterable[entities.User] = tuple()) -> None:
         self.storage = list(users)
 
-    def add(self, user: entities.User) -> None:
+    async def add(self, user: entities.User) -> None:
         self.storage.append(user)
 
-    def get_by_name(
+    async def get_by_name(
         self, username: value_objects.Username
     ) -> Optional[entities.User]:
         for user in self.storage:
@@ -34,5 +34,5 @@ class Users:
 
         return None
 
-    def has_with_name(self, username: value_objects.Username) -> bool:
+    async def has_with_name(self, username: value_objects.Username) -> bool:
         return any(user.name == username for user in self.storage)
