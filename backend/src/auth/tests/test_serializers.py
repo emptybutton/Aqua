@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from src.auth.domain.value_objects import Password, AccessToken, Username
-from src.auth.infrastructure import serializers
+from src.auth.infrastructure.adapters import serializers
 
 
 def test_password_serializer() -> None:

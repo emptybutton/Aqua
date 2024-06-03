@@ -6,9 +6,9 @@ from pytest import raises, mark
 from src.auth.application import cases, errors as application_errors
 from src.auth.application.ports.places import Place  # noqa: TCH001
 from src.auth.domain import value_objects, errors as domain_errors
-from src.auth.infrastructure import serializers
+from src.auth.infrastructure.adapters import serializers
 from src.auth.tests import adapters
-from src.shared.infrastructure import uows
+from src.shared.infrastructure.adapters import uows
 
 
 @mark.asyncio
