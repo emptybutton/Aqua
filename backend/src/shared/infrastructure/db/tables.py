@@ -33,6 +33,7 @@ class AquaUser(Base):
     water_balance: Mapped[int]
     glass: Mapped[Optional[int]]
     weight: Mapped[Optional[int]]
+    records: Mapped[list["Record"]] = relationship(back_populates="user")
 
     def __repr__(self) -> str:
         return f"db.AquaUser(id={self.id!r})"
@@ -44,6 +45,7 @@ class Record(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     drunk_water: Mapped[int]
     recording_time: Mapped[datetime]
+    user_id: Mapped[int] = mapped_column(ForeignKey("aqua_users.id"))
     user: Mapped["AquaUser"] = relationship(back_populates="records")
 
     def __repr__(self) -> str:

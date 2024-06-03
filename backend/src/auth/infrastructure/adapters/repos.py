@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import Connection, select
+from sqlalchemy import Connection, select, insert
 
 from src.auth.application.ports import repos
 from src.auth.domain import entities, value_objects
@@ -12,7 +12,13 @@ class Users(repos.Users):
         self.__connection = connection
 
     def add(self, user: entities.User) -> None:
-        pass
+        stmt = insert(tables.AuthUser).values(
+            id=user.id,
+            name=user.name.text,
+            password_hash=user.password_hash.text,
+        )
+
+        self.__connection.execute(stmt)
 
     def get_by_name(
         self, username: value_objects.Username
