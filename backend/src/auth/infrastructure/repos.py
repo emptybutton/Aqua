@@ -35,4 +35,4 @@ class Users:
             .exists()
         )
 
-        return bool(self.__session.scalar(stmt))  # type: ignore[call-overload]
+        return self.__session.scalar(stmt).first()
