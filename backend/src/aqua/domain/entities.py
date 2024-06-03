@@ -5,7 +5,6 @@ from uuid import uuid4
 
 from src.aqua.domain.value_objects import Water, Weight
 from src.aqua.domain import errors
-from src.shared.domain.ports import repos
 
 
 @dataclass
@@ -17,10 +16,10 @@ class Record:
 
 @dataclass
 class User:
-    records: repos.Values[Record]
     water_balance: Optional[Water]
     glass: Optional[Water]
     weight: Optional[Weight]
+    records: list[Record]
     id: int = field(default_factory=lambda: uuid4().int)
 
     def __post_init__(self) -> None:
