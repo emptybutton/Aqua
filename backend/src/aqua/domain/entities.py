@@ -19,7 +19,7 @@ class User:
     water_balance: Optional[Water]
     glass: Optional[Water]
     weight: Optional[Weight]
-    records: list[Record]
+    records: list[Record] = field(default_factory=list)
     id: int = field(default_factory=lambda: uuid4().int)
 
     def __post_init__(self) -> None:

@@ -4,7 +4,6 @@ from src.aqua.domain import entities, value_objects
 from src.aqua.application import errors
 from src.aqua.application.ports import repos
 from src.shared.application.ports import uows
-from src.shared.application.repos import NoValues
 
 
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
@@ -40,7 +39,7 @@ async def register_user(  # noqa: PLR0913
     else:
         weight = None
 
-    user = entities.User(NoValues(), water_balance, glass, weight)
+    user = entities.User(water_balance, glass, weight)
 
     async with uow_for(users) as uow:
         uow.register_new(user)
