@@ -10,21 +10,26 @@ from src.aqua.domain import errors
 @dataclass
 class Record:
     drunk_water: Water
+    user_id: int
     recording_time: datetime = field(default_factory=datetime.now)
     id: int = field(default_factory=lambda: uuid4().int)
 
 
 @dataclass
 class User:
-    water_balance: Optional[Water]
-    glass: Optional[Water]
     weight: Optional[Weight]
-    records: list[Record] = field(default_factory=list)
+    glass: Optional[Water]
+    __water_balance: Optional[Water] = field(default=None)
     id: int = field(default_factory=lambda: uuid4().int)
 
+    @property
+    def water_balance(self) -> Water:
+        assert self.__water_balance is not None
+        return self.__water_balance
+
     def __post_init__(self) -> None:
-        if self.water_balance is None:
-            self.water_balance = self.calculate_water_balance()
+        if self.__water_balance is None:
+            self.__water_balance = self.calculate_water_balance()
 
     def calculate_water_balance(self) -> Water:
         if self.weight is None:

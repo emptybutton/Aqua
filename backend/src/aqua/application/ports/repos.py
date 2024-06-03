@@ -10,3 +10,8 @@ class Users(ABC):
 
     @abstractmethod
     def get_by_id(self, user_id: int) -> Optional[entities.User]: ...
+
+
+class Records(ABC):
+    @abstractmethod
+    def add(self, record: entities.Record) -> None: ...
