@@ -6,7 +6,6 @@ from src.aqua.application.ports import repos
 from src.shared.application.ports import uows
 
 
-_RecordsT = TypeVar("_RecordsT", bound=repos.Records)
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
@@ -52,9 +51,8 @@ async def write_water(
     user_id: int,
     milligrams: Optional[int],
     *,
-    users: repos.Users,
-    records: _RecordsT,
-    uow_for: Callable[[_RecordsT], uows.UoW[entities.Record]],
+    users: _UsersT,
+    uow_for: Callable[[_UsersT], uows.UoW[entities.User]],
 ) -> entities.Record:
     user = users.get_by_id(user_id)
 
@@ -71,8 +69,8 @@ async def write_water(
 
     record = entities.Record(water)
 
-    async with uow_for(records) as uow:
-        uow.register_new(record)
-        records.add(record)
+    async with uow_for(users) as uow:
+        user.records.append(record)
+        uow.register_dirty(user)
 
     return record
