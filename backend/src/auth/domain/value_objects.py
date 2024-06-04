@@ -62,6 +62,10 @@ class RefreshToken:
         default_factory=lambda: (datetime.now(UTC) + timedelta(days=60))
     )
 
+    def __post_init__(self) -> None:
+        if self.expiration_date.tzinfo is not UTC:
+            raise errors.NotUTCExpirationDate()
+
     @cached_property
     def is_expired(self) -> bool:
         return self.expiration_date <= datetime.now(UTC)
@@ -74,6 +78,10 @@ class AccessToken:
     expiration_date: datetime = field(
         default_factory=lambda: (datetime.now(UTC) + timedelta(minutes=15))
     )
+
+    def __post_init__(self) -> None:
+        if self.expiration_date.tzinfo is not UTC:
+            raise errors.NotUTCExpirationDate()
 
     @cached_property
     def is_expired(self) -> bool:

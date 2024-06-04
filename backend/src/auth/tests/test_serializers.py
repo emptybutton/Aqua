@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from src.auth.domain.value_objects import Password, AccessToken, Username
 from src.auth.infrastructure.adapters import serializers
@@ -29,7 +29,7 @@ def test_access_token_serializer() -> None:
     access_token = AccessToken(
         None,
         Username("Igor"),
-        datetime.fromtimestamp(0),
+        datetime.fromtimestamp(0, UTC),
     )
 
     jwt = serializer.serialized(access_token)

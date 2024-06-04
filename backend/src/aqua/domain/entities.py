@@ -11,9 +11,25 @@ from src.aqua.domain import errors
 class Record:
     drunk_water: Water
     user_id: int
-    recording_time: datetime = field(default_factory=lambda: datetime.now(UTC))
+    __recording_time: datetime = field(
+        default_factory=lambda: datetime.now(UTC)
+    )
     id: int = field(default_factory=lambda: uuid4().int)
 
+    @property
+    def recording_time(self) -> datetime:
+        return self.__recording_time
+
+    @recording_time.set
+    def recording_time(self, recording_time: datetime) -> None:
+        if recording_time.tzinfo is not UTC:
+            raise errors.NotUTCRecordingTime()
+
+        self.__recording_time = recording_time
+
+    def __post_init__(self) -> None:
+        if self.__recording_time.tzinfo is not UTC:
+            raise errors.NotUTCRecordingTime()
 
 @dataclass
 class User:

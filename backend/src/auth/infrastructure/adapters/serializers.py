@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import TypeAlias, Optional
 import hashlib
 
@@ -55,7 +55,7 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
         timestamp = decoded_jwt["header"]["exp"]
 
         try:
-            expiration_date = datetime.fromtimestamp(timestamp)
+            expiration_date = datetime.fromtimestamp(timestamp, UTC)
         except Exception:
             return None
 
