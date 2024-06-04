@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from functools import cached_property
 from typing import Optional
 from string import digits
@@ -59,12 +59,12 @@ class PasswordHash:
 class RefreshToken:
     text: str
     expiration_date: datetime = field(
-        default_factory=lambda: (datetime.now() + timedelta(days=60))
+        default_factory=lambda: (datetime.now(UTC) + timedelta(days=60))
     )
 
     @cached_property
     def is_expired(self) -> bool:
-        return self.expiration_date <= datetime.now()
+        return self.expiration_date <= datetime.now(UTC)
 
 
 @dataclass(frozen=True)
@@ -72,9 +72,9 @@ class AccessToken:
     user_id: Optional[int]
     username: Username
     expiration_date: datetime = field(
-        default_factory=lambda: (datetime.now() + timedelta(minutes=15))
+        default_factory=lambda: (datetime.now(UTC) + timedelta(minutes=15))
     )
 
     @cached_property
     def is_expired(self) -> bool:
-        return self.expiration_date <= datetime.now()
+        return self.expiration_date <= datetime.now(UTC)

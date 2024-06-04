@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional
 from uuid import uuid4
 
@@ -11,7 +11,7 @@ from src.aqua.domain import errors
 class Record:
     drunk_water: Water
     user_id: int
-    recording_time: datetime = field(default_factory=datetime.now)
+    recording_time: datetime = field(default_factory=lambda: datetime.now(UTC))
     id: int = field(default_factory=lambda: uuid4().int)
 
 
