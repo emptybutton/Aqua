@@ -1,7 +1,6 @@
 from typing import Optional, Callable, TypeVar
 
 from src.aqua.domain import entities, value_objects
-from src.aqua.application import errors
 from src.aqua.application.ports import repos
 from src.shared.application.ports import uows
 
@@ -9,10 +8,10 @@ from src.shared.application.ports import uows
 class BaseError(Exception): ...
 
 
-class NoUser(BaseError): ...
+class NoUserError(BaseError): ...
 
 
-class NoMilligrams(BaseError): ...
+class NoMilligramsError(BaseError): ...
 
 
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
@@ -30,13 +29,13 @@ async def write_water(
     user = await users.get_by_id(user_id)
 
     if user is None:
-        raise errors.NoUser()
+        raise NoUserError()
 
     if milligrams is not None:
         water = value_objects.Water(milligrams)
     else:
         if user.glass is None:
-            raise errors.NoMilligrams()
+            raise NoMilligramsError()
 
         water = user.glass
 
