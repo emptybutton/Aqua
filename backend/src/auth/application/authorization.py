@@ -3,7 +3,6 @@ from typing import Callable
 
 from src.auth.domain import entities, value_objects
 from src.auth.application.ports import repos, serializers
-from src.auth.application.ports.places import Place
 
 
 @dataclass(frozen=True)
@@ -25,7 +24,6 @@ class IncorrectPasswordError(BaseError): ...
 async def authorize_user(  # noqa: PLR0913
     name_text: str,
     password_text: str,
-    refresh_token_place: Place[value_objects.RefreshToken],
     *,
     users: repos.Users,
     password_serializer: serializers.AsymmetricSerializer[
@@ -50,7 +48,6 @@ async def authorize_user(  # noqa: PLR0913
         raise IncorrectPasswordError()
 
     refresh_token = value_objects.RefreshToken(generate_refresh_token_text())
-    refresh_token_place.set(refresh_token)
 
     access_token = value_objects.AccessToken(user.id, user.name)
     serialized_access_token = access_token_serializer.serialized(access_token)

@@ -1,21 +1,10 @@
-from typing import Optional, TypeVar, Generic, Iterable
+from typing import Optional, TypeVar, Iterable
 
-from src.auth.application.ports import places, repos
+from src.auth.application.ports import repos
 from src.auth.domain import entities, value_objects
 
 
 _Value = TypeVar("_Value")
-
-
-class Place(Generic[_Value], places.Place[_Value]):
-    def __init__(self, value: Optional[_Value] = None) -> None:
-        self.__value = value
-
-    def get(self) -> Optional[_Value]:
-        return self.__value
-
-    def set(self, value: Optional[_Value]) -> None:
-        self.__value = value
 
 
 class Users(repos.Users):
