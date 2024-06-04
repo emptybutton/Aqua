@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Never, Optional, Type
+from typing import Optional, Type
 from types import TracebackType
 
 from sqlalchemy.ext.asyncio import (
@@ -9,12 +9,12 @@ from sqlalchemy.ext.asyncio import (
 from src.shared.application.ports import uows
 
 
-class FakeUoW(uows.UoW[Never]):
-    def register_new(self, value: Never) -> None: ...
+class FakeUoW(uows.UoW[object]):
+    def register_new(self, value: object) -> None: ...
 
-    def register_dirty(self, value: Never) -> None: ...
+    def register_dirty(self, value: object) -> None: ...
 
-    def register_deleted(self, value: Never) -> None: ...
+    def register_deleted(self, value: object) -> None: ...
 
     async def __aexit__(
         self,

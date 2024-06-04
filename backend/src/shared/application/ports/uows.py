@@ -1,13 +1,13 @@
 from abc import abstractmethod
 from contextlib import AbstractAsyncContextManager
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Self
 
 
 _ValueT = TypeVar("_ValueT")
 
 
 class UoW(Generic[_ValueT], AbstractAsyncContextManager["UoW[_ValueT]"]):
-    async def __aenter__(self) -> "UoW[_ValueT]":
+    async def __aenter__(self) -> Self:
         return self
 
     @abstractmethod
