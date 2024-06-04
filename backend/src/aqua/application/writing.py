@@ -6,6 +6,15 @@ from src.aqua.application.ports import repos
 from src.shared.application.ports import uows
 
 
+class BaseError(Exception): ...
+
+
+class NoUser(BaseError): ...
+
+
+class NoMilligrams(BaseError): ...
+
+
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 

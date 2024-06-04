@@ -2,13 +2,9 @@ from dataclasses import dataclass
 from typing import Callable, TypeVar
 
 from src.auth.domain import entities, value_objects
-from src.auth.application import errors
 from src.auth.application.ports import repos, serializers
 from src.auth.application.ports.places import Place
 from src.shared.application.ports import uows
-
-
-_UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
 @dataclass(frozen=True)
@@ -16,6 +12,15 @@ class OutputDTO:
     user: entities.User
     refresh_token: value_objects.RefreshToken
     serialized_access_token: str
+
+
+class BaseError(Exception): ...
+
+
+class UserIsAlreadyRegisteredError(BaseError): ...
+
+
+_UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
 async def register_user(  # noqa: PLR0913
@@ -41,7 +46,7 @@ async def register_user(  # noqa: PLR0913
     password_hash = password_serializer.serialized(password)
 
     if await users.has_with_name(username):
-        raise errors.UserIsAlreadyRegistered()
+        raise UserIsAlreadyRegisteredError()
 
     user = entities.User(username, password_hash)
 

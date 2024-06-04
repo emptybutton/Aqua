@@ -3,7 +3,7 @@ from secrets import token_hex
 
 from pytest import raises, mark
 
-from src.auth.application import cases, errors as application_errors
+from src.auth.application import registration
 from src.auth.application.ports.places import Place  # noqa: TCH001
 from src.auth.domain import value_objects, errors as domain_errors
 from src.auth.infrastructure.adapters import serializers
@@ -17,7 +17,7 @@ async def test_register_user() -> None:
     access_token_serializer = serializers.AccessTokenSerializer("megasecret")
 
     register_user = partial(
-        cases.register_user,
+        registration.register_user,
         users=users,
         uow_for=lambda _: uows.FakeUoW(),
         password_serializer=serializers.PasswordSerializer(),
@@ -47,7 +47,7 @@ async def test_register_user() -> None:
     assert access_token.username.text == "Igor"
     assert not access_token.is_expired
 
-    with raises(application_errors.UserIsAlreadyRegistered):
+    with raises(registration.UserIsAlreadyRegisteredError):
         await register_user("Igor", "123ABCabc", refresh_token_place)
 
     assert len(users.storage) == 1

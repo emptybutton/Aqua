@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable
 
 from src.auth.domain import entities, value_objects
 from src.auth.application.ports import repos, serializers
@@ -11,6 +11,15 @@ class OutputDTO:
     user: entities.User
     refresh_token: value_objects.RefreshToken
     serialized_access_token: str
+
+
+class BaseError(Exception): ...
+
+
+class NoUserError(BaseError): ...
+
+
+class IncorrectPasswordError(BaseError): ...
 
 
 async def authorize_user(  # noqa: PLR0913
@@ -28,17 +37,17 @@ async def authorize_user(  # noqa: PLR0913
         str,
     ],
     generate_refresh_token_text: Callable[[], str],
-) -> Optional[OutputDTO]:
+) -> OutputDTO:
     user = await users.get_by_name(value_objects.Username(name_text))
 
     if user is None:
-        return None
+        raise NoUserError()
 
     password = value_objects.Password(password_text)
     password_hash = password_serializer.serialized(password)
 
     if user.password_hash != password_hash:
-        return None
+        raise IncorrectPasswordError()
 
     refresh_token = value_objects.RefreshToken(generate_refresh_token_text())
     refresh_token_place.set(refresh_token)

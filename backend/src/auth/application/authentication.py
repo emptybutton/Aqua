@@ -2,21 +2,32 @@ from dataclasses import dataclass
 from typing import Callable, TypeVar, Optional
 
 from src.auth.domain import value_objects
-from src.auth.application import errors
 from src.auth.application.ports import serializers
 from src.auth.application.ports.places import Place
+
+
+@dataclass(frozen=True)
+class ReauthorizationDTO:
+    new_refresh_token: value_objects.RefreshToken
+    serialized_new_access_token: str
+
+
+class BaseError(Exception): ...
+
+
+class NoAccessTokenError(BaseError): ...
+
+
+class NoRefreshTokenError(BaseError): ...
+
+
+class BadRefreshTokenError(BaseError): ...
 
 
 _RefreshTokenContainerT = TypeVar(
     "_RefreshTokenContainerT",
     bound=Place[value_objects.RefreshToken],
 )
-
-
-@dataclass(frozen=True)
-class OutputDTO:
-    new_refresh_token: value_objects.RefreshToken
-    serialized_new_access_token: str
 
 
 def authenticate_user(
@@ -28,19 +39,22 @@ def authenticate_user(
         str,
     ],
     generate_refresh_token_text: Callable[[], str],
-) -> Optional[OutputDTO]:
+) -> Optional[ReauthorizationDTO]:
     access_token = access_token_serializer.deserialized(serialized_access_token)
 
     if access_token is None:
-        raise errors.UserIsNotAuthenticated()
+        raise NoAccessTokenError()
 
     if not access_token.is_expired:
         return None
 
     refresh_token = refresh_token_place.get()
 
-    if refresh_token is None or refresh_token.is_expired:
-        raise errors.UserIsNotAuthenticated()
+    if refresh_token is None:
+        raise NoRefreshTokenError()
+
+    if refresh_token.is_expired:
+        raise BadRefreshTokenError()
 
     new_access_token = value_objects.AccessToken(
         access_token.user_id,
@@ -52,7 +66,7 @@ def authenticate_user(
 
     refresh_token_place.set(new_refresh_token)
 
-    return OutputDTO(
+    return ReauthorizationDTO(
         new_refresh_token,
         access_token_serializer.serialized(new_access_token),
     )
