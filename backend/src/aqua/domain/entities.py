@@ -31,6 +31,7 @@ class Record:
         if self.__recording_time.tzinfo is not UTC:
             raise errors.NotUTCRecordingTime()
 
+
 @dataclass
 class User:
     weight: Optional[Weight]
