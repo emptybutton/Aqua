@@ -15,7 +15,7 @@ UoWT_contra = TypeVar("UoWT_contra", bound=UoW[object], contravariant=True)
 
 class RegisterAuthUser(Protocol[UoWT_contra]):
     @abstractmethod
-    def __call__(
+    async def __call__(
         self,
         name: str,
         password: str,
@@ -26,7 +26,7 @@ class RegisterAuthUser(Protocol[UoWT_contra]):
 
 class RegisterAquaUser(Protocol[UoWT_contra]):
     @abstractmethod
-    def __call__(  # noqa: PLR0913
+    async def __call__(  # noqa: PLR0913
         self,
         auth_user_id: int,
         water_balance_milliliters: Optional[int],
