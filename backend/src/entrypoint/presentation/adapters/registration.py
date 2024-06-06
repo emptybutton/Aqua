@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, TypeAlias
 from functools import partial
 
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from src.entrypoint.application import registration
 from src.entrypoint.infrastructure.adapters import actions
 from src.shared.infrastructure.adapters import uows
+
+
+OutputDTO: TypeAlias = registration.OutputDTO
 
 
 async def register_user(  # noqa: PLR0913
@@ -16,7 +19,7 @@ async def register_user(  # noqa: PLR0913
     weight_kilograms: Optional[int],
     *,
     engine: AsyncEngine,
-) -> None:
+) -> OutputDTO:
     connection = engine.connect()
 
     register_auth_user = partial(
@@ -29,7 +32,7 @@ async def register_user(  # noqa: PLR0913
         connection=connection,
     )
 
-    await registration.register_user(
+    return await registration.register_user(
         name,
         password,
         water_balance_milliliters,

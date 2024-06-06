@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from datetime import datetime
 from typing import TypeVar, Optional
 
 from src.entrypoint.application.ports import actions
@@ -5,6 +7,15 @@ from src.shared.application.ports.uows import UoW
 
 
 _UoWT = TypeVar("_UoWT", bound=UoW[object])
+
+
+@dataclass(frozen=True)
+class OutputDTO:
+    user_id: int
+    username: str
+    access_token: str
+    refresh_token: str
+    refresh_token_expiration_date: datetime
 
 
 async def register_user(  # noqa: PLR0913
@@ -17,7 +28,7 @@ async def register_user(  # noqa: PLR0913
     uow: _UoWT,
     register_auth_user: actions.RegisterAuthUser[_UoWT],
     register_aqua_user: actions.RegisterAquaUser[_UoWT],
-) -> None:
+) -> OutputDTO:
     async with uow as uow:
         dto = await register_auth_user(name, password, uow=uow)
         auth_user_id = dto.user_id
@@ -28,4 +39,12 @@ async def register_user(  # noqa: PLR0913
             glass_milliliters,
             weight_kilograms,
             uow=uow,
+        )
+
+        return OutputDTO(
+            user_id=dto.user_id,
+            username=dto.username,
+            access_token=dto.access_token,
+            refresh_token=dto.refresh_token,
+            refresh_token_expiration_date=dto.refresh_token_expiration_date,
         )

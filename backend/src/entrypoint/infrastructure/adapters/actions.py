@@ -22,7 +22,13 @@ async def register_auth_user(  # type: ignore[no-redef]
         connection=connection,
     )
 
-    return actions.AuthUserRegistrationDTO(result.user_id)
+    return actions.AuthUserRegistrationDTO(
+        user_id=result.user_id,
+        username=result.username,
+        access_token=result.serialized_access_token,
+        refresh_token_expiration_date=result.refresh_token_expiration_date,
+        refresh_token=result.refresh_token_text,
+    )
 
 
 async def register_aqua_user(  # noqa: PLR0913
