@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from secrets import token_hex
+from typing import TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -17,6 +18,13 @@ class OutputDTO:
     refresh_token_text: str
     refresh_token_expiration_date: datetime
     serialized_access_token: str
+
+
+BaseError: TypeAlias = registration.BaseError
+
+UserIsAlreadyRegisteredError: TypeAlias = (
+    registration.UserIsAlreadyRegisteredError
+)
 
 
 async def register_user(

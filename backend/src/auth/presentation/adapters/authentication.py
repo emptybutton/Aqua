@@ -1,8 +1,16 @@
 from datetime import datetime
+from typing import TypeAlias
 
 from src.auth.application import authentication
 from src.auth.infrastructure.adapters import serializers
 from src.auth.presentation import secrets
+
+
+BaseError: TypeAlias = authentication.BaseError
+
+NoAccessTokenError: TypeAlias = authentication.NoAccessTokenError
+
+ExpiredRefreshTokenError: TypeAlias = authentication.ExpiredRefreshTokenError
 
 
 def authenticate_user(

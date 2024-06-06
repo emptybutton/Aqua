@@ -1,12 +1,20 @@
 from dataclasses import dataclass
 from datetime import datetime
 from secrets import token_hex
+from typing import TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.auth.application import authorization
 from src.auth.infrastructure.adapters import serializers, repos
 from src.auth.presentation import secrets
+
+
+BaseError: TypeAlias = authorization.BaseError
+
+NoUserError: TypeAlias = authorization.NoUserError
+
+IncorrectPasswordError: TypeAlias = authorization.IncorrectPasswordError
 
 
 @dataclass(frozen=True, kw_only=True)

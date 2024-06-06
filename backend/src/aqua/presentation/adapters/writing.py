@@ -1,12 +1,19 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.aqua.application import writing
 from src.aqua.infrastructure.adapters import repos
 from src.shared.infrastructure.adapters import uows
+
+
+BaseError: TypeAlias = writing.BaseError
+
+NoUserError: TypeAlias = writing.NoUserError
+
+NoMilligramsError: TypeAlias = writing.NoMilligramsError
 
 
 @dataclass(frozen=True, kw_only=True)
