@@ -20,7 +20,7 @@ class Record:
     def recording_time(self) -> datetime:
         return self.__recording_time
 
-    @recording_time.set
+    @recording_time.setter
     def recording_time(self, recording_time: datetime) -> None:
         if recording_time.tzinfo is not UTC:
             raise errors.NotUTCRecordingTime()
