@@ -12,8 +12,8 @@ class Username:
     text: str
 
     def __post_init__(self) -> None:
-        if len(self.text) <= 0 or len(self.text) > 64:  # noqa: PLR2004
-            raise errors.ExtremeUsernameLength()
+        if len(self.text) == 0:
+            raise errors.EmptyUsername()
 
 
 @dataclass(frozen=True)
@@ -23,9 +23,6 @@ class Password:
     def __post_init__(self) -> None:
         if len(self.text) < 8:  # noqa: PLR2004
             raise errors.WeekPassword()
-
-        if len(self.text) > 128:  # noqa: PLR2004
-            raise errors.TooLongPassword()
 
         if self.text.upper() == self.text:
             raise errors.WeekPassword()
@@ -51,8 +48,8 @@ class PasswordHash:
     text: str
 
     def __post_init__(self) -> None:
-        if len(self.text) <= 0 or len(self.text) > 512:  # noqa: PLR2004
-            raise errors.ExtremePasswordHashLength()
+        if len(self.text) == 0:
+            raise errors.EmptyPasswordHash()
 
 
 @dataclass(frozen=True)

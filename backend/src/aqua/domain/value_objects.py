@@ -9,7 +9,7 @@ class Water:
 
     def __post_init__(self) -> None:
         if self.milligrams <= 0:
-            raise errors.NoWater()
+            raise errors.IncorrectWaterAmount()
 
 
 @dataclass(frozen=True)
@@ -18,4 +18,4 @@ class Weight:
 
     def __post_init__(self) -> None:
         if self.kilograms <= 0:
-            raise errors.NoWeight()
+            raise errors.IncorrectWeightAmount()

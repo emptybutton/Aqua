@@ -5,9 +5,9 @@ from src.aqua.domain import errors
 
 ValidationError: TypeAlias = errors.DomainError
 
-NoWater: TypeAlias = errors.NoWater
+IncorrectWaterAmount: TypeAlias = errors.IncorrectWaterAmount
 
-NoWeight: TypeAlias = errors.NoWeight
+IncorrectWeightAmount: TypeAlias = errors.IncorrectWeightAmount
 
 NoWeightForWaterBalance: TypeAlias = errors.NoWeightForWaterBalance
 

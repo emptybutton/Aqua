@@ -9,13 +9,13 @@ from src.aqua.presentation import errors as aqua_errors
 
 
 def for_api(error: Exception) -> Exception:  # noqa: PLR0911
-    if isinstance(error, aqua_errors.NoWater):
+    if isinstance(error, aqua_errors.IncorrectWaterAmount):
         return HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail="water milligrams must be > 0",
         )
 
-    if isinstance(error, aqua_errors.NoWeight):
+    if isinstance(error, aqua_errors.IncorrectWeightAmount):
         return HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail="weight killograms must be > 0",
