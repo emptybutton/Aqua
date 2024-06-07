@@ -13,8 +13,6 @@ BaseError: TypeAlias = writing.BaseError
 
 NoUserError: TypeAlias = writing.NoUserError
 
-NoMillilitersError: TypeAlias = writing.NoMillilitersError
-
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:

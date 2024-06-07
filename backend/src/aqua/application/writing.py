@@ -11,9 +11,6 @@ class BaseError(Exception): ...
 class NoUserError(BaseError): ...
 
 
-class NoMillilitersError(BaseError): ...
-
-
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
@@ -31,15 +28,9 @@ async def write_water(
     if user is None:
         raise NoUserError()
 
-    if milliliters is not None:
-        water = value_objects.Water(milliliters)
-    else:
-        if user.glass is None:
-            raise NoMillilitersError()
+    water = None if milliliters is None else value_objects.Water(milliliters)
 
-        water = user.glass
-
-    record = entities.Record(water, user.id)
+    record = user.write_water(water)
 
     async with uow_for(records) as uow:
         uow.register_new(record)

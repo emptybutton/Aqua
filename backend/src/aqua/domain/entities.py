@@ -28,8 +28,7 @@ class Record:
         self.__recording_time = recording_time
 
     def __post_init__(self) -> None:
-        if self.__recording_time.tzinfo is not UTC:
-            raise errors.NotUTCRecordingTime()
+        self.recording_time = self.__recording_time
 
 
 @dataclass
@@ -56,3 +55,12 @@ class User:
             raise errors.ExtremeWeightForWaterBalance()
 
         return Water(1500 + (self.weight.kilograms - 20) * 10)
+
+    def write_water(self, water: Optional[Water]) -> Record:
+        if water is None:
+            water = self.glass
+
+        if water is None:
+            raise errors.NoWaterAndGlassForNewRecord()
+
+        return Record(water, self.id)
