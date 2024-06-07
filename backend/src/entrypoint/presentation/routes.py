@@ -2,13 +2,22 @@ from typing import Optional
 
 from src.entrypoint.presentation import cookies
 from src.entrypoint.presentation.adapters import registration
+from src.auth.presentation.adapters import registration as auth_registration
 from src.shared.infrastructure.db.engines import engine
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException, status
 from pydantic import BaseModel
 
 
 router = APIRouter()
+
+
+class UserRegistrationRequestModel(BaseModel):
+    name: str
+    password: str
+    water_balance_milliliters: Optional[int] = None
+    glass_milliliters: Optional[int] = None
+    weight_kilograms: Optional[int] = None
 
 
 class UserRegistrationResponseModel(BaseModel):
@@ -18,22 +27,24 @@ class UserRegistrationResponseModel(BaseModel):
 
 
 @router.post("/register-user")
-async def register_user(  # noqa: PLR0913
+async def register_user(
+    request_model: UserRegistrationRequestModel,
     response: Response,
-    name: str,
-    password: str,
-    water_balance_milliliters: Optional[int],
-    glass_milliliters: Optional[int],
-    weight_kilograms: Optional[int],
 ) -> UserRegistrationResponseModel:
-    result = await registration.register_user(
-        name,
-        password,
-        water_balance_milliliters,
-        glass_milliliters,
-        weight_kilograms,
-        engine=engine,
-    )
+    try:
+        result = await registration.register_user(
+            request_model.name,
+            request_model.password,
+            request_model.water_balance_milliliters,
+            request_model.glass_milliliters,
+            request_model.weight_kilograms,
+            engine=engine,
+        )
+    except auth_registration.UserIsAlreadyRegisteredError as error:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail="there is already a user with this name",
+        ) from error
 
     cookies.set_refresh_token(
         response,
