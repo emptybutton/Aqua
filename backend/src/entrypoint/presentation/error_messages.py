@@ -1,11 +1,7 @@
 from fastapi import HTTPException, status
 
 from src.aqua.presentation import errors as aqua_errors
-# from src.aqua.presentation.adapters import writing as aqua_writing  # noqa: ERA001, E501
-# from src.auth.presentation import errors as auth_errors  # noqa: ERA001
-# from src.auth.presentation.adapters import authentication as auth_authentication  # noqa: ERA001, E501
-# from src.auth.presentation.adapters import authorization as auth_authorization  # noqa: ERA001, E501
-# from src.auth.presentation.adapters import registration as auth_registration  # noqa: ERA001, E501
+from src.auth.presentation import errors as auth_errors
 
 
 def for_api(error: Exception) -> Exception:  # noqa: PLR0911
@@ -39,7 +35,26 @@ def for_api(error: Exception) -> Exception:  # noqa: PLR0911
             detail="recording time must be in UTC time zone",
         )
 
-    if isinstance(error, aqua_errors.ValidationError):
+    if isinstance(error, auth_errors.EmptyUsername):
+        return HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail="username must not be empty",
+        )
+
+    if isinstance(error, auth_errors.WeekPassword):
+        return HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "password must not contain only numbers or only letters, "
+                "but must contain both upper and lower case letters and be 8 "
+                "or more characters long"
+            ),
+        )
+
+    if isinstance(
+        error,
+        aqua_errors.ValidationError | auth_errors.ValidationError,
+    ):
         return HTTPException(status.HTTP_400_BAD_REQUEST)
 
     return error
