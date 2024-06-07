@@ -21,9 +21,9 @@ IncorrectPasswordError: TypeAlias = authorization.IncorrectPasswordError
 class OutputDTO:
     user_id: int
     username: str
-    refresh_token_text: str
+    refresh_token: str
     refresh_token_expiration_date: datetime
-    serialized_access_token: str
+    jwt: str
 
 
 async def authorize_user(
@@ -46,7 +46,7 @@ async def authorize_user(
     return OutputDTO(
         user_id=result.user.id,
         username=result.user.name.text,
-        refresh_token_text=result.refresh_token.text,
+        refresh_token=result.refresh_token.text,
         refresh_token_expiration_date=result.refresh_token.expiration_date,
-        serialized_access_token=result.serialized_access_token,
+        jwt=result.serialized_access_token,
     )

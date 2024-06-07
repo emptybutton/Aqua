@@ -83,3 +83,7 @@ class AccessToken:
     @cached_property
     def is_expired(self) -> bool:
         return self.expiration_date <= datetime.now(UTC)
+
+
+def refreshed(access_token: AccessToken) -> AccessToken:
+    return AccessToken(access_token.user_id, access_token.username)

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import TypeAlias
 
 from src.auth.application import authentication
@@ -8,21 +7,15 @@ from src.auth.presentation import secrets
 
 BaseError: TypeAlias = authentication.BaseError
 
-NoAccessTokenError: TypeAlias = authentication.NoAccessTokenError
+InvalidJWTError: TypeAlias = authentication.NoAccessTokenError
 
-ExpiredRefreshTokenError: TypeAlias = authentication.ExpiredRefreshTokenError
+ExpiredAccessTokenError: TypeAlias = authentication.ExpiredAccessTokenError
 
 
-def authenticate_user(
-    serialized_access_token: str,
-    refresh_token_text: str,
-    refresh_token_expiration_date: datetime,
-) -> None:
+def authenticate_user(jwt: str) -> None:
     serializer = serializers.AccessTokenSerializer(secrets.jwt_secret)
 
     authentication.authenticate_user(
-        serialized_access_token,
-        refresh_token_text,
-        refresh_token_expiration_date,
+        jwt,
         access_token_serializer=serializer,
     )
