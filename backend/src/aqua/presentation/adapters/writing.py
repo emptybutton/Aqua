@@ -13,26 +13,26 @@ BaseError: TypeAlias = writing.BaseError
 
 NoUserError: TypeAlias = writing.NoUserError
 
-NoMilligramsError: TypeAlias = writing.NoMilligramsError
+NoMillilitersError: TypeAlias = writing.NoMillilitersError
 
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
     user_id: int
     record_id: int
-    drunk_water_milligrams: int
+    drunk_water_milliliters: int
     recording_time: datetime
 
 
 async def write_water(
     user_id: int,
-    milligrams: Optional[int],
+    milliliters: Optional[int],
     *,
     connection: AsyncConnection,
 ) -> OutputDTO:
     record = await writing.write_water(
         user_id,
-        milligrams,
+        milliliters,
         users=repos.Users(connection),
         records=repos.Records(connection),
         uow_for=lambda _: uows.FakeUoW(),  # type: ignore[arg-type, return-value]
@@ -41,6 +41,6 @@ async def write_water(
     return OutputDTO(
         user_id=record.user_id,
         record_id=record.id,
-        drunk_water_milligrams=record.drunk_water.milligrams,
+        drunk_water_milliliters=record.drunk_water.milliliters,
         recording_time=record.recording_time,
     )

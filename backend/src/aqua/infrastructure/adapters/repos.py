@@ -13,7 +13,7 @@ class Users(repos.Users):
         self.__connection = connection
 
     async def add(self, user: entities.User) -> None:
-        water_balance = user.water_balance.milligrams
+        water_balance = user.water_balance.milliliters
         weight = None
         glass = None
 
@@ -21,7 +21,7 @@ class Users(repos.Users):
             weight = user.weight.kilograms
 
         if user.glass is not None:
-            glass = user.glass.milligrams
+            glass = user.glass.milliliters
 
         stmt = insert(tables.AquaUser).values(
             id=user.id,
@@ -63,7 +63,7 @@ class Records(repos.Records):
     async def add(self, record: entities.Record) -> None:
         stmt = insert(tables.Record).values(
             id=record.id,
-            drunk_water=record.drunk_water.milligrams,
+            drunk_water=record.drunk_water.milliliters,
             recording_time=record.recording_time,
             user_id=record.user_id,
         )

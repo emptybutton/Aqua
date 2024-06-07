@@ -5,10 +5,10 @@ from src.aqua.domain import errors
 
 @dataclass(frozen=True)
 class Water:
-    milligrams: int
+    milliliters: int
 
     def __post_init__(self) -> None:
-        if self.milligrams <= 0:
+        if self.milliliters <= 0:
             raise errors.IncorrectWaterAmount()
 
 

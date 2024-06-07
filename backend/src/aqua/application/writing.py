@@ -11,7 +11,7 @@ class BaseError(Exception): ...
 class NoUserError(BaseError): ...
 
 
-class NoMilligramsError(BaseError): ...
+class NoMillilitersError(BaseError): ...
 
 
 _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
@@ -20,7 +20,7 @@ _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 async def write_water(
     user_id: int,
-    milligrams: Optional[int],
+    milliliters: Optional[int],
     *,
     users: repos.Users,
     records: _RecordsT,
@@ -31,11 +31,11 @@ async def write_water(
     if user is None:
         raise NoUserError()
 
-    if milligrams is not None:
-        water = value_objects.Water(milligrams)
+    if milliliters is not None:
+        water = value_objects.Water(milliliters)
     else:
         if user.glass is None:
-            raise NoMilligramsError()
+            raise NoMillilitersError()
 
         water = user.glass
 
