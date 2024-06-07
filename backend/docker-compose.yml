@@ -9,6 +9,7 @@ services:
       - nginx
     volumes:
       - .:/aqua
+    command: ["uvicorn", "src.entrypoint.presentation.main:app"]
     restart: unless-stopped
 
   postgres:
