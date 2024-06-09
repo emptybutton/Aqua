@@ -2,7 +2,10 @@ from typing import Optional
 
 from src.entrypoint.presentation import cookies
 from src.entrypoint.presentation.adapters import registration
-from src.auth.presentation.adapters import registration as auth_registration
+from src.auth.presentation.adapters import (
+    registration as auth_registration,
+    authorization,
+)
 from src.shared.infrastructure.db.engines import engine
 
 from fastapi import APIRouter, Response, HTTPException, status
@@ -56,4 +59,51 @@ async def register_user(
         user_id=result.user_id,
         username=result.username,
         access_token=result.access_token,
+    )
+
+
+class AuthorizationRequestModel(BaseModel):
+    username: str
+    password: str
+
+
+class AuthorizationResponseModel(BaseModel):
+    user_id: int
+    username: str
+    jwt: str
+
+
+@router.post("/authorize")
+async def authorize_user(
+    request: AuthorizationRequestModel,
+    response: Response
+) -> AuthorizationResponseModel:
+    async with engine.connect() as connection:
+        try:
+            result = await authorization.authorize_user(
+                request.username,
+                request.password,
+                connection=connection,
+            )
+        except authorization.NoUserError as error:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail="there is no user with this name",
+            ) from error
+        except authorization.IncorrectPasswordError as error:
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED,
+                detail="incorrect password",
+            ) from error
+
+    cookies.set_refresh_token(
+        response,
+        result.refresh_token,
+        result.refresh_token_expiration_date,
+    )
+
+    return AuthorizationResponseModel(
+        user_id=result.user_id,
+        username=result.username,
+        jwt=result.jwt,
     )
