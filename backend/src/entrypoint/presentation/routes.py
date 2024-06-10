@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from src.entrypoint.presentation import cookies
@@ -8,6 +9,7 @@ from src.entrypoint.presentation.adapters import registration
 from src.auth.presentation.adapters import (
     registration as auth_registration,
     authorization,
+    access_extension,
 )
 from src.shared.infrastructure.db.engines import engine
 
@@ -108,3 +110,37 @@ async def authorize_user(
         username=result.username,
         jwt=result.jwt,
     )
+
+
+class AccessTokenRefreshingRequestModel(BaseModel):
+    refresh_token: str
+    refresh_token_expiration_date: datetime
+    jwt: str
+
+
+class AccessTokenRefreshingResponseModel(BaseModel):
+    jwt: str
+
+
+@router.post("/refresh-access-token", tags=["access"])
+async def refresh_access_token(
+    request: AccessTokenRefreshingRequestModel,
+) -> AccessTokenRefreshingResponseModel:
+    try:
+        result = access_extension.extend_access(
+            request.jwt,
+            request.refresh_token,
+            request.refresh_token_expiration_date
+        )
+    except access_extension.InvalidJWTError as error:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail=detail_of(error),
+        ) from error
+    except access_extension.ExpiredRefreshTokenError as error:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail=detail_of(access_extension.InvalidJWTError()),
+        ) from error
+
+    return AccessTokenRefreshingResponseModel(jwt=result.jwt)
