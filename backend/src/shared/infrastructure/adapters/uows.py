@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Optional, Type, TypeVar
 from types import TracebackType
 
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncTransaction
@@ -6,23 +6,26 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncTransaction
 from src.shared.application.ports import uows
 
 
-class FakeUoW(uows.UoW[object]):
-    def register_new(self, value: object) -> None: ...
+_ValueT = TypeVar("_ValueT")
 
-    def register_dirty(self, value: object) -> None: ...
 
-    def register_deleted(self, value: object) -> None: ...
+class FakeUoW(uows.UoW[_ValueT]):
+    def register_new(self, value: _ValueT) -> None: ...
+
+    def register_dirty(self, value: _ValueT) -> None: ...
+
+    def register_deleted(self, value: _ValueT) -> None: ...
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
+        error_type: Optional[Type[BaseException]],
+        error: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> Optional[bool]:
         ...
 
 
-class TransactionalUoW(FakeUoW):
+class TransactionalUoW(FakeUoW[object]):
     __transaction: Optional[AsyncTransaction] = None
 
     def __init__(

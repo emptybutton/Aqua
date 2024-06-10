@@ -30,7 +30,7 @@ async def register_user(
         glass_milliliters,
         weight_kilograms,
         users=repos.Users(connection),
-        uow_for=lambda _: uows.FakeUoW(),  # type: ignore[arg-type, return-value]
+        uow_for=lambda _: uows.FakeUoW(),
     )
 
     glass_milliliters = None
@@ -44,7 +44,7 @@ async def register_user(
 
     return OutputDTO(
         id=user.id,
-        water_balance_milliliters=user.water_balance.water.milliliters,
+        water_balance_milliliters=user.target_water_balance.water.milliliters,
         weight_kilograms=weight_kilograms,
         glass_milliliters=glass_milliliters,
     )

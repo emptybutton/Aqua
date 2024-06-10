@@ -5,8 +5,8 @@ from typing import Optional, TypeAlias
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.aqua.application import writing
-from src.aqua.infrastructure.adapters import repos
-from src.shared.infrastructure.adapters import uows
+from src.aqua.infrastructure.adapters import repos, uows
+from src.shared.infrastructure.adapters import uows as shared_uows
 
 
 BaseError: TypeAlias = writing.BaseError
@@ -33,7 +33,9 @@ async def write_water(
         milliliters,
         users=repos.Users(connection),
         records=repos.Records(connection),
-        uow_for=lambda _: uows.FakeUoW(),  # type: ignore[arg-type, return-value]
+        days=repos.Days(connection),
+        record_uow_for=lambda _: shared_uows.TransactionalUoW(connection),  # type: ignore[arg-type, return-value]
+        day_uow_for=lambda _: uows.DirtyDayUoW(connection),
     )
 
     return OutputDTO(

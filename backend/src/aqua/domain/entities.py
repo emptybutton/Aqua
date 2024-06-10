@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import datetime, UTC, date
 from typing import Optional
 from uuid import uuid4
 
-from src.aqua.domain.value_objects import Water, WaterBalance, Glass, Weight
+from src.aqua.domain.value_objects import (
+    Water, WaterBalance, Glass, Weight, WaterBalanceStatus, status_of
+)
 from src.aqua.domain import errors
 
 
@@ -35,17 +37,17 @@ class Record:
 class User:
     weight: Optional[Weight]
     glass: Optional[Glass]
-    __water_balance: Optional[WaterBalance] = field(default=None)
+    __target_water_balance: Optional[WaterBalance] = field(default=None)
     id: int = field(default_factory=lambda: uuid4().int)
 
     @property
-    def water_balance(self) -> WaterBalance:
-        assert self.__water_balance is not None
-        return self.__water_balance
+    def target_water_balance(self) -> WaterBalance:
+        assert self.__target_water_balance is not None
+        return self.__target_water_balance
 
     def __post_init__(self) -> None:
-        if self.__water_balance is None:
-            self.__water_balance = self.calculate_water_balance()
+        if self.__target_water_balance is None:
+            self.__target_water_balance = self.calculate_water_balance()
 
     def calculate_water_balance(self) -> WaterBalance:
         if self.weight is None:
@@ -64,3 +66,39 @@ class User:
             water = self.glass.capacity
 
         return Record(water, self.id)
+
+
+@dataclass
+class Day:
+    date_: date
+    user_id: int
+    target_water_balance: WaterBalance
+    __real_water_balance: WaterBalance
+    id: int = field(default_factory=lambda: uuid4().int)
+    __result: Optional[WaterBalanceStatus] = None
+
+    @property
+    def result(self) -> WaterBalanceStatus:
+        return self.__result  # type: ignore[return-value]
+
+    @property
+    def real_water_balance(self) -> WaterBalance:
+        return self.__real_water_balance
+
+    @real_water_balance.setter
+    def real_water_balance(self, real_water_balance: WaterBalance) -> None:
+        if self.__real_water_balance == real_water_balance:
+            return
+
+        self.__real_water_balance = real_water_balance
+        self.__result = status_of(
+            self.real_water_balance,
+            target=self.target_water_balance,
+        )
+
+    def __post_init__(self) -> None:
+        if self.__result is None:
+            self.__result = status_of(
+                self.real_water_balance,
+                target=self.target_water_balance,
+            )

@@ -39,7 +39,7 @@ async def register_user(
         username,
         password,
         users=repos.Users(connection),
-        uow_for=lambda _: uows.FakeUoW(),  # type: ignore[arg-type, return-value]
+        uow_for=lambda _: uows.FakeUoW(),
         access_token_serializer=serializer,
         password_serializer=serializers.PasswordSerializer(),
         generate_refresh_token_text=token_hex,

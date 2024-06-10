@@ -1,10 +1,11 @@
+from datetime import date
 from typing import Optional
 
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.aqua.application.ports import repos
-from src.aqua.domain import entities, value_objects
+from src.aqua.domain import entities, value_objects as vo
 from src.shared.infrastructure.db import tables
 
 
@@ -13,7 +14,7 @@ class Users(repos.Users):
         self.__connection = connection
 
     async def add(self, user: entities.User) -> None:
-        water_balance = user.water_balance.water.milliliters
+        water_balance = user.target_water_balance.water.milliliters
         weight = None
         glass = None
 
@@ -51,23 +52,21 @@ class Users(repos.Users):
         if raw_user.glass is None:
             glass = None
         else:
-            glass = value_objects.Glass(value_objects.Water(raw_user.glass))
+            glass = vo.Glass(vo.Water(raw_user.glass))
 
-        if raw_user.weight is None:
-            weight = None
-        else:
-            weight = value_objects.Weight(raw_user.weight)
+        weight = None if raw_user.weight is None else vo.Weight(raw_user.weight)
 
-        water_balance = value_objects.WaterBalance(
-            value_objects.Water(raw_user.water_balance)
+        water_balance = vo.WaterBalance(
+            vo.Water(raw_user.water_balance)
         )
 
         return entities.User(
             weight=weight,
             glass=glass,
-            __water_balance=water_balance,
+            __target_water_balance=water_balance,
             id=raw_user.id,
         )
+
 
 class Records(repos.Records):
     def __init__(self, connection: AsyncConnection) -> None:
@@ -82,3 +81,49 @@ class Records(repos.Records):
         )
 
         await self.__connection.execute(stmt)
+
+
+class Days(repos.Days):
+    def __init__(self, connection: AsyncConnection) -> None:
+        self.__connection = connection
+
+    async def add(self, day: entities.Day) -> None:
+        stmt = insert(tables.Day).values(
+            id=day.id,
+            user_id=day.user_id,
+            real_water_balance=day.real_water_balance.water.milliliters,
+            target_water_balance=day.target_water_balance.water.milliliters,
+            date_=day.date_,
+            result=day.result.value,
+        )
+
+        await self.__connection.execute(stmt)
+
+    async def get_on(self, date_: date) -> Optional[entities.Day]:
+        query = (
+            select(
+                tables.Day.user_id,
+                tables.Day.real_water_balance,
+                tables.Day.target_water_balance,
+                tables.Day.date_,
+            ).where(tables.Day.date_ == date_)
+        )
+
+        results = await self.__connection.execute(query)
+        raw_day = results.first()
+
+        if raw_day is None:
+            return raw_day
+
+        return entities.Day(
+            date_=raw_day.date_,
+            user_id=raw_day.user_id,
+            target_water_balance=(
+                vo.WaterBalance(vo.Water(raw_day.target_water_balance))
+            ),
+            __real_water_balance=(
+                vo.WaterBalance(vo.Water(raw_day.real_water_balance))
+            ),
+            id=raw_day.id,
+            __result=vo.WaterBalanceStatus(raw_day.result),
+        )
