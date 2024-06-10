@@ -13,6 +13,16 @@ class Water:
 
 
 @dataclass(frozen=True)
+class WaterBalance:
+    water: Water
+
+
+@dataclass(frozen=True)
+class Glass:
+    capacity: Water
+
+
+@dataclass(frozen=True)
 class Weight:
     kilograms: int
 

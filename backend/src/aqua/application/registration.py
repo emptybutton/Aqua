@@ -24,12 +24,13 @@ async def register_user(  # noqa: PLR0913
         return user
 
     if water_balance_milliliters is not None:
-        water_balance = value_objects.Water(water_balance_milliliters)
+        water = value_objects.Water(water_balance_milliliters)
+        water_balance = value_objects.WaterBalance(water)
     else:
         water_balance = None
 
     if glass_milliliters is not None:
-        glass = value_objects.Water(glass_milliliters)
+        glass = value_objects.Glass(value_objects.Water(glass_milliliters))
     else:
         glass = None
 

@@ -13,7 +13,7 @@ class Users(repos.Users):
         self.__connection = connection
 
     async def add(self, user: entities.User) -> None:
-        water_balance = user.water_balance.milliliters
+        water_balance = user.water_balance.water.milliliters
         weight = None
         glass = None
 
@@ -21,7 +21,7 @@ class Users(repos.Users):
             weight = user.weight.kilograms
 
         if user.glass is not None:
-            glass = user.glass.milliliters
+            glass = user.glass.capacity.milliliters
 
         stmt = insert(tables.AquaUser).values(
             id=user.id,
@@ -48,13 +48,26 @@ class Users(repos.Users):
         if raw_user is None:
             return None
 
-        return entities.User(
-            value_objects.Weight(raw_user.weight),
-            value_objects.Water(raw_user.glass),
-            value_objects.Water(raw_user.water_balance),
-            raw_user.id,
+        if raw_user.glass is None:
+            glass = None
+        else:
+            glass = value_objects.Glass(value_objects.Water(raw_user.glass))
+
+        if raw_user.weight is None:
+            weight = None
+        else:
+            weight = value_objects.Weight(raw_user.weight)
+
+        water_balance = value_objects.WaterBalance(
+            value_objects.Water(raw_user.water_balance)
         )
 
+        return entities.User(
+            weight=weight,
+            glass=glass,
+            __water_balance=water_balance,
+            id=raw_user.id,
+        )
 
 class Records(repos.Records):
     def __init__(self, connection: AsyncConnection) -> None:

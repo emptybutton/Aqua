@@ -37,14 +37,14 @@ async def register_user(
     weight_kilograms = None
 
     if user.glass is not None:
-        glass_milliliters = user.glass.milliliters
+        glass_milliliters = user.glass.capacity.milliliters
 
     if user.weight is not None:
         weight_kilograms = user.weight.kilograms
 
     return OutputDTO(
         id=user.id,
-        water_balance_milliliters=user.water_balance.milliliters,
+        water_balance_milliliters=user.water_balance.water.milliliters,
         weight_kilograms=weight_kilograms,
         glass_milliliters=glass_milliliters,
     )

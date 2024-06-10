@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from typing import Optional
 from uuid import uuid4
 
-from src.aqua.domain.value_objects import Water, Weight
+from src.aqua.domain.value_objects import Water, WaterBalance, Glass, Weight
 from src.aqua.domain import errors
 
 
@@ -34,12 +34,12 @@ class Record:
 @dataclass
 class User:
     weight: Optional[Weight]
-    glass: Optional[Water]
-    __water_balance: Optional[Water] = field(default=None)
+    glass: Optional[Glass]
+    __water_balance: Optional[WaterBalance] = field(default=None)
     id: int = field(default_factory=lambda: uuid4().int)
 
     @property
-    def water_balance(self) -> Water:
+    def water_balance(self) -> WaterBalance:
         assert self.__water_balance is not None
         return self.__water_balance
 
@@ -47,20 +47,20 @@ class User:
         if self.__water_balance is None:
             self.__water_balance = self.calculate_water_balance()
 
-    def calculate_water_balance(self) -> Water:
+    def calculate_water_balance(self) -> WaterBalance:
         if self.weight is None:
             raise errors.NoWeightForWaterBalance()
 
         if self.weight.kilograms <= 30 or self.weight.kilograms >= 150:  # noqa: PLR2004
             raise errors.ExtremeWeightForWaterBalance()
 
-        return Water(1500 + (self.weight.kilograms - 20) * 10)
+        return WaterBalance(Water(1500 + (self.weight.kilograms - 20) * 10))
 
     def write_water(self, water: Optional[Water]) -> Record:
         if water is None:
-            water = self.glass
+            if self.glass is None:
+                raise errors.NoWaterAndGlassForNewRecord()
 
-        if water is None:
-            raise errors.NoWaterAndGlassForNewRecord()
+            water = self.glass.capacity
 
         return Record(water, self.id)
