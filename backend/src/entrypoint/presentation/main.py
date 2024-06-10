@@ -3,7 +3,7 @@ from typing import Callable, Awaitable
 from fastapi import FastAPI, Request, Response
 
 from src.entrypoint.presentation.routes import router
-from src.entrypoint.presentation.error_messages import for_api
+from src.entrypoint.presentation.error_responses import for_api
 
 
 app = FastAPI()

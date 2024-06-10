@@ -1,6 +1,9 @@
 from typing import Optional
 
 from src.entrypoint.presentation import cookies
+from src.entrypoint.presentation.error_responses import (
+    default_error_with, detail_of
+)
 from src.entrypoint.presentation.adapters import registration
 from src.auth.presentation.adapters import (
     registration as auth_registration,
@@ -12,7 +15,7 @@ from fastapi import APIRouter, Response, HTTPException, status
 from pydantic import BaseModel
 
 
-router = APIRouter()
+router = APIRouter(prefix="/api/0.1v")
 
 
 class UserRegistrationRequestModel(BaseModel):
@@ -29,7 +32,7 @@ class UserRegistrationResponseModel(BaseModel):
     access_token: str
 
 
-@router.post("/register-user")
+@router.post("/user/register", tags=["access"])
 async def register_user(
     request_model: UserRegistrationRequestModel,
     response: Response,
@@ -44,10 +47,7 @@ async def register_user(
             engine=engine,
         )
     except auth_registration.UserIsAlreadyRegisteredError as error:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            detail="there is already a user with this name",
-        ) from error
+        raise default_error_with(detail_of(error)) from error
 
     cookies.set_refresh_token(
         response,
@@ -73,7 +73,7 @@ class AuthorizationResponseModel(BaseModel):
     jwt: str
 
 
-@router.post("/authorize")
+@router.post("/user/authorize", tags=["access"])
 async def authorize_user(
     request: AuthorizationRequestModel,
     response: Response
@@ -86,14 +86,15 @@ async def authorize_user(
                 connection=connection,
             )
         except authorization.NoUserError as error:
+            message = "there is no user with this name"
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
-                detail="there is no user with this name",
+                detail=detail_of(error, message=message),
             ) from error
         except authorization.IncorrectPasswordError as error:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
-                detail="incorrect password",
+                detail=detail_of(error),
             ) from error
 
     cookies.set_refresh_token(
