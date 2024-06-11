@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY . .
 
-RUN apk add poetry && poetry env use /usr/local/bin/python && poetry install --no-root
+RUN apk add poetry && poetry install --no-root
 
 ENTRYPOINT ["poetry", "run"]
 CMD ["ash"]
