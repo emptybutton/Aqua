@@ -4,7 +4,7 @@ from functools import partial
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from src.entrypoint.application import registration
-from src.entrypoint.infrastructure.adapters import actions
+from src.entrypoint.infrastructure.adapters import gateways
 from src.shared.infrastructure.adapters import uows
 
 
@@ -23,12 +23,12 @@ async def register_user(  # noqa: PLR0913
     connection = engine.connect()
 
     register_auth_user = partial(
-        actions.register_auth_user,
+        gateways.register_auth_user,
         connection=connection,
     )
 
     register_aqua_user = partial(
-        actions.register_auth_user,
+        gateways.register_auth_user,
         connection=connection,
     )
 
