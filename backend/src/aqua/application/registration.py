@@ -1,11 +1,10 @@
-from typing import Optional, Callable, TypeVar
+from typing import Optional, TypeVar
 
 from src.aqua.domain import entities, value_objects
 from src.aqua.application.ports import repos
 from src.shared.application.ports import uows
 
 
-_RecordsT = TypeVar("_RecordsT", bound=repos.Records)
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
@@ -16,7 +15,7 @@ async def register_user(  # noqa: PLR0913
     weight_kilograms: Optional[int],
     *,
     users: _UsersT,
-    uow_for: Callable[[_UsersT], uows.UoW[entities.User]],
+    uow_for: uows.UoWFactory[_UsersT, entities.User],
 ) -> entities.User:
     user = await users.get_by_id(user_id)
 

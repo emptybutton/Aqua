@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from datetime import datetime, UTC, date
+from functools import reduce
 from typing import Optional
 from uuid import uuid4
+from operator import add
 
 from src.aqua.domain.value_objects import (
     Water, WaterBalance, Glass, Weight, WaterBalanceStatus, status_of
@@ -31,6 +33,15 @@ class Record:
 
     def __post_init__(self) -> None:
         self.recording_time = self.__recording_time
+
+
+def water_balance_from(*records: Record) -> WaterBalance:
+    if len(records) == 0:
+        return WaterBalance(Water(0))
+    if len(records) == 1:
+        return WaterBalance(records[0].drunk_water)
+
+    return WaterBalance(reduce(add, (record.drunk_water for record in records)))
 
 
 @dataclass
@@ -70,11 +81,11 @@ class User:
 
 @dataclass
 class Day:
-    date_: date
     user_id: int
     target_water_balance: WaterBalance
     __real_water_balance: WaterBalance
     id: int = field(default_factory=lambda: uuid4().int)
+    date_: date = field(default_factory=lambda: datetime.now(UTC).date())
     __result: Optional[WaterBalanceStatus] = None
 
     @property

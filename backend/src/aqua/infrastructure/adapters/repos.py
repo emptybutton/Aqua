@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, Any
 
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, exists, func
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.aqua.application.ports import repos
@@ -67,8 +67,14 @@ class Users(repos.Users):
             id=raw_user.id,
         )
 
+    async def has_with_id(self, user_id: int) -> bool:
+        query = select(exists().where(tables.AquaUser.id == user_id))
 
-class Records(repos.Records):
+        result: bool = self.__connection.scalar(query)
+        return result
+
+
+class PastRecords(repos.PastRecords):
     def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
@@ -82,8 +88,42 @@ class Records(repos.Records):
 
         await self.__connection.execute(stmt)
 
+    async def get_on(
+        self,
+        date_: date,
+        *,
+        user_id: int,
+    ) -> tuple[entities.Record, ...]:
+        query = (
+            select(
+                tables.Record.id,
+                tables.Record.drunk_water,
+                tables.Record.recording_time,
+            )
+            .where(
+                tables.Record.user_id == user_id
+                & func.date(tables.Record.recording_time) == date_
+            )
+        )
 
-class Days(repos.Days):
+        results = await self.__connection.execute(query)
+
+        return tuple(self.__record_of(data, user_id) for data in results.all())
+
+    def __record_of(
+        self,
+        record_data: Any,  # noqa: ANN401
+        user_id: int,
+    ) -> entities.Record:
+        return entities.Record(
+            id=record_data.id,
+            user_id=user_id,
+            drunk_water=vo.Water(record_data.drunk_water),
+            __recording_time=record_data.recording_time,
+        )
+
+
+class Days(repos.PastDays):
     def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
@@ -99,31 +139,47 @@ class Days(repos.Days):
 
         await self.__connection.execute(stmt)
 
-    async def get_on(self, date_: date) -> Optional[entities.Day]:
+    async def get_on(
+        self,
+        date_: date,
+        *,
+        user_id: int,
+    ) -> Optional[entities.Day]:
         query = (
             select(
-                tables.Day.user_id,
                 tables.Day.real_water_balance,
                 tables.Day.target_water_balance,
                 tables.Day.date_,
-            ).where(tables.Day.date_ == date_)
+            ).where(
+                tables.Day.date_ == date_
+                & tables.Day.user_id == user_id
+            )
+            .limit(1)
         )
 
         results = await self.__connection.execute(query)
-        raw_day = results.first()
+        raw_data = results.first()
 
-        if raw_day is None:
-            return raw_day
+        if raw_data is None:
+            return None
+
+        return self.__day_of(raw_data, user_id, date_)
+
+    def __day_of(
+        self,
+        raw_data: Any,  # noqa: ANN401
+        user_id: int,
+        date_: date,
+    ) -> entities.Day:
+        target = vo.WaterBalance(vo.Water(raw_data.target_water_balance))
+        water_balance = vo.WaterBalance(vo.Water(raw_data.real_water_balance))
+        result = vo.WaterBalanceStatus(raw_data.result)
 
         return entities.Day(
-            date_=raw_day.date_,
-            user_id=raw_day.user_id,
-            target_water_balance=(
-                vo.WaterBalance(vo.Water(raw_day.target_water_balance))
-            ),
-            __real_water_balance=(
-                vo.WaterBalance(vo.Water(raw_day.real_water_balance))
-            ),
-            id=raw_day.id,
-            __result=vo.WaterBalanceStatus(raw_day.result),
+            id=raw_data.id,
+            user_id=user_id,
+            date_=date_,
+            target_water_balance=target,
+            __real_water_balance=water_balance,
+            __result=result,
         )
