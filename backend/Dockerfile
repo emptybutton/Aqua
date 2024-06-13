@@ -1,13 +1,20 @@
-FROM python:alpine
+FROM python:3.12-alpine3.19
 
 WORKDIR /aqua
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY . .
+RUN apk add curl
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH "/root/.local/bin:$PATH"
 
-RUN apk add poetry && poetry env use /usr/local/bin/python && poetry install --no-root
+COPY pyproject.toml .
+COPY poetry.lock .
+ENV POETRY_VIRTUALENVS_CREATE=false
+RUN poetry install --no-root
+
+COPY . .
 
 ENTRYPOINT ["poetry", "run"]
 CMD ["ash"]
