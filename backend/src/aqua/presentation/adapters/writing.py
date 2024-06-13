@@ -28,13 +28,18 @@ async def write_water(
     *,
     connection: AsyncConnection,
 ) -> OutputDTO:
+    record_uow_for = lambda _: shared_uows.TransactionalUoW(  # noqa: E731
+        connection,
+        closes=False,
+    )
+
     record = await writing.write_water(
         user_id,
         milliliters,
         users=repos.Users(connection),
         records=repos.Records(connection),
         days=repos.Days(connection),
-        record_uow_for=lambda _: shared_uows.TransactionalUoW(connection),  # type: ignore[arg-type, return-value]
+        record_uow_for=record_uow_for,  # type: ignore[arg-type]
         day_uow_for=lambda _: uows.DirtyDayUoW(connection),
     )
 
