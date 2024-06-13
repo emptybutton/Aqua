@@ -4,25 +4,25 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.auth.presentation.adapters import registration as auth_registration
 from src.aqua.presentation.adapters import registration as aqua_registration
-from src.entrypoint.application.ports import actions
+from src.entrypoint.application.ports import gateways
 from src.shared.application.ports.uows import UoW
 
 
-register_auth_user: actions.RegisterAuthUser[UoW[object]]
+register_auth_user: gateways.RegisterAuthUser[UoW[object]]
 async def register_auth_user(  # type: ignore[no-redef]
     name: str,
     password: str,
     *,
     uow: object,  # noqa: ARG001
     connection: AsyncConnection,
-) -> actions.AuthUserRegistrationDTO:
+) -> gateways.AuthUserRegistrationDTO:
     result = await auth_registration.register_user(
         name,
         password,
         connection=connection,
     )
 
-    return actions.AuthUserRegistrationDTO(
+    return gateways.AuthUserRegistrationDTO(
         user_id=result.user_id,
         username=result.username,
         access_token=result.serialized_access_token,

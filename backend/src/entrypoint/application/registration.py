@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TypeVar, Optional
 
-from src.entrypoint.application.ports import actions
+from src.entrypoint.application.ports import gateways
 from src.shared.application.ports.uows import UoW
 
 
@@ -26,8 +26,8 @@ async def register_user(  # noqa: PLR0913
     weight_kilograms: Optional[int],
     *,
     uow: _UoWT,
-    register_auth_user: actions.RegisterAuthUser[_UoWT],
-    register_aqua_user: actions.RegisterAquaUser[_UoWT],
+    register_auth_user: gateways.RegisterAuthUser[_UoWT],
+    register_aqua_user: gateways.RegisterAquaUser[_UoWT],
 ) -> OutputDTO:
     async with uow as uow:
         dto = await register_auth_user(name, password, uow=uow)
