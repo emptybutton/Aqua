@@ -21,10 +21,7 @@ class UsersWithTodayRecords(ABC):
     async def add(self, user: entities.User) -> None: ...
 
     @abstractmethod
-    async def get_all(self) -> tuple[entities.User]: ...
-
-    @abstractmethod
-    async def remove_all(self) -> None: ...
+    async def pop_all(self) -> tuple[entities.User]: ...
 
 
 class TodayRecords(ABC):
@@ -32,10 +29,7 @@ class TodayRecords(ABC):
     async def add(self, record: entities.Record) -> None: ...
 
     @abstractmethod
-    async def remove_all(self) -> None: ...
-
-    @abstractmethod
-    async def get_all_with_user_id(
+    async def pop_all_with_user_id(
         self,
         user_id: int,
     ) -> tuple[entities.Record, ...]: ...

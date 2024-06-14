@@ -17,11 +17,16 @@ async def read_day_records(
     users: repos.Users,
     today_records: repos.TodayRecords,
     past_records: repos.PastRecords,
-) -> list[entities.Record]:
+) -> tuple[entities.Record, ...]:
     if not await users.has_with_id(user_id):
         raise NoUserError()
 
-    if date_ == datetime.now(UTC).date():
+    current_date = datetime.now(UTC).date()
+
+    if date_ == current_date:
         return await today_records.get_all_with_user_id(user_id)
+
+    if date_ > current_date:
+        return tuple()
 
     return await past_records.get_on(date_, user_id=user_id)

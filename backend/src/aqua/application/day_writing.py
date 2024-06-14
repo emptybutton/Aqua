@@ -23,26 +23,24 @@ async def write_day(  # noqa: PLR0913
     today_record_uow_for: uows.UoWFactory[_TodayRecordsT, entities.Record],
     past_day_uow_for: uows.UoWFactory[_PastDaysT, entities.Day],
 ) -> None:
-    for user in await users_with_today_records.get_all():
-        records = await today_records.get_all_with_user_id(user.id)
+    yesterday_date = datetime.now(UTC).date() - timedelta(days=1)
 
-        water_balance = entities.water_balance_from(*records)
-        yesterday_date = datetime.now(UTC).date() - timedelta(days=1)
+    user_uow = user_uow_for(users_with_today_records)
+    today_record_uow = today_record_uow_for(today_records)
+    past_day_uow = past_day_uow_for(past_days)
 
-        yesterday = entities.Day(
-            user_id=user.id,
-            target_water_balance=user.target_water_balance,
-            __real_water_balance=water_balance,
-            date_=yesterday_date,
-        )
+    async with user_uow, today_record_uow:
+        for user in await users_with_today_records.pop_all():
+            records = await today_records.pop_all_with_user_id(user.id)
+            water_balance = entities.water_balance_from(*records)
 
-        user_uow = user_uow_for(users_with_today_records)
-        today_record_uow = today_record_uow_for(today_records)
-        past_day_uow = past_day_uow_for(past_days)
+            yesterday = entities.Day(
+                user_id=user.id,
+                target_water_balance=user.target_water_balance,
+                __real_water_balance=water_balance,
+                date_=yesterday_date,
+            )
 
-        async with user_uow, today_record_uow, past_day_uow:
-            await users_with_today_records.remove_all()
-            await today_records.remove_all()
-
-            past_day_uow.register_new(yesterday)
-            await past_days.add(yesterday)
+            async with past_day_uow:
+                past_day_uow.register_new(yesterday)
+                await past_days.add(yesterday)

@@ -40,3 +40,30 @@ class RegisterAquaUser(Protocol[UoWT_contra]):
         *,
         uow: UoWT_contra,
     ) -> object: ...
+
+
+@dataclass(frozen=True)
+class AuthUserAuthenticationDTO:
+    auth_user_id: int
+
+
+class AuthenticateAuthUser:
+    @abstractmethod
+    def __call__(self, jwt: str) -> AuthUserAuthenticationDTO: ...
+
+
+@dataclass(frozen=True)
+class WaterWritingDTO:
+    record_id: int
+    drunk_water_milliliters: int
+
+
+class WriteWater(Protocol[UoWT_contra]):
+    @abstractmethod
+    async def __call__(
+        self,
+        auth_user_id: int,
+        milliliters: Optional[int],
+        *,
+        uow: UoWT_contra,
+    ) -> WaterWritingDTO: ...
