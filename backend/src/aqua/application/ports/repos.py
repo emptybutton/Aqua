@@ -16,26 +16,7 @@ class Users(ABC):
     async def has_with_id(self, user_id: int) -> bool: ...
 
 
-class UsersWithTodayRecords(ABC):
-    @abstractmethod
-    async def add(self, user: entities.User) -> None: ...
-
-    @abstractmethod
-    async def pop_all(self) -> tuple[entities.User]: ...
-
-
-class TodayRecords(ABC):
-    @abstractmethod
-    async def add(self, record: entities.Record) -> None: ...
-
-    @abstractmethod
-    async def pop_all_with_user_id(
-        self,
-        user_id: int,
-    ) -> tuple[entities.Record, ...]: ...
-
-
-class PastRecords(ABC):
+class Records(ABC):
     @abstractmethod
     async def add(self, record: entities.Record) -> None: ...
 
@@ -48,7 +29,7 @@ class PastRecords(ABC):
     ) -> tuple[entities.Record, ...]: ...
 
 
-class PastDays(ABC):
+class Days(ABC):
     @abstractmethod
     async def add(self, day: entities.Day) -> None: ...
 

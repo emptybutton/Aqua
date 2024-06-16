@@ -14,7 +14,6 @@ sqlalchemy = "^2.0.30"
 alembic = "^1.13.1"
 typenv = "^0.2.0"
 asyncpg = "^0.29.0"
-redis = "^5.0.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"

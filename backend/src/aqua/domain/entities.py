@@ -83,7 +83,7 @@ class User:
 class Day:
     user_id: int
     target_water_balance: WaterBalance
-    __real_water_balance: WaterBalance
+    __real_water_balance: WaterBalance = field(default=WaterBalance(Water(0)))
     id: int = field(default_factory=lambda: uuid4().int)
     date_: date = field(default_factory=lambda: datetime.now(UTC).date())
     __result: Optional[WaterBalanceStatus] = None

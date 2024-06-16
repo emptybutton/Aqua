@@ -3,7 +3,6 @@ from typing import Optional, Any
 
 from sqlalchemy import select, insert, exists, func
 from sqlalchemy.ext.asyncio import AsyncConnection
-from redus.asyncio import Redis
 
 from src.aqua.application.ports import repos
 from src.aqua.domain import entities, value_objects as vo
@@ -184,42 +183,3 @@ class Days(repos.PastDays):
             __real_water_balance=water_balance,
             __result=result,
         )
-
-
-class UsersWithTodayRecords(repos.UsersWithTodayRecords):
-    def __init__(self, client: Redis) -> None:
-        self.__client = client
-
-    async def add(self, user: entities.User) -> None:
-        weight = None if user.weight is None else  user.weight.kilograms
-        glass = None if user.glass is None else  user.glass.capacity.milliliters
-
-        mapping = {
-            "weight": weight,
-            "glass": glass,
-            "target_water_balance": user.target_water_balance.water.milliliters,
-        }
-
-        await self.__client.hset(user.id, mapping=mapping)
-
-    async def get_all(self) -> tuple[entities.User]: ...
-
-    async def remove_all(self) -> None: ...
-
-    # weight: Optional[Weight]
-    # glass: Optional[Glass]
-    # __target_water_balance: Optional[WaterBalance] = field(default=None)
-    # id: int = field(default_factory=lambda: uuid4().int)
-
-# class TodayRecords(ABC):
-#     @abstractmethod
-#     async def add(self, record: entities.Record) -> None: ...
-
-#     @abstractmethod
-#     async def remove_all(self) -> None: ...
-
-#     @abstractmethod
-#     async def get_all_with_user_id(
-#         self,
-#         user_id: int,
-#     ) -> tuple[entities.Record, ...]: ...
