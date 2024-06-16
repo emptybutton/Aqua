@@ -1,6 +1,9 @@
 from datetime import datetime, UTC
 from typing import Optional, Annotated
 
+from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
+from pydantic import BaseModel
+
 from src.aqua.presentation.adapters import writing as aqua_writing
 from src.auth.presentation.adapters import (
     registration as auth_registration,
@@ -9,13 +12,10 @@ from src.auth.presentation.adapters import (
 )
 from src.entrypoint.presentation import cookies
 from src.entrypoint.presentation.error_responses import (
-    default_error_with, detail_of, detail_from
+    default_error_with, detail_of, detail_from, handle_base_errors
 )
 from src.entrypoint.presentation.adapters import registration, writing
 from src.shared.infrastructure.db.engines import engine
-
-from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
-from pydantic import BaseModel
 
 
 router = APIRouter(prefix="/api/0.1v")
@@ -36,6 +36,7 @@ class UserRegistrationResponseModel(BaseModel):
 
 
 @router.post("/user/register", tags=["access"])
+@handle_base_errors
 async def register_user(
     request_model: UserRegistrationRequestModel,
     response: Response,
@@ -77,6 +78,7 @@ class AuthorizationResponseModel(BaseModel):
 
 
 @router.post("/user/authorize", tags=["access"])
+@handle_base_errors
 async def authorize_user(
     request: AuthorizationRequestModel,
     response: Response
@@ -118,6 +120,7 @@ class AccessTokenRefreshingResponseModel(BaseModel):
 
 
 @router.post("/user/access-token", tags=["access"])
+@handle_base_errors
 async def refresh_access_token(
     refresh_token: Annotated[str, Cookie()],
     refresh_token_expiration_timestamp: Annotated[float, Cookie()],
@@ -164,6 +167,7 @@ class RecordCreationResponseModel(BaseModel):
 
 
 @router.post("/user/records", tags=["records"])
+@handle_base_errors
 async def create_record(
     request: RecordCreationRequestModel,
     jwt: Annotated[str, Header()],

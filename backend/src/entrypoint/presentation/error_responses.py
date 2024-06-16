@@ -1,5 +1,5 @@
-from functools import reduce
-from typing import TypeAlias, TypedDict
+from functools import reduce, wraps
+from typing import TypeAlias, TypedDict, Callable, ParamSpec, TypeVar, Awaitable
 from operator import add
 
 from fastapi import HTTPException, status
@@ -77,3 +77,20 @@ def for_api(error: Exception) -> Exception:
         return default_error
 
     return error
+
+
+_Pm = ParamSpec("_Pm")
+_R = TypeVar("_R")
+
+
+def handle_base_errors(
+    action: Callable[_Pm, Awaitable[_R]],
+) -> Callable[_Pm, Awaitable[_R]]:
+    @wraps(action)
+    async def decorated_action(*args: _Pm.args, **kwargs: _Pm.kwargs) -> _R:
+        try:
+            return await action(*args, **kwargs)
+        except Exception as error:
+            raise for_api(error) from error
+
+    return decorated_action
