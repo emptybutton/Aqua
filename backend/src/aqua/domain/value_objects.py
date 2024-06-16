@@ -9,7 +9,7 @@ class Water:
     milliliters: int
 
     def __post_init__(self) -> None:
-        if self.milliliters <= 0:
+        if self.milliliters < 0:
             raise errors.IncorrectWaterAmount()
 
     def __add__(self, water: "Water") -> "Water":
@@ -31,7 +31,7 @@ class Weight:
     kilograms: int
 
     def __post_init__(self) -> None:
-        if self.kilograms <= 0:
+        if self.kilograms < 0:
             raise errors.IncorrectWeightAmount()
 
 
