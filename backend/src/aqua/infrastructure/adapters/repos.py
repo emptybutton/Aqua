@@ -68,13 +68,13 @@ class Users(repos.Users):
         )
 
     async def has_with_id(self, user_id: int) -> bool:
-        query = select(exists().where(tables.AquaUser.id == user_id))
+        query = select(exists(1).where(tables.AquaUser.id == user_id))
 
-        result: bool = self.__connection.scalar(query)
-        return result
+        result = await self.__connection.scalar(query)
+        return bool(result)
 
 
-class PastRecords(repos.PastRecords):
+class Records(repos.Records):
     def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
@@ -101,8 +101,8 @@ class PastRecords(repos.PastRecords):
                 tables.Record.recording_time,
             )
             .where(
-                tables.Record.user_id == user_id
-                & func.date(tables.Record.recording_time) == date_
+                (tables.Record.user_id == user_id)
+                & (func.date(tables.Record.recording_time) == date_)
             )
         )
 
@@ -123,7 +123,7 @@ class PastRecords(repos.PastRecords):
         )
 
 
-class Days(repos.PastDays):
+class Days(repos.Days):
     def __init__(self, connection: AsyncConnection) -> None:
         self.__connection = connection
 
@@ -151,8 +151,8 @@ class Days(repos.PastDays):
                 tables.Day.target_water_balance,
                 tables.Day.date_,
             ).where(
-                tables.Day.date_ == date_
-                & tables.Day.user_id == user_id
+                (tables.Day.date_ == date_)
+                & (tables.Day.user_id == user_id)
             )
             .limit(1)
         )
