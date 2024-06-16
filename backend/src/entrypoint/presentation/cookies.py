@@ -1,5 +1,4 @@
 from datetime import datetime, UTC
-from typing import Optional
 
 from fastapi import Response
 
@@ -24,14 +23,3 @@ def set_refresh_token(
         httponly=True,
         expires=expiration_timedelta.seconds,
     )
-
-
-def refresh_token_expiration_date_from(
-    timestamp_line: str,
-) -> Optional[datetime]:
-    try:
-        timestamp = float(timestamp_line)
-    except ValueError:
-        return None
-
-    return datetime.fromtimestamp(timestamp, UTC)

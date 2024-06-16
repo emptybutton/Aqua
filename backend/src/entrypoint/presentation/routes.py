@@ -1,5 +1,3 @@
-from datetime import datetime
-from typing import Optional
 from datetime import datetime, UTC
 from typing import Optional, Annotated
 
@@ -24,7 +22,7 @@ router = APIRouter(prefix="/api/0.1v")
 
 
 class UserRegistrationRequestModel(BaseModel):
-    name: str
+    username: str
     password: str
     water_balance_milliliters: Optional[int] = None
     glass_milliliters: Optional[int] = None
@@ -44,7 +42,7 @@ async def register_user(
 ) -> UserRegistrationResponseModel:
     try:
         result = await registration.register_user(
-            request_model.name,
+            request_model.username,
             request_model.password,
             request_model.water_balance_milliliters,
             request_model.glass_milliliters,
@@ -115,25 +113,32 @@ async def authorize_user(
     )
 
 
-class AccessTokenRefreshingRequestModel(BaseModel):
-    refresh_token: str
-    refresh_token_expiration_date: datetime
-    jwt: str
-
-
 class AccessTokenRefreshingResponseModel(BaseModel):
     jwt: str
 
 
-@router.post("/refresh-access-token", tags=["access"])
+@router.post("/user/access-token", tags=["access"])
 async def refresh_access_token(
-    request: AccessTokenRefreshingRequestModel,
+    refresh_token: Annotated[str, Cookie()],
+    refresh_token_expiration_timestamp: Annotated[float, Cookie()],
+    jwt: Annotated[str, Header()],
 ) -> AccessTokenRefreshingResponseModel:
+    expiration_date = datetime.fromtimestamp(
+        refresh_token_expiration_timestamp,
+        UTC,
+    )
+
+    if expiration_date is None:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail=detail_from(type_="InvalidRefreshTokenExpirationTimestamp"),
+        )
+
     try:
         result = access_extension.extend_access(
-            request.jwt,
-            request.refresh_token,
-            request.refresh_token_expiration_date
+            jwt,
+            refresh_token,
+            expiration_date,
         )
     except access_extension.InvalidJWTError as error:
         raise HTTPException(
