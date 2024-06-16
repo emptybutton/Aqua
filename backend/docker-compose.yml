@@ -24,13 +24,6 @@ services:
       POSTGRES_PASSWORD: aqua
     restart: unless-stopped
 
-  redis:
-    image: redis:alpine
-    container_name: aqua-redis
-    network_mode: host
-    restart: unless-stopped
-    command: ["redis-server", "--requirepass", "aqua"]
-
   nginx:
     image: nginx:alpine
     container_name: aqua-nginx
