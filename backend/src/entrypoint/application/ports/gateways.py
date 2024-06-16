@@ -2,13 +2,14 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol, Optional, TypeVar
+from uuid import UUID
 
 from src.shared.application.ports.uows import UoW
 
 
 @dataclass(frozen=True)
 class AuthUserRegistrationDTO:
-    user_id: int
+    user_id: UUID
     username: str
     access_token: str
     refresh_token: str
@@ -33,7 +34,7 @@ class RegisterAquaUser(Protocol[UoWT_contra]):
     @abstractmethod
     async def __call__(  # noqa: PLR0913
         self,
-        auth_user_id: int,
+        auth_user_id: UUID,
         water_balance_milliliters: Optional[int],
         glass_milliliters: Optional[int],
         weight_kilograms: Optional[int],
@@ -44,7 +45,7 @@ class RegisterAquaUser(Protocol[UoWT_contra]):
 
 @dataclass(frozen=True)
 class AuthUserAuthenticationDTO:
-    auth_user_id: int
+    auth_user_id: UUID
 
 
 class AuthenticateAuthUser:
@@ -54,7 +55,7 @@ class AuthenticateAuthUser:
 
 @dataclass(frozen=True)
 class WaterWritingDTO:
-    record_id: int
+    record_id: UUID
     drunk_water_milliliters: int
 
 
@@ -62,7 +63,7 @@ class WriteWater(Protocol[UoWT_contra]):
     @abstractmethod
     async def __call__(
         self,
-        auth_user_id: int,
+        auth_user_id: UUID,
         milliliters: Optional[int],
         *,
         uow: UoWT_contra,

@@ -1,3 +1,4 @@
+from uuid import UUID
 from dataclasses import dataclass
 from datetime import date
 
@@ -7,7 +8,7 @@ from src.aqua.application.ports import repos
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    user_id: int
+    user_id: UUID
     target_water_balance: int
     real_water_balance: int
     result_code: int
@@ -20,7 +21,7 @@ class NoUserError(BaseError): ...
 
 
 async def read_day(
-    user_id: int,
+    user_id: UUID,
     date_: date,
     *,
     users: repos.Users,

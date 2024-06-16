@@ -1,4 +1,5 @@
 from typing import Optional, TypeVar
+from uuid import UUID
 
 from src.aqua.domain import entities, value_objects
 from src.aqua.application.ports import repos
@@ -9,7 +10,7 @@ _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
 async def register_user(  # noqa: PLR0913
-    user_id: int,
+    user_id: UUID,
     water_balance_milliliters: Optional[int],
     glass_milliliters: Optional[int],
     weight_kilograms: Optional[int],

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from src.auth.domain import value_objects
 from src.auth.application.ports import serializers
@@ -6,7 +7,7 @@ from src.auth.application.ports import serializers
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    user_id: int
+    user_id: UUID
     username: str
 
 

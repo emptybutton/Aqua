@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -10,14 +11,14 @@ from src.shared.infrastructure.adapters import uows
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    id: int
+    id: UUID
     water_balance_milliliters: int
     glass_milliliters: Optional[int]
     weight_kilograms: Optional[int]
 
 
 async def register_user(
-    user_id: int,
+    user_id: UUID,
     water_balance_milliliters: Optional[int],
     glass_milliliters: Optional[int],
     weight_kilograms: Optional[int],

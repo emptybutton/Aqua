@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase
@@ -9,7 +10,7 @@ from sqlalchemy.orm import relationship
 
 
 class Base(DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
     def __repr__(self) -> str:
         return f"db.{type(self).__name__}(id={self.id!r})"
@@ -28,7 +29,7 @@ class AuthUser(Base):
 class AquaUser(Base):
     __tablename__ = "aqua_users"
 
-    id: Mapped[int] = mapped_column(
+    id: Mapped[UUID] = mapped_column(
         ForeignKey("auth_users.id"),
         primary_key=True,
     )
@@ -43,14 +44,14 @@ class Record(Base):
 
     drunk_water: Mapped[int]
     recording_time: Mapped[datetime]
-    user_id: Mapped[int] = mapped_column(ForeignKey("aqua_users.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
     user: Mapped["AquaUser"] = relationship(back_populates="records")
 
 
 class Day(Base):
     __tablename__ = "days"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("aqua_users.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
     real_water_balance: Mapped[int]
     target_water_balance: Mapped[int]
     date_: Mapped[date]

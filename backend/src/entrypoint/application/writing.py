@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import TypeVar, Optional
+from uuid import UUID
 
 from src.entrypoint.application.ports import gateways
 from src.shared.application.ports.uows import UoW
@@ -10,8 +11,8 @@ _UoWT = TypeVar("_UoWT", bound=UoW[object])
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    user_id: int
-    record_id: int
+    user_id: UUID
+    record_id: UUID
     drunk_water_milliliters: int
 
 

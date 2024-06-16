@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional, Any
+from uuid import UUID
 
 from sqlalchemy import select, insert, exists, func
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -33,7 +34,7 @@ class Users(repos.Users):
 
         await self.__connection.execute(stmt)
 
-    async def get_by_id(self, user_id: int) -> Optional[entities.User]:
+    async def get_by_id(self, user_id: UUID) -> Optional[entities.User]:
         query = (
             select(
                 tables.AquaUser.id,
@@ -67,7 +68,7 @@ class Users(repos.Users):
             id=raw_user.id,
         )
 
-    async def has_with_id(self, user_id: int) -> bool:
+    async def has_with_id(self, user_id: UUID) -> bool:
         query = select(exists(1).where(tables.AquaUser.id == user_id))
 
         result = await self.__connection.scalar(query)
@@ -92,7 +93,7 @@ class Records(repos.Records):
         self,
         date_: date,
         *,
-        user_id: int,
+        user_id: UUID,
     ) -> tuple[entities.Record, ...]:
         query = (
             select(
@@ -113,7 +114,7 @@ class Records(repos.Records):
     def __record_of(
         self,
         record_data: Any,  # noqa: ANN401
-        user_id: int,
+        user_id: UUID,
     ) -> entities.Record:
         return entities.Record(
             id=record_data.id,
@@ -143,7 +144,7 @@ class Days(repos.Days):
         self,
         date_: date,
         *,
-        user_id: int,
+        user_id: UUID,
     ) -> Optional[entities.Day]:
         query = (
             select(
@@ -168,7 +169,7 @@ class Days(repos.Days):
     def __day_of(
         self,
         raw_data: Any,  # noqa: ANN401
-        user_id: int,
+        user_id: UUID,
         date_: date,
     ) -> entities.Day:
         target = vo.WaterBalance(vo.Water(raw_data.target_water_balance))

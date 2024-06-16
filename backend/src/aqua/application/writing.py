@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from typing import Optional, TypeVar
+from uuid import UUID
 
 from src.aqua.domain import entities, value_objects
 from src.aqua.application.ports import repos
@@ -17,7 +18,7 @@ _DaysT = TypeVar("_DaysT", bound=repos.Days)
 
 
 async def write_water(  # noqa: PLR0913
-    user_id: int,
+    user_id: UUID,
     milliliters: Optional[int],
     *,
     users: repos.Users,

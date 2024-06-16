@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from src.auth.domain.value_objects import Username, PasswordHash
 
@@ -8,4 +8,4 @@ from src.auth.domain.value_objects import Username, PasswordHash
 class User:
     name: Username
     password_hash: PasswordHash
-    id: int = field(default_factory=lambda: uuid4().int)
+    id: UUID = field(default_factory=uuid4)

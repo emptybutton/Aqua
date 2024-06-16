@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from secrets import token_hex
 from typing import TypeAlias
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -19,7 +20,7 @@ IncorrectPasswordError: TypeAlias = authorization.IncorrectPasswordError
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    user_id: int
+    user_id: UUID
     username: str
     refresh_token: str
     refresh_token_expiration_date: datetime

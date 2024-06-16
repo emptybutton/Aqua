@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
 from typing import Optional, TypeAlias
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -17,14 +18,14 @@ NoUserError: TypeAlias = writing.NoUserError
 
 @dataclass(frozen=True, kw_only=True)
 class OutputDTO:
-    user_id: int
-    record_id: int
+    user_id: UUID
+    record_id: UUID
     drunk_water_milliliters: int
     recording_time: datetime
 
 
 async def write_water(
-    user_id: int,
+    user_id: UUID,
     milliliters: Optional[int],
     *,
     connection: AsyncConnection,

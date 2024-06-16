@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -38,7 +39,7 @@ async def register_auth_user(  # type: ignore[no-redef]
 
 
 async def register_aqua_user(  # noqa: PLR0913
-    auth_user_id: int,
+    auth_user_id: UUID,
     water_balance_milliliters: Optional[int],
     glass_milliliters: Optional[int],
     weight_kilograms: Optional[int],
@@ -56,7 +57,7 @@ async def register_aqua_user(  # noqa: PLR0913
 
 
 async def write_water(
-    auth_user_id: int,
+    auth_user_id: UUID,
     milliliters: Optional[int],
     *,
     uow: object,  # noqa: ARG001

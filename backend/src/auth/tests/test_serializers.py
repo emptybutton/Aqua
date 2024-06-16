@@ -1,4 +1,5 @@
 from datetime import datetime, UTC
+from uuid import uuid4
 
 from src.auth.domain.value_objects import Password, AccessToken, Username
 from src.auth.infrastructure.adapters import serializers
@@ -27,7 +28,7 @@ def test_access_token_serializer() -> None:
     serializer = serializers.AccessTokenSerializer("megasecret")
 
     access_token = AccessToken(
-        42,
+        uuid4(),
         Username("Igor"),
         datetime.fromtimestamp(0, UTC),
     )

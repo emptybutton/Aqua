@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 
 from src.aqua.domain import entities
 from src.aqua.application.ports import repos
@@ -11,7 +12,7 @@ class NoUserError(BaseError): ...
 
 
 async def read_day_records(
-    user_id: int,
+    user_id: UUID,
     date_: date,
     *,
     users: repos.Users,

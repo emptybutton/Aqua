@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, exists
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.auth.application.ports import repos
@@ -31,6 +31,7 @@ class Users(repos.Users):
                 tables.AuthUser.password_hash,
             )
             .where(tables.AuthUser.name == username.text)
+            .limit(1)
         )
         results = await self.__connection.execute(query)
         row_user = results.first()
@@ -45,11 +46,6 @@ class Users(repos.Users):
         )
 
     async def has_with_name(self, username: value_objects.Username) -> bool:
-        query = (
-            select(tables.AuthUser)
-            .where(tables.AuthUser.name == username.text)
-            .exists()
-        )
+        query = select(exists(1).where(tables.AuthUser.name == username.text))
 
-        result: bool = await self.__connection.execute(query).scalar()  # type: ignore[call-overload]
-        return result
+        return bool(await self.__connection.scalar(query))

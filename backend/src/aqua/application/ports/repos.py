@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import date
+from uuid import UUID
 from typing import Optional
 
 from src.aqua.domain import entities
@@ -10,10 +11,10 @@ class Users(ABC):
     async def add(self, user: entities.User) -> None: ...
 
     @abstractmethod
-    async def get_by_id(self, user_id: int) -> Optional[entities.User]: ...
+    async def get_by_id(self, user_id: UUID) -> Optional[entities.User]: ...
 
     @abstractmethod
-    async def has_with_id(self, user_id: int) -> bool: ...
+    async def has_with_id(self, user_id: UUID) -> bool: ...
 
 
 class Records(ABC):
@@ -25,7 +26,7 @@ class Records(ABC):
         self,
         date_: date,
         *,
-        user_id: int,
+        user_id: UUID,
     ) -> tuple[entities.Record, ...]: ...
 
 
@@ -38,5 +39,5 @@ class Days(ABC):
         self,
         date_: date,
         *,
-        user_id: int,
+        user_id: UUID,
     ) -> Optional[entities.Day]: ...

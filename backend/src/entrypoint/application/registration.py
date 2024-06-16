@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TypeVar, Optional
+from uuid import UUID
 
 from src.entrypoint.application.ports import gateways
 from src.shared.application.ports.uows import UoW
@@ -11,7 +12,7 @@ _UoWT = TypeVar("_UoWT", bound=UoW[object])
 
 @dataclass(frozen=True)
 class OutputDTO:
-    user_id: int
+    user_id: UUID
     username: str
     access_token: str
     refresh_token: str

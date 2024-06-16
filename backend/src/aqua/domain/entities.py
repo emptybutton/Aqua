@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, UTC, date
 from functools import reduce
 from typing import Optional
-from uuid import uuid4
+from uuid import UUID, uuid4
 from operator import add
 
 from src.aqua.domain.value_objects import (
@@ -14,11 +14,11 @@ from src.aqua.domain import errors
 @dataclass
 class Record:
     drunk_water: Water
-    user_id: int
+    user_id: UUID
     __recording_time: datetime = field(
         default_factory=lambda: datetime.now(UTC)
     )
-    id: int = field(default_factory=lambda: uuid4().int)
+    id: UUID = field(default_factory=uuid4)
 
     @property
     def recording_time(self) -> datetime:
@@ -49,7 +49,7 @@ class User:
     weight: Optional[Weight]
     glass: Optional[Glass]
     __target_water_balance: Optional[WaterBalance] = field(default=None)
-    id: int = field(default_factory=lambda: uuid4().int)
+    id: UUID = field(default_factory=uuid4)
 
     @property
     def target_water_balance(self) -> WaterBalance:
@@ -81,10 +81,10 @@ class User:
 
 @dataclass
 class Day:
-    user_id: int
+    user_id: UUID
     target_water_balance: WaterBalance
     __real_water_balance: WaterBalance = field(default=WaterBalance(Water(0)))
-    id: int = field(default_factory=lambda: uuid4().int)
+    id: UUID = field(default_factory=uuid4)
     date_: date = field(default_factory=lambda: datetime.now(UTC).date())
     __result: Optional[WaterBalanceStatus] = None
 

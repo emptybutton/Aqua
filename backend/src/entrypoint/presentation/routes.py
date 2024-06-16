@@ -30,7 +30,6 @@ class UserRegistrationRequestModel(BaseModel):
 
 
 class UserRegistrationResponseModel(BaseModel):
-    user_id: int
     username: str
     jwt: str
 
@@ -60,7 +59,6 @@ async def register_user(
     )
 
     return UserRegistrationResponseModel(
-        user_id=result.user_id,
         username=result.username,
         jwt=result.access_token,
     )
@@ -72,7 +70,6 @@ class AuthorizationRequestModel(BaseModel):
 
 
 class AuthorizationResponseModel(BaseModel):
-    user_id: int
     username: str
     jwt: str
 
@@ -109,7 +106,6 @@ async def authorize_user(
     )
 
     return AuthorizationResponseModel(
-        user_id=result.user_id,
         username=result.username,
         jwt=result.jwt,
     )
@@ -185,6 +181,6 @@ async def create_record(
         ) from error
 
     return RecordCreationResponseModel(
-        record_id=result.record_id,
+        record_id=int(result.record_id),
         drunk_water_milliliters=result.drunk_water_milliliters,
     )
