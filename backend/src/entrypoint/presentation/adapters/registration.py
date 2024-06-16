@@ -20,25 +20,24 @@ async def register_user(  # noqa: PLR0913
     *,
     engine: AsyncEngine,
 ) -> OutputDTO:
-    connection = engine.connect()
+    async with engine.connect() as connection:
+        register_auth_user = partial(
+            gateways.register_auth_user,
+            connection=connection,
+        )
 
-    register_auth_user = partial(
-        gateways.register_auth_user,
-        connection=connection,
-    )
+        register_aqua_user = partial(
+            gateways.register_auth_user,
+            connection=connection,
+        )
 
-    register_aqua_user = partial(
-        gateways.register_auth_user,
-        connection=connection,
-    )
-
-    return await registration.register_user(
-        name,
-        password,
-        water_balance_milliliters,
-        glass_milliliters,
-        weight_kilograms,
-        uow=uows.TransactionalUoW(connection, closes=True),
-        register_auth_user=register_auth_user,
-        register_aqua_user=register_aqua_user,
-    )
+        return await registration.register_user(
+            name,
+            password,
+            water_balance_milliliters,
+            glass_milliliters,
+            weight_kilograms,
+            uow=uows.TransactionalUoW(connection),
+            register_auth_user=register_auth_user,
+            register_aqua_user=register_aqua_user,
+        )

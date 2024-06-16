@@ -28,15 +28,8 @@ class FakeUoW(uows.UoW[_ValueT]):
 class TransactionalUoW(FakeUoW[object]):
     __is_nested: bool
 
-    def __init__(
-        self,
-        connetion: AsyncConnection,
-        *,
-        closes: bool = True,
-    ) -> None:
+    def __init__(self, connetion: AsyncConnection,) -> None:
         self.__connetion = connetion
-        self.__closes = closes
-
         self.__is_nested = self.__connetion.in_transaction()
 
     async def __aenter__(self) -> "TransactionalUoW":
@@ -64,10 +57,5 @@ class TransactionalUoW(FakeUoW[object]):
             await self.__connetion.commit()
         else:
             await self.__connetion.rollback()
-
-        if self.__closes:
-            await self.__connetion.close()
-
-        self.__transaction = None
 
         return error is None

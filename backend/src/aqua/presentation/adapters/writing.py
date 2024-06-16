@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from functools import partial
 from typing import Optional, TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -28,10 +29,7 @@ async def write_water(
     *,
     connection: AsyncConnection,
 ) -> OutputDTO:
-    record_uow_for = lambda _: shared_uows.TransactionalUoW(  # noqa: E731
-        connection,
-        closes=False,
-    )
+    record_uow_for = partial(shared_uows.TransactionalUoW, connection)
 
     record = await writing.write_water(
         user_id,
