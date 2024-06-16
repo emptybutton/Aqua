@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, UTC
 from functools import cached_property
-from typing import Optional
 from string import digits
 
 from src.auth.domain import errors
@@ -70,7 +69,7 @@ class RefreshToken:
 
 @dataclass(frozen=True)
 class AccessToken:
-    user_id: Optional[int]
+    user_id: int
     username: Username
     expiration_date: datetime = field(
         default_factory=lambda: (datetime.now(UTC) + timedelta(minutes=15))

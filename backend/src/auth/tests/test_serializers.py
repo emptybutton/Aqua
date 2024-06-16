@@ -27,7 +27,7 @@ def test_access_token_serializer() -> None:
     serializer = serializers.AccessTokenSerializer("megasecret")
 
     access_token = AccessToken(
-        None,
+        42,
         Username("Igor"),
         datetime.fromtimestamp(0, UTC),
     )

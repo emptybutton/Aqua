@@ -2,8 +2,14 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.auth.presentation.adapters import registration as auth_registration
-from src.aqua.presentation.adapters import registration as aqua_registration
+from src.auth.presentation.adapters import (
+    registration as auth_registration,
+    authentication,
+)
+from src.aqua.presentation.adapters import (
+    registration as aqua_registration,
+    writing,
+)
 from src.entrypoint.application.ports import gateways
 from src.shared.application.ports.uows import UoW
 
@@ -46,4 +52,32 @@ async def register_aqua_user(  # noqa: PLR0913
         glass_milliliters,
         weight_kilograms,
         connection=connection,
+    )
+
+
+async def write_water(
+    auth_user_id: int,
+    milliliters: Optional[int],
+    *,
+    uow: object,  # noqa: ARG001
+    connection: AsyncConnection,
+) -> gateways.WaterWritingDTO:
+    result = await writing.write_water(
+        auth_user_id,
+        milliliters,
+        connection=connection,
+    )
+
+    return gateways.WaterWritingDTO(
+        record_id=result.record_id,
+        drunk_water_milliliters=result.drunk_water_milliliters,
+    )
+
+
+authenticate_auth_user: gateways.AuthenticateAuthUser
+def authenticate_auth_user(jwt: str) -> gateways.AuthUserAuthenticationDTO:  # type: ignore[no-redef]
+    result = authentication.authenticate_user(jwt)
+
+    return gateways.AuthUserAuthenticationDTO(
+        auth_user_id=result.user_id
     )

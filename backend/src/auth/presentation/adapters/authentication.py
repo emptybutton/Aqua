@@ -5,6 +5,8 @@ from src.auth.infrastructure.adapters import serializers
 from src.auth.presentation import secrets
 
 
+OutputDTO: TypeAlias = authentication.OutputDTO
+
 BaseError: TypeAlias = authentication.BaseError
 
 InvalidJWTError: TypeAlias = authentication.NoAccessTokenError
@@ -12,10 +14,10 @@ InvalidJWTError: TypeAlias = authentication.NoAccessTokenError
 ExpiredAccessTokenError: TypeAlias = authentication.ExpiredAccessTokenError
 
 
-def authenticate_user(jwt: str) -> None:
+def authenticate_user(jwt: str) -> OutputDTO:
     serializer = serializers.AccessTokenSerializer(secrets.jwt_secret)
 
-    authentication.authenticate_user(
+    return authentication.authenticate_user(
         jwt,
         access_token_serializer=serializer,
     )

@@ -1,19 +1,22 @@
 from datetime import datetime
 from typing import Optional
+from datetime import datetime, UTC
+from typing import Optional, Annotated
 
-from src.entrypoint.presentation import cookies
-from src.entrypoint.presentation.error_responses import (
-    default_error_with, detail_of
-)
-from src.entrypoint.presentation.adapters import registration
+from src.aqua.presentation.adapters import writing as aqua_writing
 from src.auth.presentation.adapters import (
     registration as auth_registration,
     authorization,
     access_extension,
 )
+from src.entrypoint.presentation import cookies
+from src.entrypoint.presentation.error_responses import (
+    default_error_with, detail_of, detail_from
+)
+from src.entrypoint.presentation.adapters import registration, writing
 from src.shared.infrastructure.db.engines import engine
 
-from fastapi import APIRouter, Response, HTTPException, status
+from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
 from pydantic import BaseModel
 
 
@@ -144,3 +147,35 @@ async def refresh_access_token(
         ) from error
 
     return AccessTokenRefreshingResponseModel(jwt=result.jwt)
+
+
+class RecordCreationRequestModel(BaseModel):
+    milliliters: Optional[int] = None
+
+
+class RecordCreationResponseModel(BaseModel):
+    record_id: int
+    drunk_water_milliliters: int
+
+
+@router.post("/user/records", tags=["records"])
+async def create_record(
+    request: RecordCreationRequestModel,
+    jwt: Annotated[str, Header()],
+) -> RecordCreationResponseModel:
+    try:
+        result = await writing.write_water(
+            jwt,
+            request.milliliters,
+            engine=engine,
+        )
+    except aqua_writing.NoUserError as error:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=detail_of(error),
+        ) from error
+
+    return RecordCreationResponseModel(
+        record_id=result.record_id,
+        drunk_water_milliliters=result.drunk_water_milliliters,
+    )

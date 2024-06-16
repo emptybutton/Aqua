@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 
 from src.aqua.presentation import errors as aqua_errors
 from src.auth.presentation import errors as auth_errors
+from src.auth.presentation.adapters import authentication
 
 
 class _DetailBody(TypedDict):
@@ -16,7 +17,7 @@ class _DetailBody(TypedDict):
 Detail: TypeAlias = list[_DetailBody]
 
 
-def detail_from(type_: str, message: str) -> Detail:
+def detail_from(type_: str, message: str = str()) -> Detail:  # noqa: UP018
     return [
         {
             "msg": message,
@@ -58,6 +59,15 @@ def for_api(error: Exception) -> Exception:
         return HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail=detail_of(error, message=message),
+        )
+
+    if isinstance(
+        error,
+        authentication.InvalidJWTError | authentication.ExpiredAccessTokenError
+    ):
+        return HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail=default_detail,
         )
 
     if isinstance(
