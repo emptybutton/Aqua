@@ -32,7 +32,7 @@ class UserRegistrationRequestModel(BaseModel):
 class UserRegistrationResponseModel(BaseModel):
     user_id: int
     username: str
-    access_token: str
+    jwt: str
 
 
 @router.post("/user/register", tags=["access"])
@@ -61,7 +61,7 @@ async def register_user(
     return UserRegistrationResponseModel(
         user_id=result.user_id,
         username=result.username,
-        access_token=result.access_token,
+        jwt=result.access_token,
     )
 
 
