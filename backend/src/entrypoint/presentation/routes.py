@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from typing import Optional, Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
 from pydantic import BaseModel
@@ -158,7 +159,7 @@ class RecordCreationRequestModel(BaseModel):
 
 
 class RecordCreationResponseModel(BaseModel):
-    record_id: int
+    record_id: UUID
     drunk_water_milliliters: int
 
 
@@ -181,6 +182,6 @@ async def create_record(
         ) from error
 
     return RecordCreationResponseModel(
-        record_id=int(result.record_id),
+        record_id=result.record_id,
         drunk_water_milliliters=result.drunk_water_milliliters,
     )
