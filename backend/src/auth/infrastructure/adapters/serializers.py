@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from typing import TypeAlias, Optional
+from uuid import UUID
 import hashlib
 
 import jwt
@@ -24,7 +25,7 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
 
     def serialized(self, access_token: AccessToken) -> JWT:
         payload = {
-            "user-id": access_token.user_id,
+            "user-id": int(access_token.user_id),
             "username": access_token.username.text,
         }
 
@@ -60,8 +61,13 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
             return None
 
         try:
+            user_id = UUID(int=decoded_jwt["payload"]["user-id"])
+        except ValueError:
+            return None
+
+        try:
             return AccessToken(
-                decoded_jwt["payload"]["user-id"],
+                user_id,
                 Username(decoded_jwt["payload"]["username"]),
                 expiration_date,
             )
