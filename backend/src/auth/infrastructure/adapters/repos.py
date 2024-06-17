@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import select, insert, exists
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.application.ports import repos
 from src.auth.domain import entities, value_objects
@@ -9,8 +9,8 @@ from src.shared.infrastructure.db import tables
 
 
 class Users(repos.Users):
-    def __init__(self, connection: AsyncConnection) -> None:
-        self.__connection = connection
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
 
     async def add(self, user: entities.User) -> None:
         stmt = insert(tables.AuthUser).values(
@@ -19,7 +19,7 @@ class Users(repos.Users):
             password_hash=user.password_hash.text,
         )
 
-        await self.__connection.execute(stmt)
+        await self.__session.execute(stmt)
 
     async def get_by_name(
         self, username: value_objects.Username
@@ -33,7 +33,7 @@ class Users(repos.Users):
             .where(tables.AuthUser.name == username.text)
             .limit(1)
         )
-        results = await self.__connection.execute(query)
+        results = await self.__session.execute(query)
         row_user = results.first()
 
         if row_user is None:
@@ -48,4 +48,4 @@ class Users(repos.Users):
     async def has_with_name(self, username: value_objects.Username) -> bool:
         query = select(exists(1).where(tables.AuthUser.name == username.text))
 
-        return bool(await self.__connection.scalar(query))
+        return bool(await self.__session.scalar(query))

@@ -14,4 +14,4 @@ db_url = URL.create(
 )
 
 _echo = env.bool("POSTGRES_ECHO", default=False)
-engine = create_async_engine(db_url, echo=_echo)
+postgres_engine = create_async_engine(db_url, echo=_echo)

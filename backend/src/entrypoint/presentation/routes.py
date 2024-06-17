@@ -16,7 +16,7 @@ from src.entrypoint.presentation.error_responses import (
     default_error_with, detail_of, detail_from, handle_base_errors
 )
 from src.entrypoint.presentation.adapters import registration, writing
-from src.shared.infrastructure.db.engines import engine
+from src.shared.infrastructure.db.sessions import postgres_session_factory
 
 
 router = APIRouter(prefix="/api/0.1v")
@@ -48,7 +48,6 @@ async def register_user(
             request_model.water_balance_milliliters,
             request_model.glass_milliliters,
             request_model.weight_kilograms,
-            engine=engine,
         )
     except auth_registration.UserIsAlreadyRegisteredError as error:
         raise default_error_with(detail_of(error)) from error
@@ -81,12 +80,12 @@ async def authorize_user(
     request: AuthorizationRequestModel,
     response: Response
 ) -> AuthorizationResponseModel:
-    async with engine.connect() as connection:
+    async with postgres_session_factory() as session:
         try:
             result = await authorization.authorize_user(
                 request.username,
                 request.password,
-                connection=connection,
+                session=session,
             )
         except authorization.NoUserError as error:
             message = "there is no user with this name"
@@ -173,7 +172,6 @@ async def create_record(
         result = await writing.write_water(
             jwt,
             request.milliliters,
-            engine=engine,
         )
     except aqua_writing.NoUserError as error:
         raise HTTPException(

@@ -1,7 +1,7 @@
-from typing import Optional, Type, TypeVar
+from typing import Optional, Type, TypeVar, Self
 from types import TracebackType
 
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.shared.application.ports import uows
 
@@ -25,20 +25,16 @@ class FakeUoW(uows.UoW[_ValueT]):
         ...
 
 
-class TransactionalUoW(FakeUoW[object]):
-    __is_nested: bool
+class DBUoW(FakeUoW[_ValueT]):
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
 
-    def __init__(self, connetion: AsyncConnection,) -> None:
-        self.__connetion = connetion
-        self.__is_nested = self.__connetion.in_transaction()
+    @property
+    def session(self) -> AsyncSession:
+        return self.__session
 
-    async def __aenter__(self) -> "TransactionalUoW":
-        assert not self.__connetion.closed
-
-        if self.__connetion.in_transaction():
-            return self
-
-        await self.__connetion.begin()
+    async def __aenter__(self) -> Self:
+        await self.__session.begin_nested()
 
         return self
 
@@ -48,14 +44,13 @@ class TransactionalUoW(FakeUoW[object]):
         error: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> bool:
-        assert not self.__connetion.closed
-
-        if self.__is_nested:
-            return error is None
-
         if error is None:
-            await self.__connetion.commit()
+            await self._finish_work()
+            await self.__session.commit()
         else:
-            await self.__connetion.rollback()
+            await self.__session.rollback()
 
         return error is None
+
+    async def _finish_work(self) -> None:
+        ...

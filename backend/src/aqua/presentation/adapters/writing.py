@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
-from functools import partial
 from typing import Optional, TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.aqua.application import writing
 from src.aqua.infrastructure.adapters import repos, uows
@@ -28,18 +27,16 @@ async def write_water(
     user_id: UUID,
     milliliters: Optional[int],
     *,
-    connection: AsyncConnection,
+    session: AsyncSession,
 ) -> OutputDTO:
-    record_uow_for = partial(shared_uows.TransactionalUoW, connection)
-
     record = await writing.write_water(
         user_id,
         milliliters,
-        users=repos.Users(connection),
-        records=repos.Records(connection),
-        days=repos.Days(connection),
-        record_uow_for=record_uow_for,  # type: ignore[arg-type]
-        day_uow_for=lambda _: uows.DirtyDayUoW(connection),
+        users=repos.Users(session),
+        records=repos.Records(session),
+        days=repos.Days(session),
+        record_uow_for=lambda _: shared_uows.DBUoW(session),
+        day_uow_for=lambda _: uows.DirtyDayUoW(session),
     )
 
     return OutputDTO(

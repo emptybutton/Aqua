@@ -3,7 +3,7 @@ from typing import Optional, Any
 from uuid import UUID
 
 from sqlalchemy import select, insert, exists, func
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.aqua.application.ports import repos
 from src.aqua.domain import entities, value_objects as vo
@@ -11,8 +11,8 @@ from src.shared.infrastructure.db import tables
 
 
 class Users(repos.Users):
-    def __init__(self, connection: AsyncConnection) -> None:
-        self.__connection = connection
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
 
     async def add(self, user: entities.User) -> None:
         water_balance = user.target_water_balance.water.milliliters
@@ -32,7 +32,7 @@ class Users(repos.Users):
             glass=glass,
         )
 
-        await self.__connection.execute(stmt)
+        await self.__session.execute(stmt)
 
     async def get_by_id(self, user_id: UUID) -> Optional[entities.User]:
         query = (
@@ -44,7 +44,7 @@ class Users(repos.Users):
             )
             .where(tables.AquaUser.id == user_id)
         )
-        results = await self.__connection.execute(query)
+        results = await self.__session.execute(query)
         raw_user = results.first()
 
         if raw_user is None:
@@ -68,13 +68,13 @@ class Users(repos.Users):
     async def has_with_id(self, user_id: UUID) -> bool:
         query = select(exists(1).where(tables.AquaUser.id == user_id))
 
-        result = await self.__connection.scalar(query)
+        result = await self.__session.scalar(query)
         return bool(result)
 
 
 class Records(repos.Records):
-    def __init__(self, connection: AsyncConnection) -> None:
-        self.__connection = connection
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
 
     async def add(self, record: entities.Record) -> None:
         stmt = insert(tables.Record).values(
@@ -84,7 +84,7 @@ class Records(repos.Records):
             user_id=record.user_id,
         )
 
-        await self.__connection.execute(stmt)
+        await self.__session.execute(stmt)
 
     async def get_on(
         self,
@@ -104,7 +104,7 @@ class Records(repos.Records):
             )
         )
 
-        results = await self.__connection.execute(query)
+        results = await self.__session.execute(query)
 
         return tuple(self.__record_of(data, user_id) for data in results.all())
 
@@ -122,8 +122,8 @@ class Records(repos.Records):
 
 
 class Days(repos.Days):
-    def __init__(self, connection: AsyncConnection) -> None:
-        self.__connection = connection
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
 
     async def add(self, day: entities.Day) -> None:
         stmt = insert(tables.Day).values(
@@ -135,7 +135,7 @@ class Days(repos.Days):
             result=day.result.value,
         )
 
-        await self.__connection.execute(stmt)
+        await self.__session.execute(stmt)
 
     async def get_on(
         self,
@@ -155,7 +155,7 @@ class Days(repos.Days):
             .limit(1)
         )
 
-        results = await self.__connection.execute(query)
+        results = await self.__session.execute(query)
         raw_data = results.first()
 
         if raw_data is None:

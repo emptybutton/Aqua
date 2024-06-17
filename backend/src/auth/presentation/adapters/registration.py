@@ -4,7 +4,7 @@ from secrets import token_hex
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.application import registration
 from src.auth.infrastructure.adapters import serializers, repos
@@ -32,15 +32,15 @@ async def register_user(
     username: str,
     password: str,
     *,
-    connection: AsyncConnection,
+    session: AsyncSession,
 ) -> OutputDTO:
     serializer = serializers.AccessTokenSerializer(secrets.jwt_secret)
 
     result = await registration.register_user(
         username,
         password,
-        users=repos.Users(connection),
-        uow_for=lambda _: uows.FakeUoW(),
+        users=repos.Users(session),
+        uow_for=lambda _: uows.DBUoW(session),
         access_token_serializer=serializer,
         password_serializer=serializers.PasswordSerializer(),
         generate_refresh_token_text=token_hex,

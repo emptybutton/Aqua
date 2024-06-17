@@ -1,8 +1,6 @@
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from src.auth.presentation.adapters import (
     registration as auth_registration,
     authentication,
@@ -12,21 +10,20 @@ from src.aqua.presentation.adapters import (
     writing,
 )
 from src.entrypoint.application.ports import gateways
-from src.shared.application.ports.uows import UoW
+from src.shared.infrastructure.adapters.uows import DBUoW
 
 
-register_auth_user: gateways.RegisterAuthUser[UoW[object]]
+register_auth_user: gateways.RegisterAuthUser[DBUoW[object]]
 async def register_auth_user(  # type: ignore[no-redef]
     name: str,
     password: str,
     *,
-    uow: object,  # noqa: ARG001
-    connection: AsyncConnection,
+    uow: DBUoW[object],
 ) -> gateways.AuthUserRegistrationDTO:
     result = await auth_registration.register_user(
         name,
         password,
-        connection=connection,
+        session=uow.session,
     )
 
     return gateways.AuthUserRegistrationDTO(
@@ -38,21 +35,21 @@ async def register_auth_user(  # type: ignore[no-redef]
     )
 
 
-async def register_aqua_user(  # noqa: PLR0913
+register_aqua_user: gateways.RegisterAquaUser[DBUoW[object]]
+async def register_aqua_user(  # type: ignore[no-redef]
     auth_user_id: UUID,
     water_balance_milliliters: Optional[int],
     glass_milliliters: Optional[int],
     weight_kilograms: Optional[int],
     *,
-    uow: object,  # noqa: ARG001
-    connection: AsyncConnection,
+    uow: DBUoW[object],
 ) -> gateways.AquaUserRegistrationDTO:
     result = await aqua_registration.register_user(
         auth_user_id,
         water_balance_milliliters,
         glass_milliliters,
         weight_kilograms,
-        connection=connection,
+        session=uow.session,
     )
 
     return gateways.AquaUserRegistrationDTO(
@@ -61,17 +58,17 @@ async def register_aqua_user(  # noqa: PLR0913
     )
 
 
-async def write_water(
+write_water: gateways.WriteWater[DBUoW[object]]
+async def write_water(  # type: ignore[no-redef]
     auth_user_id: UUID,
     milliliters: Optional[int],
     *,
-    uow: object,  # noqa: ARG001
-    connection: AsyncConnection,
+    uow: DBUoW[object],
 ) -> gateways.WaterWritingDTO:
     result = await writing.write_water(
         auth_user_id,
         milliliters,
-        connection=connection,
+        session=uow.session,
     )
 
     return gateways.WaterWritingDTO(

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.aqua.application import registration
 from src.aqua.infrastructure.adapters import repos
@@ -23,15 +23,15 @@ async def register_user(
     glass_milliliters: Optional[int],
     weight_kilograms: Optional[int],
     *,
-    connection: AsyncConnection,
+    session: AsyncSession,
 ) -> OutputDTO:
     user = await registration.register_user(
         user_id,
         water_balance_milliliters,
         glass_milliliters,
         weight_kilograms,
-        users=repos.Users(connection),
-        uow_for=lambda _: uows.FakeUoW(),
+        users=repos.Users(session),
+        uow_for=lambda _: uows.DBUoW(session),
     )
 
     weight_kilograms = None
