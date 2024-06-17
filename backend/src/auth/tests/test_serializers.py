@@ -36,3 +36,4 @@ def test_access_token_serializer() -> None:
     jwt = serializer.serialized(access_token)
 
     assert serializer.deserialized(jwt) == access_token
+    assert serializer.deserialized("aaaa") is None
