@@ -34,7 +34,7 @@ class AquaUser(Base):
         primary_key=True,
     )
     water_balance: Mapped[int]
-    glass: Mapped[Optional[int]]
+    glass: Mapped[int]
     weight: Mapped[Optional[int]]
     records: Mapped[list["Record"]] = relationship(back_populates="user")
 

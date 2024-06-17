@@ -30,6 +30,12 @@ class RegisterAuthUser(Protocol[UoWT_contra]):
     ) -> AuthUserRegistrationDTO: ...
 
 
+@dataclass(frozen=True)
+class AquaUserRegistrationDTO:
+    water_balance_milliliters: int
+    glass_milliliters: int
+
+
 class RegisterAquaUser(Protocol[UoWT_contra]):
     @abstractmethod
     async def __call__(  # noqa: PLR0913
@@ -40,7 +46,7 @@ class RegisterAquaUser(Protocol[UoWT_contra]):
         weight_kilograms: Optional[int],
         *,
         uow: UoWT_contra,
-    ) -> object: ...
+    ) -> AquaUserRegistrationDTO: ...
 
 
 @dataclass(frozen=True)

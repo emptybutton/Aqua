@@ -50,10 +50,7 @@ class Users(repos.Users):
         if raw_user is None:
             return None
 
-        if raw_user.glass is None:
-            glass = None
-        else:
-            glass = vo.Glass(vo.Water(raw_user.glass))
+        glass = vo.Glass(vo.Water(raw_user.glass))
 
         weight = None if raw_user.weight is None else vo.Weight(raw_user.weight)
 

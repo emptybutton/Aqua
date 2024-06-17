@@ -29,16 +29,15 @@ async def register_user(  # noqa: PLR0913
     else:
         water_balance = None
 
-    if glass_milliliters is not None:
-        glass = value_objects.Glass(value_objects.Water(glass_milliliters))
-    else:
-        glass = None
-
     if weight_kilograms is not None:
         weight = value_objects.Weight(weight_kilograms)
     else:
         weight = None
 
+    if glass_milliliters is None:
+        glass_milliliters = 200
+
+    glass = value_objects.Glass(value_objects.Water(glass_milliliters))
     user = entities.User(weight, glass, water_balance)
 
     async with uow_for(users) as uow:

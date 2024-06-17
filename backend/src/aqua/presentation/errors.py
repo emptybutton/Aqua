@@ -14,5 +14,3 @@ NoWeightForWaterBalance: TypeAlias = errors.NoWeightForWaterBalance
 ExtremeWeightForWaterBalance: TypeAlias = errors.ExtremeWeightForWaterBalance
 
 NotUTCRecordingTime: TypeAlias = errors.NotUTCRecordingTime
-
-NoWaterAndGlassForNewRecord: TypeAlias = errors.NoWaterAndGlassForNewRecord

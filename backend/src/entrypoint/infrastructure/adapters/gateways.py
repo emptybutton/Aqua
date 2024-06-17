@@ -46,13 +46,18 @@ async def register_aqua_user(  # noqa: PLR0913
     *,
     uow: object,  # noqa: ARG001
     connection: AsyncConnection,
-) -> None:
-    await aqua_registration.register_user(
+) -> gateways.AquaUserRegistrationDTO:
+    result = await aqua_registration.register_user(
         auth_user_id,
         water_balance_milliliters,
         glass_milliliters,
         weight_kilograms,
         connection=connection,
+    )
+
+    return gateways.AquaUserRegistrationDTO(
+        water_balance_milliliters=result.water_balance_milliliters,
+        glass_milliliters=result.glass_milliliters,
     )
 
 

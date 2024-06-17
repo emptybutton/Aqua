@@ -13,7 +13,7 @@ from src.shared.infrastructure.adapters import uows
 class OutputDTO:
     id: UUID
     water_balance_milliliters: int
-    glass_milliliters: Optional[int]
+    glass_milliliters: int
     weight_kilograms: Optional[int]
 
 
@@ -34,11 +34,7 @@ async def register_user(
         uow_for=lambda _: uows.FakeUoW(),
     )
 
-    glass_milliliters = None
     weight_kilograms = None
-
-    if user.glass is not None:
-        glass_milliliters = user.glass.capacity.milliliters
 
     if user.weight is not None:
         weight_kilograms = user.weight.kilograms
@@ -47,5 +43,5 @@ async def register_user(
         id=user.id,
         water_balance_milliliters=user.target_water_balance.water.milliliters,
         weight_kilograms=weight_kilograms,
-        glass_milliliters=glass_milliliters,
+        glass_milliliters=user.glass.capacity.milliliters,
     )

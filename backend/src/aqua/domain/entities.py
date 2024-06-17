@@ -47,7 +47,7 @@ def water_balance_from(*records: Record) -> WaterBalance:
 @dataclass
 class User:
     weight: Optional[Weight]
-    glass: Optional[Glass]
+    glass: Glass
     __target_water_balance: Optional[WaterBalance] = field(default=None)
     id: UUID = field(default_factory=uuid4)
 
@@ -71,9 +71,6 @@ class User:
 
     def write_water(self, water: Optional[Water]) -> Record:
         if water is None:
-            if self.glass is None:
-                raise errors.NoWaterAndGlassForNewRecord()
-
             water = self.glass.capacity
 
         return Record(water, self.id)

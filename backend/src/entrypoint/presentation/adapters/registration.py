@@ -27,7 +27,7 @@ async def register_user(  # noqa: PLR0913
         )
 
         register_aqua_user = partial(
-            gateways.register_auth_user,
+            gateways.register_aqua_user,
             connection=connection,
         )
 
