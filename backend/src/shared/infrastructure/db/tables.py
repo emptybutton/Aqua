@@ -29,6 +29,10 @@ class AuthUser(Base):
 class AquaUser(Base):
     __tablename__ = "aqua_users"
 
+    id: Mapped[UUID] = mapped_column(
+        ForeignKey("auth_users.id"),
+        primary_key=True,
+    )
     water_balance: Mapped[int]
     glass: Mapped[int]
     weight: Mapped[Optional[int]]
