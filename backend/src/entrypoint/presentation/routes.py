@@ -31,7 +31,6 @@ class UserRegistrationRequestModel(BaseModel):
 
 
 class UserRegistrationResponseModel(BaseModel):
-    username: str
     jwt: str
 
 
@@ -58,10 +57,7 @@ async def register_user(
         result.refresh_token_expiration_date,
     )
 
-    return UserRegistrationResponseModel(
-        username=result.username,
-        jwt=result.access_token,
-    )
+    return UserRegistrationResponseModel(jwt=result.access_token)
 
 
 class AuthorizationRequestModel(BaseModel):
@@ -70,7 +66,6 @@ class AuthorizationRequestModel(BaseModel):
 
 
 class AuthorizationResponseModel(BaseModel):
-    username: str
     jwt: str
 
 
@@ -105,10 +100,7 @@ async def authorize_user(
         result.refresh_token_expiration_date,
     )
 
-    return AuthorizationResponseModel(
-        username=result.username,
-        jwt=result.jwt,
-    )
+    return AuthorizationResponseModel(jwt=result.jwt)
 
 
 class AccessTokenRefreshingResponseModel(BaseModel):
