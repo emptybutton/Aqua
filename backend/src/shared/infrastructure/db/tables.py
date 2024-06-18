@@ -2,7 +2,7 @@ from datetime import datetime, date
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -43,7 +43,7 @@ class Record(Base):
     __tablename__ = "records"
 
     drunk_water: Mapped[int]
-    recording_time: Mapped[datetime]
+    recording_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
     user: Mapped["AquaUser"] = relationship(back_populates="records")
 
