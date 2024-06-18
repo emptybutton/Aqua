@@ -3,7 +3,7 @@ from secrets import token_hex
 
 from pytest import raises, mark
 
-from src.auth.application import registration
+from src.auth.application.cases import registration
 from src.auth.domain import errors as domain_errors
 from src.auth.infrastructure.adapters import serializers
 from src.auth.tests import adapters

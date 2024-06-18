@@ -27,14 +27,14 @@ async def register_user(  # noqa: PLR0913
     weight_kilograms: Optional[int],
     *,
     uow: _UoWT,
-    register_auth_user: gateways.RegisterAuthUser[_UoWT],
-    register_aqua_user: gateways.RegisterAquaUser[_UoWT],
+    auth_gateway: gateways.auth.Gateway[_UoWT],
+    aqua_gateway: gateways.aqua.Gateway[_UoWT],
 ) -> OutputDTO:
     async with uow as uow:
-        dto = await register_auth_user(name, password, uow=uow)
+        dto = await auth_gateway.register_user(name, password, uow=uow)
         auth_user_id = dto.user_id
 
-        await register_aqua_user(
+        await aqua_gateway.register_user(
             auth_user_id,
             water_balance_milliliters,
             glass_milliliters,

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.aqua.application import registration
+from src.aqua.application.cases import registration
 from src.aqua.infrastructure.adapters import repos
 from src.shared.infrastructure.adapters import uows
 

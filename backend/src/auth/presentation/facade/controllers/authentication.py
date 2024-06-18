@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from src.auth.application import authentication
+from src.auth.application.cases import authentication
 from src.auth.infrastructure.adapters import serializers
 from src.auth.presentation import secrets
 

@@ -4,9 +4,8 @@ from operator import add
 
 from fastapi import HTTPException, status
 
-from src.aqua.presentation import errors as aqua_errors
-from src.auth.presentation import errors as auth_errors
-from src.auth.presentation.adapters import authentication
+from src.aqua.presentation import facade as aqua
+from src.auth.presentation import facade as auth
 
 
 class _DetailBody(TypedDict):
@@ -49,7 +48,7 @@ def for_api(error: Exception) -> Exception:
     default_detail = detail_of(error)
     default_error = default_error_with(default_detail)
 
-    if isinstance(error, auth_errors.WeekPassword):
+    if isinstance(error, auth.errors.WeekPassword):
         message = (
             "password must not contain only numbers or only letters, "
             "but must contain both upper and lower case letters and be 8 "
@@ -63,7 +62,10 @@ def for_api(error: Exception) -> Exception:
 
     if isinstance(
         error,
-        authentication.InvalidJWTError | authentication.ExpiredAccessTokenError
+        (
+            auth.controllers.authentication.InvalidJWTError
+            | auth.controllers.authentication.ExpiredAccessTokenError
+        )
     ):
         return HTTPException(
             status.HTTP_401_UNAUTHORIZED,
@@ -72,7 +74,7 @@ def for_api(error: Exception) -> Exception:
 
     if isinstance(
         error,
-        aqua_errors.ValidationError | auth_errors.ValidationError,
+        aqua.errors.ValidationError | auth.errors.ValidationError,
     ):
         return default_error
 

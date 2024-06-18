@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TypeAlias
 
-from src.auth.application import access_extension
+from src.auth.application.cases import access_extension
 from src.auth.infrastructure.adapters import serializers
 from src.auth.presentation import secrets
 

@@ -20,12 +20,12 @@ async def write_water(
     jwt: str,
     milliliters: Optional[int],
     *,
-    authenticate_auth_user: gateways.AuthenticateAuthUser,
-    write_water: gateways.WriteWater[_UoWT],
+    auth_gateway: gateways.auth.Gateway[_UoWT],
+    aqua_gateway: gateways.aqua.Gateway[_UoWT],
     uow: _UoWT,
 ) -> OutputDTO:
-    authentication_result = authenticate_auth_user(jwt)
-    writing_result = await write_water(
+    authentication_result = auth_gateway.authenticate_user(jwt)
+    writing_result = await aqua_gateway.write_water(
         authentication_result.auth_user_id,
         milliliters,
         uow=uow,

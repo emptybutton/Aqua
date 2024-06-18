@@ -1,6 +1,6 @@
 from typing import Optional, TypeAlias
 
-from src.entrypoint.application import registration
+from src.entrypoint.application.cases import registration
 from src.entrypoint.infrastructure.adapters import gateways
 from src.shared.infrastructure.adapters import uows
 from src.shared.infrastructure.db.sessions import postgres_session_factory
@@ -24,6 +24,6 @@ async def register_user(
             glass_milliliters,
             weight_kilograms,
             uow=uows.DBUoW(session),
-            register_auth_user=gateways.register_auth_user,
-            register_aqua_user=gateways.register_aqua_user,
+            auth_gateway=gateways.AuthGateway(),
+            aqua_gateway=gateways.AquaGateway(),
         )

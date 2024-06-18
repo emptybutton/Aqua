@@ -1,6 +1,6 @@
 from typing import Optional, TypeAlias
 
-from src.entrypoint.application import writing
+from src.entrypoint.application.cases import writing
 from src.entrypoint.infrastructure.adapters import gateways
 from src.shared.infrastructure.adapters import uows
 from src.shared.infrastructure.db.sessions import postgres_session_factory
@@ -17,7 +17,7 @@ async def write_water(
         return await writing.write_water(
             jwt,
             milliliters,
-            authenticate_auth_user=gateways.authenticate_auth_user,
-            write_water=gateways.write_water,
+            auth_gateway=gateways.AuthGateway(),
+            aqua_gateway=gateways.AquaGateway(),
             uow=uows.DBUoW(session),
         )

@@ -5,17 +5,13 @@ from uuid import UUID
 from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
 from pydantic import BaseModel
 
-from src.aqua.presentation.adapters import writing as aqua_writing
-from src.auth.presentation.adapters import (
-    registration as auth_registration,
-    authorization,
-    access_extension,
-)
+from src.aqua.presentation import facade as aqua
+from src.auth.presentation import facade as auth
 from src.entrypoint.presentation import cookies
 from src.entrypoint.presentation.error_responses import (
     default_error_with, detail_of, detail_from, handle_base_errors
 )
-from src.entrypoint.presentation.adapters import registration, writing
+from src.entrypoint.presentation.facade import controllers
 from src.shared.infrastructure.db.sessions import postgres_session_factory
 
 
@@ -41,14 +37,14 @@ async def register_user(
     response: Response,
 ) -> UserRegistrationResponseModel:
     try:
-        result = await registration.register_user(
+        result = await controllers.registration.register_user(
             request_model.username,
             request_model.password,
             request_model.water_balance_milliliters,
             request_model.glass_milliliters,
             request_model.weight_kilograms,
         )
-    except auth_registration.UserIsAlreadyRegisteredError as error:
+    except auth.controllers.registration.UserIsAlreadyRegisteredError as error:
         raise default_error_with(detail_of(error)) from error
 
     cookies.set_refresh_token(
@@ -77,18 +73,18 @@ async def authorize_user(
 ) -> AuthorizationResponseModel:
     async with postgres_session_factory() as session:
         try:
-            result = await authorization.authorize_user(
+            result = await auth.controllers.authorization.authorize_user(
                 request.username,
                 request.password,
                 session=session,
             )
-        except authorization.NoUserError as error:
+        except auth.controllers.authorization.NoUserError as error:
             message = "there is no user with this name"
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
                 detail=detail_of(error, message=message),
             ) from error
-        except authorization.IncorrectPasswordError as error:
+        except auth.controllers.authorization.IncorrectPasswordError as error:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
                 detail=detail_of(error),
@@ -126,21 +122,21 @@ async def refresh_access_token(
         )
 
     try:
-        result = access_extension.extend_access(
+        result = auth.controllers.access_extension.extend_access(
             jwt,
             refresh_token,
             expiration_date,
         )
-    except access_extension.InvalidJWTError as error:
+    except auth.controllers.access_extension.InvalidJWTError as error:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
             detail=detail_of(error),
         ) from error
-    except access_extension.ExpiredRefreshTokenError as error:
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
-            detail=detail_of(access_extension.InvalidJWTError()),
-        ) from error
+    except auth.controllers.access_extension.ExpiredRefreshTokenError as error:
+        detail = detail_of(auth.controllers.access_extension.InvalidJWTError())
+        new_error = HTTPException(status.HTTP_401_UNAUTHORIZED, detail=detail)
+
+        raise new_error from error
 
     return AccessTokenRefreshingResponseModel(jwt=result.jwt)
 
@@ -161,11 +157,11 @@ async def create_record(
     jwt: Annotated[str, Header()],
 ) -> RecordCreationResponseModel:
     try:
-        result = await writing.write_water(
+        result = await controllers.writing.write_water(
             jwt,
             request.milliliters,
         )
-    except aqua_writing.NoUserError as error:
+    except aqua.controllers.writing.NoUserError as error:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
             detail=detail_of(error),
