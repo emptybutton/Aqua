@@ -5,8 +5,8 @@ from uuid import UUID
 from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
 from pydantic import BaseModel
 
-from src.aqua.presentation.facade import controllers as aqua
-from src.auth.presentation.facade import controllers as auth
+from src.aqua.presentation import facade as aqua
+from src.auth.presentation import facade as auth
 from src.entrypoint.presentation import cookies
 from src.entrypoint.presentation.error_responses import (
     default_error_with, detail_of, detail_from, handle_base_errors
@@ -44,7 +44,7 @@ async def register_user(
             request_model.glass_milliliters,
             request_model.weight_kilograms,
         )
-    except auth.registration.UserIsAlreadyRegisteredError as error:
+    except auth.controllers.registration.UserIsAlreadyRegisteredError as error:
         raise default_error_with(detail_of(error)) from error
 
     cookies.set_refresh_token(
@@ -73,18 +73,18 @@ async def authorize_user(
 ) -> AuthorizationResponseModel:
     async with postgres_session_factory() as session:
         try:
-            result = await auth.authorization.authorize_user(
+            result = await auth.controllers.authorization.authorize_user(
                 request.username,
                 request.password,
                 session=session,
             )
-        except auth.authorization.NoUserError as error:
+        except auth.controllers.authorization.NoUserError as error:
             message = "there is no user with this name"
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
                 detail=detail_of(error, message=message),
             ) from error
-        except auth.authorization.IncorrectPasswordError as error:
+        except auth.controllers.authorization.IncorrectPasswordError as error:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
                 detail=detail_of(error),
@@ -122,18 +122,18 @@ async def refresh_access_token(
         )
 
     try:
-        result = auth.access_extension.extend_access(
+        result = auth.controllers.access_extension.extend_access(
             jwt,
             refresh_token,
             expiration_date,
         )
-    except auth.access_extension.InvalidJWTError as error:
+    except auth.controllers.access_extension.InvalidJWTError as error:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
             detail=detail_of(error),
         ) from error
-    except auth.access_extension.ExpiredRefreshTokenError as error:
-        detail = detail_of(auth.access_extension.InvalidJWTError())
+    except auth.controllers.access_extension.ExpiredRefreshTokenError as error:
+        detail = detail_of(auth.controllers.access_extension.InvalidJWTError())
         new_error = HTTPException(status.HTTP_401_UNAUTHORIZED, detail=detail)
 
         raise new_error from error
@@ -161,7 +161,7 @@ async def create_record(
             jwt,
             request.milliliters,
         )
-    except aqua.writing.NoUserError as error:
+    except aqua.controllers.writing.NoUserError as error:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
             detail=detail_of(error),
@@ -191,7 +191,7 @@ async def read_day(
 ) -> DayReadingResponseModel:
     try:
         result = await controllers.day_reading.read_day(jwt, request.date_)
-    except aqua.day_reading.NoUserError as error:
+    except aqua.controllers.day_reading.NoUserError as error:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
             detail=detail_of(error),
@@ -240,7 +240,7 @@ async def read_day_records(
             jwt,
             request.date_,
         )
-    except aqua.day_record_reading.NoUserError as error:
+    except aqua.controllers.day_record_reading.NoUserError as error:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
             detail=detail_of(error),
