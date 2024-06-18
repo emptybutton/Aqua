@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 from uuid import UUID
 
@@ -46,6 +47,51 @@ class AquaGateway(gateways.aqua.Gateway[DBUoW[object]]):
         return gateways.aqua.WaterWritingDTO(
             record_id=result.record_id,
             drunk_water_milliliters=result.drunk_water_milliliters,
+        )
+
+    async def read_day_records(
+        self,
+        user_id: UUID,
+        date_: date,
+        *,
+        uow: DBUoW[object],
+    ) -> gateways.aqua.DayRecordReadingDTO:
+        result = await aqua.day_record_reading.read_day_records(
+            user_id,
+            date_,
+            session=uow.session,
+        )
+
+        records = tuple(map(self.__record_dto_of, result.records))
+        return gateways.aqua.DayRecordReadingDTO(records=records)
+
+    async def read_day(
+        self,
+        user_id: UUID,
+        date_: date,
+        *,
+        uow: DBUoW[object],
+    ) -> gateways.aqua.DayReadingDTO:
+        result = await aqua.day_reading.read_day(
+            user_id,
+            date_,
+            session=uow.session,
+        )
+
+        return gateways.aqua.DayReadingDTO(
+            target_water_balance=result.target_water_balance,
+            real_water_balance=result.real_water_balance,
+            result_code=result.result_code,
+        )
+
+    def __record_dto_of(
+        self,
+        dto: aqua.day_record_reading.RecordDTO
+    ) -> gateways.aqua.RecordDTO:
+        return gateways.aqua.RecordDTO(
+            id=dto.id,
+            drunk_water=dto.drunk_water,
+            recording_time=dto.recording_time,
         )
 
 

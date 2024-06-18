@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, date
 from typing import Optional, Annotated
 from uuid import UUID
 
@@ -171,3 +171,80 @@ async def create_record(
         record_id=result.record_id,
         drunk_water_milliliters=result.drunk_water_milliliters,
     )
+
+
+class DayReadingRequestModel(BaseModel):
+    date_: date
+
+
+class DayReadingResponseModel(BaseModel):
+    target_water_balance: int
+    real_water_balance: int
+    result_code: int
+
+
+@router.get("/user/day", tags=["days"])
+@handle_base_errors
+async def read_day(
+    request: DayReadingRequestModel,
+    jwt: Annotated[str, Header()],
+) -> DayReadingResponseModel:
+    try:
+        result = await controllers.day_reading.read_day(jwt, request.date_)
+    except aqua.day_reading.NoUserError as error:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=detail_of(error),
+        ) from error
+
+    return DayReadingResponseModel(
+        target_water_balance=result.target_water_balance,
+        real_water_balance=result.real_water_balance,
+        result_code=result.result_code,
+    )
+
+
+class DayRecordsReadingRequestModel(BaseModel):
+    date_: date
+
+
+class DayRecordModel(BaseModel):
+    id: UUID
+    drunk_water: int
+    recording_time: datetime
+
+    @classmethod
+    def of(
+        cls,
+        dto: controllers.day_record_reading.RecordDTO,
+    ) -> "DayRecordModel":
+        return cls(
+            id=dto.id,
+            drunk_water=dto.drunk_water,
+            recording_time=dto.recording_time,
+        )
+
+
+class DayRecordsReadingResponseModel(BaseModel):
+    records: tuple[DayRecordModel, ...]
+
+
+@router.get("/user/day/records", tags=["records"])
+@handle_base_errors
+async def read_day_records(
+    request: DayReadingRequestModel,
+    jwt: Annotated[str, Header()],
+) -> DayRecordsReadingResponseModel:
+    try:
+        result = await controllers.day_record_reading.read_day_records(
+            jwt,
+            request.date_,
+        )
+    except aqua.day_record_reading.NoUserError as error:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=detail_of(error),
+        ) from error
+
+    records = tuple(map(DayRecordModel.of, result.records))
+    return DayRecordsReadingResponseModel(records=records)
