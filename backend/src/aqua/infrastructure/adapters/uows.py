@@ -8,7 +8,7 @@ from src.shared.infrastructure.db import tables
 
 class DirtyDayUoW(uows.DBUoW[entities.Day]):
     def __init__(self, session: AsyncSession) -> None:
-        self.__session = session
+        super().__init__(session)
         self.__dirty_days: list[entities.Day] = list()
 
     def register_dirty(self, day: entities.Day) -> None:
@@ -16,7 +16,7 @@ class DirtyDayUoW(uows.DBUoW[entities.Day]):
 
     async def _finish_work(self) -> None:
         for dirty_day in self.__dirty_days:
-            await self.__session.execute(self.__updating_stmt_for(dirty_day))
+            await self._session.execute(self.__updating_stmt_for(dirty_day))
 
     @staticmethod
     def __updating_stmt_for(day: entities.Day) -> Update:

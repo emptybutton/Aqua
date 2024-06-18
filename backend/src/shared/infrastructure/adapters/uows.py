@@ -27,14 +27,14 @@ class FakeUoW(uows.UoW[_ValueT]):
 
 class DBUoW(FakeUoW[_ValueT]):
     def __init__(self, session: AsyncSession) -> None:
-        self.__session = session
+        self._session = session
 
     @property
     def session(self) -> AsyncSession:
-        return self.__session
+        return self._session
 
     async def __aenter__(self) -> Self:
-        await self.__session.begin_nested()
+        await self._session.begin_nested()
 
         return self
 
@@ -46,9 +46,9 @@ class DBUoW(FakeUoW[_ValueT]):
     ) -> bool:
         if error is None:
             await self._finish_work()
-            await self.__session.commit()
+            await self._session.commit()
         else:
-            await self.__session.rollback()
+            await self._session.rollback()
 
         return error is None
 

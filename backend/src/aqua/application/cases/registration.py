@@ -38,7 +38,7 @@ async def register_user(  # noqa: PLR0913
         glass_milliliters = 200
 
     glass = value_objects.Glass(value_objects.Water(glass_milliliters))
-    user = entities.User(weight, glass, water_balance, user_id)
+    user = entities.User(glass, weight, water_balance, user_id)
 
     async with uow_for(users) as uow:
         uow.register_new(user)

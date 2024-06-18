@@ -48,7 +48,7 @@ async def write_water(  # noqa: PLR0913
             day = entities.Day(
                 user_id=user_id,
                 target_water_balance=user.target_water_balance,
-                __real_water_balance=value_objects.WaterBalance(
+                _real_water_balance=value_objects.WaterBalance(
                     record.drunk_water,
                 ),
             )

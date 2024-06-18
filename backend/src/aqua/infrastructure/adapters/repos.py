@@ -61,7 +61,7 @@ class Users(repos.Users):
         return entities.User(
             weight=weight,
             glass=glass,
-            __target_water_balance=water_balance,
+            _target_water_balance=water_balance,
             id=raw_user.id,
         )
 
@@ -117,7 +117,7 @@ class Records(repos.Records):
             id=record_data.id,
             user_id=user_id,
             drunk_water=vo.Water(record_data.drunk_water),
-            __recording_time=record_data.recording_time,
+            _recording_time=record_data.recording_time,
         )
 
 
@@ -178,6 +178,6 @@ class Days(repos.Days):
             user_id=user_id,
             date_=date_,
             target_water_balance=target,
-            __real_water_balance=water_balance,
-            __result=result,
+            _real_water_balance=water_balance,
+            _result=result,
         )
