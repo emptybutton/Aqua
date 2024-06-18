@@ -25,13 +25,11 @@ async def write_water(
     uow: _UoWT,
 ) -> OutputDTO:
     authentication_result = authenticate_auth_user(jwt)
-
-    async with uow:
-        writing_result = await write_water(
-            authentication_result.auth_user_id,
-            milliliters,
-            uow=uow,
-        )
+    writing_result = await write_water(
+        authentication_result.auth_user_id,
+        milliliters,
+        uow=uow,
+    )
 
     return OutputDTO(
         user_id=authentication_result.auth_user_id,
