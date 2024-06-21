@@ -9,11 +9,11 @@ _env.read_env(".env")
 
 
 class Env(enum.Enum):
-    jwt_secret = _env.str("JWT_SECRET", default=None)
+    jwt_secret = _env.str("JWT_SECRET")
 
-    postgres_database = _env.str("POSTGRES_DATABASE", default=None)
-    postgres_username = _env.str("POSTGRES_USERNAME", default=None)
-    postgres_password = _env.str("POSTGRES_PASSWORD", default=None)
+    postgres_database = _env.str("POSTGRES_DATABASE")
+    postgres_username = _env.str("POSTGRES_USERNAME")
+    postgres_password = _env.str("POSTGRES_PASSWORD")
     postgres_host = _env.str("POSTGRES_HOST", default=None)
     postgres_port = _env.int("POSTGRES_PORT", default=None)
     postgres_echo = _env.bool("POSTGRES_ECHO", default=None)

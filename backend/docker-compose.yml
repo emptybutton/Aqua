@@ -9,6 +9,12 @@ services:
       - nginx
     volumes:
       - .:/aqua
+    environment:
+      JWT_SECRET: mega-secret
+      POSTGRES_DATABASE: aqua
+      POSTGRES_USERNAME: aqua
+      POSTGRES_PASSWORD: aqua
+
     command: ["uvicorn", "src.entrypoint.presentation.main:app"]
     restart: unless-stopped
 

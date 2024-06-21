@@ -1,4 +1,4 @@
-from src.shared.infrastructure.envs import Env, existing
+from src.shared.infrastructure.envs import Env
 
 
-jwt_secret = existing(Env.jwt_secret.value)
+jwt_secret = Env.jwt_secret.value
