@@ -173,10 +173,6 @@ async def create_record(
     )
 
 
-class DayReadingRequestModel(BaseModel):
-    date_: date
-
-
 class DayReadingResponseModel(BaseModel):
     target_water_balance: int
     real_water_balance: int
@@ -186,11 +182,11 @@ class DayReadingResponseModel(BaseModel):
 @router.get("/user/day", tags=["days"])
 @handle_base_errors
 async def read_day(
-    request: DayReadingRequestModel,
+    date_: date,
     jwt: Annotated[str, Header()],
 ) -> DayReadingResponseModel:
     try:
-        result = await controllers.day_reading.read_day(jwt, request.date_)
+        result = await controllers.day_reading.read_day(jwt, date_)
     except aqua.controllers.day_reading.NoUserError as error:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
@@ -202,10 +198,6 @@ async def read_day(
         real_water_balance=result.real_water_balance,
         result_code=result.result_code,
     )
-
-
-class DayRecordsReadingRequestModel(BaseModel):
-    date_: date
 
 
 class DayRecordModel(BaseModel):
@@ -232,13 +224,12 @@ class DayRecordsReadingResponseModel(BaseModel):
 @router.get("/user/day/records", tags=["records"])
 @handle_base_errors
 async def read_day_records(
-    request: DayReadingRequestModel,
+    date_: date,
     jwt: Annotated[str, Header()],
 ) -> DayRecordsReadingResponseModel:
     try:
         result = await controllers.day_record_reading.read_day_records(
-            jwt,
-            request.date_,
+            jwt, date_,
         )
     except aqua.controllers.day_record_reading.NoUserError as error:
         raise HTTPException(
