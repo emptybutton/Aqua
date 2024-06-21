@@ -1,17 +1,17 @@
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from src.shared.infrastructure.envs import env
+from src.shared.infrastructure.envs import Env, or_
 
 
 db_url = URL.create(
     drivername="postgresql+asyncpg",
-    database=env.str("POSTGRES_DATABASE", default="aqua"),
-    username=env.str("POSTGRES_USERNAME", default="aqua"),
-    password=env.str("POSTGRES_PASSWORD", default="aqua"),
-    host=env.str("POSTGRES_HOST", default="localhost"),
-    port=env.int("POSTGRES_PORT", default=5432),
+    database=or_(Env.postgres_database.value, "aqua"),
+    username=or_(Env.postgres_username.value, "aqua"),
+    password=or_(Env.postgres_password.value, "aqua"),
+    host=or_(Env.postgres_host.value, "localhost"),
+    port=or_(Env.postgres_port.value, 5432),
 )
 
-_echo = env.bool("POSTGRES_ECHO", default=False)
+_echo = or_(Env.postgres_echo.value, False)
 postgres_engine = create_async_engine(db_url, echo=_echo)
