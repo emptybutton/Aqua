@@ -145,9 +145,11 @@ class Days(repos.Days):
     ) -> Optional[entities.Day]:
         query = (
             select(
+                tables.Day.id,
                 tables.Day.real_water_balance,
                 tables.Day.target_water_balance,
                 tables.Day.date_,
+                tables.Day.result,
             ).where(
                 (tables.Day.date_ == date_)
                 & (tables.Day.user_id == user_id)
