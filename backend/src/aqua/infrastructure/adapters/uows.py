@@ -20,10 +20,14 @@ class DirtyDayUoW(uows.DBUoW[entities.Day]):
 
     @staticmethod
     def __updating_stmt_for(day: entities.Day) -> Update:
-        return update(tables.Day).values(
-            user_id=day.user_id,
-            real_water_balance=day.real_water_balance.water.milliliters,
-            target_water_balance=day.target_water_balance.water.milliliters,
-            date_=day.date_,
-            result=day.result.value,
+        return (
+            update(tables.Day)
+            .where(tables.Day.id == day.id)
+            .values(
+                user_id=day.user_id,
+                real_water_balance=day.real_water_balance.water.milliliters,
+                target_water_balance=day.target_water_balance.water.milliliters,
+                date_=day.date_,
+                result=day.result.value,
+            )
         )
