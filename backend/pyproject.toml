@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "aqua"
 version = "0.1.0"
-description = "Application for recording the liquid drunk"
+description = "Application for tracking your water balance"
 authors = ["emptybutton <88573504+emptybutton@users.noreply.github.com>"]
 license = "Apache-2.0"
 readme = "README.md"
