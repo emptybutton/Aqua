@@ -1,4 +1,4 @@
-from typing import Optional, TypeVar, Iterable
+from typing import Optional, Iterable
 from uuid import UUID
 
 from src.auth.application.ports import repos
