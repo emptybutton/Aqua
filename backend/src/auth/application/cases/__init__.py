@@ -3,4 +3,5 @@ from src.auth.application.cases import (
     authentication as authentication,  # noqa: PLC0414
     authorization as authorization,  # noqa: PLC0414
     registration as registration,  # noqa: PLC0414
+    user_data_reading as user_data_reading,  # noqa: PLC0414
 )

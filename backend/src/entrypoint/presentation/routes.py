@@ -239,3 +239,32 @@ async def read_day_records(
 
     records = tuple(map(DayRecordModel.of, result.records))
     return DayRecordsReadingResponseModel(records=records)
+
+
+class UserDataReadingResponseModel(BaseModel):
+    user_id: UUID
+    username: str
+    glass_milliliters: int
+    target_water_balance_milliliters: int
+    weight_kilograms: Optional[int]
+
+
+@router.get("/user", tags=["access"])
+@handle_base_errors
+async def read_user_data(
+    jwt: Annotated[str, Header()],
+) -> Optional[UserDataReadingResponseModel]:
+    result = await controllers.user_data_reading.read_user_data(jwt)
+
+    if result is None:
+        return None
+
+    water_balance = result.target_water_balance_milliliters
+
+    return UserDataReadingResponseModel(
+        user_id=result.user_id,
+        username=result.username,
+        glass_milliliters=result.glass_milliliters,
+        target_water_balance_milliliters=water_balance,
+        weight_kilograms=result.weight_kilograms,
+    )

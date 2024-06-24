@@ -84,6 +84,29 @@ class AquaGateway(gateways.aqua.Gateway[DBUoW[object]]):
             result_code=result.result_code,
         )
 
+    async def read_user_data(
+        self,
+        user_id: UUID,
+        *,
+        uow: DBUoW[object],
+    ) -> Optional[gateways.aqua.UserDataReadingDTO]:
+        result = await aqua.user_data_reading.read_user_data(
+            user_id,
+            session=uow.session,
+        )
+
+        if result is None:
+            return None
+
+        return gateways.aqua.UserDataReadingDTO(
+            user_id=result.user_id,
+            glass_milliliters=result.glass_milliliters,
+            weight_kilograms=result.weight_kilograms,
+            target_water_balance_milliliters=(
+                result.target_water_balance_milliliters
+            ),
+        )
+
     def __record_dto_of(
         self,
         dto: aqua.day_record_reading.RecordDTO
@@ -124,3 +147,19 @@ class AuthGateway(gateways.auth.Gateway[DBUoW[object]]):
         result = auth.authentication.authenticate_user(jwt)
 
         return gateways.auth.UserAuthenticationDTO(auth_user_id=result.user_id)
+
+    async def read_user_data(
+        self,
+        user_id: UUID,
+        *,
+        uow: DBUoW[object],
+    ) -> Optional[gateways.auth.UserDataReadingDTO]:
+        result = await auth.user_data_reading.read_user_data(
+            user_id,
+            session=uow.session,
+        )
+
+        if result is None:
+            return None
+
+        return gateways.auth.UserDataReadingDTO(username=result.username)

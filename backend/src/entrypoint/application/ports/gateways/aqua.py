@@ -38,6 +38,14 @@ class DayRecordReadingDTO:
     records: tuple[RecordDTO, ...]
 
 
+@dataclass(frozen=True, kw_only=True)
+class UserDataReadingDTO:
+    user_id: UUID
+    glass_milliliters: int
+    weight_kilograms: Optional[int]
+    target_water_balance_milliliters: int
+
+
 UoWT_contra = TypeVar("UoWT_contra", bound=UoW[object], contravariant=True)
 
 
@@ -79,3 +87,11 @@ class Gateway(Generic[UoWT_contra], ABC):
         *,
         uow: UoWT_contra,
     ) -> DayRecordReadingDTO: ...
+
+    @abstractmethod
+    async def read_user_data(
+        self,
+        user_id: UUID,
+        *,
+        uow: UoWT_contra,
+    ) -> Optional[UserDataReadingDTO]: ...
