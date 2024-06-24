@@ -8,7 +8,7 @@ To deploy this application locally:
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend up
+docker compose --project-directory ./Aqua up
 ```
 
 ## About the repository

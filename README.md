@@ -10,7 +10,7 @@
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend up
+docker compose --project-directory ./Aqua up
 ```
 
 ## Про репозиторий

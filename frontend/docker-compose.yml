@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  aqua:
+    build: .
+    container_name: aqua-app
+    volumes:
+      - .:/aqua
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: aqua-nginx
+    network_mode: host
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - .:/aqua
+    restart: unless-stopped
