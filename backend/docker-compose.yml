@@ -15,7 +15,7 @@ services:
       POSTGRES_USERNAME: aqua
       POSTGRES_PASSWORD: aqua
 
-    command: ["uvicorn", "src.entrypoint.presentation.main:app"]
+    command: ["ash", "./scripts/start.sh"]
     restart: unless-stopped
 
   postgres:

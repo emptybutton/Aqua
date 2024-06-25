@@ -4,12 +4,18 @@
 ## Как запустить
 Что бы запустить локально:
 1. склонируйте этот репозиторий
-2. запустите внутри `docker`
+2. инициализируйте и запустите его внутри `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend up
+docker compose --project-directory ./Aqua/backend run aqua ash ./scripts/init-and-start.sh
 ```
+
+> [!TIP]
+> После инициализации, для большей скорости запуска, можете запускать при помощи:
+> ```bash
+> docker compose --project-directory ./Aqua/backend up
+> ```
 
 ## API схема
 <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/api-view.png?raw=true"/>

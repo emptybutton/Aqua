@@ -7,6 +7,7 @@ services:
     depends_on:
       - postgres
       - nginx
+      - frontend
     volumes:
       - ./backend:/aqua
     environment:
@@ -15,7 +16,7 @@ services:
       POSTGRES_USERNAME: aqua
       POSTGRES_PASSWORD: aqua
 
-    command: ["uvicorn", "src.entrypoint.presentation.main:app"]
+    command: ["ash", "./scripts/start.sh"]
     restart: unless-stopped
 
   frontend:

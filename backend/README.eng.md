@@ -1,12 +1,18 @@
 ## Deployment
 To deploy this application locally:
 1. clone this repository
-2. run within docker
+2. initialize and run it within `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend up
+docker compose --project-directory ./Aqua/backend run aqua ash ./scripts/init-and-start.sh
 ```
+
+> [!TIP]
+> After initialization, for faster startup speed, you can launch using:
+> ```bash
+> docker compose --project-directory ./Aqua/backend up
+> ```
 
 ## API scheme
 <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/api-view.png?raw=true"/>
