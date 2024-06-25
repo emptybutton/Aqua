@@ -17,6 +17,8 @@ class OutputDTO:
     access_token: str
     refresh_token: str
     refresh_token_expiration_date: datetime
+    water_balance_milliliters: int
+    glass_milliliters: int
 
 
 async def register_user(  # noqa: PLR0913
@@ -31,10 +33,11 @@ async def register_user(  # noqa: PLR0913
     aqua_gateway: gateways.aqua.Gateway[_UoWT],
 ) -> OutputDTO:
     async with uow as uow:
-        dto = await auth_gateway.register_user(name, password, uow=uow)
-        auth_user_id = dto.user_id
+        auth_result = await auth_gateway.register_user(name, password, uow=uow)
+        auth_user_id = auth_result.user_id
+        refresh_token_expiration = auth_result.refresh_token_expiration_date
 
-        await aqua_gateway.register_user(
+        aqua_result = await aqua_gateway.register_user(
             auth_user_id,
             water_balance_milliliters,
             glass_milliliters,
@@ -42,10 +45,13 @@ async def register_user(  # noqa: PLR0913
             uow=uow,
         )
 
+
         return OutputDTO(
-            user_id=dto.user_id,
-            username=dto.username,
-            access_token=dto.access_token,
-            refresh_token=dto.refresh_token,
-            refresh_token_expiration_date=dto.refresh_token_expiration_date,
+            user_id=auth_result.user_id,
+            username=auth_result.username,
+            access_token=auth_result.access_token,
+            refresh_token=auth_result.refresh_token,
+            refresh_token_expiration_date=refresh_token_expiration,
+            water_balance_milliliters=aqua_result.water_balance_milliliters,
+            glass_milliliters=aqua_result.glass_milliliters,
         )

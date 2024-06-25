@@ -28,6 +28,8 @@ class UserRegistrationRequestModel(BaseModel):
 
 class UserRegistrationResponseModel(BaseModel):
     jwt: str
+    water_balance_milliliters: int
+    glass_milliliters: int
 
 
 @router.post("/user/register", tags=["access"])
@@ -53,7 +55,11 @@ async def register_user(
         result.refresh_token_expiration_date,
     )
 
-    return UserRegistrationResponseModel(jwt=result.access_token)
+    return UserRegistrationResponseModel(
+        jwt=result.access_token,
+        water_balance_milliliters=result.water_balance_milliliters,
+        glass_milliliters=result.glass_milliliters,
+    )
 
 
 class AuthorizationRequestModel(BaseModel):
