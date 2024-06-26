@@ -1,0 +1,24 @@
+@import "../common/base";
+@import "../common/forms";
+
+#authorization-form {
+  width: min-content;
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+}
+
+#authorization-icon {
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+#registration-link {
+  position: absolute;
+  right: 0px;
+  bottom: -3px;
+  font-size: 15.5px;
+}

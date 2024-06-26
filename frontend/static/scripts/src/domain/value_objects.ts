@@ -4,7 +4,7 @@ import {
     FloatWaterAmountError,
     NegativeWeightAmountError,
     FloatWeightAmountError,
-} from "./errors";
+} from "./errors.js";
 
 export type UUID = string;
 

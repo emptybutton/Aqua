@@ -6,7 +6,7 @@ import {
     Water,
     UUID,
     WaterBalanceStatus,
-} from "./value_objects";
+} from "./value_objects.js";
 
 export class User {
     constructor(

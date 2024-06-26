@@ -6,7 +6,7 @@ import {
     Glass,
     Weight,
     Water,
-} from "../domain/value_objects";
+} from "../domain/value_objects.js";
 
 const _urls = {
     registrationURL: "/api/0.1v/user/register",

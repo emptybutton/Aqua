@@ -32,7 +32,7 @@ services:
     network_mode: host
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./frontend:/aqua
+      - ./frontend/static:/aqua/static
     restart: unless-stopped
 
   postgres:

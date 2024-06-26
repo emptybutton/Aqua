@@ -4,5 +4,5 @@ WORKDIR /aqua
 
 COPY . .
 
-RUN npm install -g typescript
-CMD ["tsc", "-w"]
+RUN npm install -g typescript && npm install -g sass
+CMD ["ash", "./scripts/start.sh"]

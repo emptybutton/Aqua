@@ -1,6 +1,6 @@
-import { Password, Username } from "../domain/value_objects";
-import * as gateway from "../facades/gateway";
-import { jwtStorage } from "../facades/storages";
+import { Password, Username } from "../domain/value_objects.js";
+import * as gateway from "../infrastructure/gateway.js";
+import { jwtStorage } from "../infrastructure/storages.js";
 
 export async function authorize(
     username: Username,
@@ -11,7 +11,15 @@ export async function authorize(
     if (result === undefined)
         return false;
 
-    jwtStorage.set(result.jwt);
+    jwtStorage.jwt = result.jwt;
 
     return true;
+}
+
+export function logout(): void {
+    jwtStorage.jwt = null;
+}
+
+export function authorizationCompleted(): boolean {
+    return jwtStorage.jwt !== null;
 }
