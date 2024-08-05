@@ -4,8 +4,8 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.aqua.application.cases import day_reading
-from src.aqua.infrastructure.adapters import repos
+from aqua.application.cases import day_reading
+from aqua.infrastructure.adapters import repos
 
 
 OutputDTO: TypeAlias = day_reading.OutputDTO

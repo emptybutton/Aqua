@@ -1,8 +1,8 @@
 from datetime import date
 from uuid import UUID
 
-from src.aqua.domain import entities
-from src.aqua.application.ports import repos
+from aqua.domain import entities
+from aqua.application.ports import repos
 
 
 class BaseError(Exception): ...

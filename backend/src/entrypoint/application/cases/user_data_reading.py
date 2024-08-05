@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, TypeVar
 from uuid import UUID
 
-from src.entrypoint.application.ports import gateways
-from src.shared.application.ports.uows import UoW
+from entrypoint.application.ports import gateways
+from shared.application.ports.uows import UoW
 
 
 @dataclass(frozen=True, kw_only=True)

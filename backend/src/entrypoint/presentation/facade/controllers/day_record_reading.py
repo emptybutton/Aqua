@@ -1,10 +1,10 @@
 from datetime import date
 from typing import TypeAlias
 
-from src.entrypoint.application.cases import day_record_reading
-from src.entrypoint.infrastructure.adapters import gateways
-from src.shared.infrastructure.adapters import uows
-from src.shared.infrastructure.db.sessions import postgres_session_factory
+from entrypoint.application.cases import day_record_reading
+from entrypoint.infrastructure.adapters import gateways
+from shared.infrastructure.adapters import uows
+from shared.infrastructure.db.sessions import postgres_session_factory
 
 
 OutputDTO: TypeAlias = day_record_reading.OutputDTO

@@ -6,10 +6,10 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.application.cases import registration
-from src.auth.infrastructure.adapters import serializers, repos
-from src.auth.presentation import secrets
-from src.shared.infrastructure.adapters import uows
+from auth.application.cases import registration
+from auth.infrastructure.adapters import serializers, repos
+from auth.presentation import secrets
+from shared.infrastructure.adapters import uows
 
 
 @dataclass(frozen=True)

@@ -1,3 +1,3 @@
-from src.auth.presentation import (
+from auth.presentation import (
     facade as facade,  # noqa: PLC0414
 )

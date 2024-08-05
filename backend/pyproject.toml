@@ -21,13 +21,16 @@ ruff = "^0.4.5"
 pytest = "^8.2.1"
 pytest-asyncio = "^0.23.7"
 
+[tool.poetry.group.fix.dependencies]
+certifi = "^2024.7.4"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 strict = true
-explicit_package_bases = true
+no_namespace_packages = true
 
 [tool.ruff]
 line-length = 80

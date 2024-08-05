@@ -4,8 +4,8 @@ from operator import add
 
 from fastapi import HTTPException, status
 
-from src.aqua.presentation import facade as aqua
-from src.auth.presentation import facade as auth
+from aqua.presentation import facade as aqua
+from auth.presentation import facade as auth
 
 
 class _DetailBody(TypedDict):

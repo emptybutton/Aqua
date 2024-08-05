@@ -1,9 +1,9 @@
 from typing import Optional, TypeVar
 from uuid import UUID
 
-from src.aqua.domain import entities, value_objects
-from src.aqua.application.ports import repos
-from src.shared.application.ports import uows
+from aqua.domain import entities, value_objects
+from aqua.application.ports import repos
+from shared.application.ports import uows
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)

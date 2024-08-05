@@ -4,9 +4,9 @@ from uuid import UUID
 from sqlalchemy import select, insert, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.application.ports import repos
-from src.auth.domain import entities, value_objects
-from src.shared.infrastructure.db import tables
+from auth.application.ports import repos
+from auth.domain import entities, value_objects
+from shared.infrastructure.db import tables
 
 
 class Users(repos.Users):

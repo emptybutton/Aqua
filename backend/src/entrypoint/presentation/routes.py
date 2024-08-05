@@ -5,14 +5,14 @@ from uuid import UUID
 from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
 from pydantic import BaseModel
 
-from src.aqua.presentation import facade as aqua
-from src.auth.presentation import facade as auth
-from src.entrypoint.presentation import cookies
-from src.entrypoint.presentation.error_responses import (
+from aqua.presentation import facade as aqua
+from auth.presentation import facade as auth
+from entrypoint.presentation import cookies
+from entrypoint.presentation.error_responses import (
     default_error_with, detail_of, detail_from, handle_base_errors
 )
-from src.entrypoint.presentation.facade import controllers
-from src.shared.infrastructure.db.sessions import postgres_session_factory
+from entrypoint.presentation.facade import controllers
+from shared.infrastructure.db.sessions import postgres_session_factory
 
 
 router = APIRouter(prefix="/api/0.1v")

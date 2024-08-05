@@ -1,8 +1,8 @@
 from typing import Optional
 from uuid import UUID
 
-from src.aqua.domain import entities
-from src.aqua.application.ports import repos
+from aqua.domain import entities
+from aqua.application.ports import repos
 
 
 async def read_user_data(

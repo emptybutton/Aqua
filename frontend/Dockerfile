@@ -1,4 +1,4 @@
-FROM node:alpine3.19
+FROM node:20.16.0-alpine3.19
 
 WORKDIR /aqua
 

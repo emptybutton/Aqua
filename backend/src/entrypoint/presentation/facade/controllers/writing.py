@@ -1,9 +1,9 @@
 from typing import Optional, TypeAlias
 
-from src.entrypoint.application.cases import writing
-from src.entrypoint.infrastructure.adapters import gateways
-from src.shared.infrastructure.adapters import uows
-from src.shared.infrastructure.db.sessions import postgres_session_factory
+from entrypoint.application.cases import writing
+from entrypoint.infrastructure.adapters import gateways
+from shared.infrastructure.adapters import uows
+from shared.infrastructure.db.sessions import postgres_session_factory
 
 
 OutputDTO: TypeAlias = writing.OutputDTO

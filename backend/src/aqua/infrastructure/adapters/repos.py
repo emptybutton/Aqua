@@ -5,9 +5,9 @@ from uuid import UUID
 from sqlalchemy import select, insert, exists, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.aqua.application.ports import repos
-from src.aqua.domain import entities, value_objects as vo
-from src.shared.infrastructure.db import tables
+from aqua.application.ports import repos
+from aqua.domain import entities, value_objects as vo
+from shared.infrastructure.db import tables
 
 
 class Users(repos.Users):

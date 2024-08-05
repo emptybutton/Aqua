@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from src.auth.domain import errors
+from auth.domain import errors
 
 
 ValidationError: TypeAlias = errors.DomainError

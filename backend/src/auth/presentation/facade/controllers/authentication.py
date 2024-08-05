@@ -1,8 +1,8 @@
 from typing import TypeAlias
 
-from src.auth.application.cases import authentication
-from src.auth.infrastructure.adapters import serializers
-from src.auth.presentation import secrets
+from auth.application.cases import authentication
+from auth.infrastructure.adapters import serializers
+from auth.presentation import secrets
 
 
 OutputDTO: TypeAlias = authentication.OutputDTO

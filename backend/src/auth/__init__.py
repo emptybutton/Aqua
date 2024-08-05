@@ -1,4 +1,4 @@
-from src.auth import (
+from auth import (
     application as application,  # noqa: PLC0414
     domain as domain,  # noqa: PLC0414
     infrastructure as infrastructure,  # noqa: PLC0414

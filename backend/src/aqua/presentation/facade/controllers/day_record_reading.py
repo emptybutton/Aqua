@@ -5,9 +5,9 @@ from typing import TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.aqua.application.cases import day_record_reading
-from src.aqua.domain import entities
-from src.aqua.infrastructure.adapters import repos
+from aqua.application.cases import day_record_reading
+from aqua.domain import entities
+from aqua.infrastructure.adapters import repos
 
 
 @dataclass(frozen=True, kw_only=True)

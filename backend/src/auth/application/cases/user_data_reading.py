@@ -1,8 +1,8 @@
 from typing import Optional
 from uuid import UUID
 
-from src.auth.domain import entities
-from src.auth.application.ports import repos
+from auth.domain import entities
+from auth.application.ports import repos
 
 
 async def read_user_data(

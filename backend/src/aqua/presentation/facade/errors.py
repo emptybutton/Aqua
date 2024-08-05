@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from src.aqua.domain import errors
+from aqua.domain import errors
 
 
 ValidationError: TypeAlias = errors.DomainError

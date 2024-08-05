@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from src.shared.infrastructure.db import engines
+from shared.infrastructure.db import engines
 
 
 postgres_session_factory = sessionmaker(  # type: ignore[call-overload]

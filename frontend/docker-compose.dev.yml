@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  aqua:
+    build: .
+    container_name: aqua-frontend
+    restart: unless-stopped
+    volumes:
+      - .:/aqua
+
+  nginx:
+    image: nginx:stable-alpine3.19-perl
+    container_name: aqua-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf
+      - ./static:/aqua/static
+    ports:
+      - 80:80
+    depends_on:
+      - aqua

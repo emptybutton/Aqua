@@ -3,7 +3,7 @@ from types import TracebackType
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.shared.application.ports import uows
+from shared.application.ports import uows
 
 
 _ValueT = TypeVar("_ValueT")

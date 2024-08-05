@@ -1,10 +1,22 @@
 import {
+    ValidationError,
     EmptyUsernameError,
     NegativeWaterAmountError,
     FloatWaterAmountError,
     NegativeWeightAmountError,
     FloatWeightAmountError,
 } from "./errors.js";
+
+export function maybe<T>(factory: () => T): T | undefined {
+    try {
+        return factory()
+    } catch (error) {
+        if (error instanceof ValidationError)
+            return undefined;
+
+        throw error;
+    }
+}
 
 export type UUID = string;
 
@@ -15,7 +27,9 @@ export class Username {
     }
 }
 
-export type JWT = string;
+export class JWT {
+    constructor(readonly text: string) {}
+}
 
 export abstract class PasswordPower {}
 

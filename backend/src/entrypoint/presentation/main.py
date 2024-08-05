@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.entrypoint.presentation.routes import router
+from entrypoint.presentation.routes import router
 
 
 app = FastAPI()

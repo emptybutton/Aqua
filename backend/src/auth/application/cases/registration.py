@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Callable, TypeVar
 
-from src.auth.domain import entities, value_objects
-from src.auth.application.ports import repos, serializers
-from src.shared.application.ports import uows
+from auth.domain import entities, value_objects
+from auth.application.ports import repos, serializers
+from shared.application.ports import uows
 
 
 @dataclass(frozen=True)

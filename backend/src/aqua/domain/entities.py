@@ -5,10 +5,10 @@ from typing import Optional
 from uuid import UUID, uuid4
 from operator import add
 
-from src.aqua.domain.value_objects import (
+from aqua.domain.value_objects import (
     Water, WaterBalance, Glass, Weight, WaterBalanceStatus, status_of
 )
-from src.aqua.domain import errors
+from aqua.domain import errors
 
 
 @dataclass

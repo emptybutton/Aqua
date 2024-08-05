@@ -1,8 +1,8 @@
 from typing import Optional, Iterable
 from uuid import UUID
 
-from src.auth.application.ports import repos
-from src.auth.domain import entities, value_objects
+from auth.application.ports import repos
+from auth.domain import entities, value_objects
 
 
 class Users(repos.Users):

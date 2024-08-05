@@ -4,7 +4,7 @@ from functools import cached_property
 from string import digits
 from uuid import UUID
 
-from src.auth.domain import errors
+from auth.domain import errors
 
 
 @dataclass(frozen=True)

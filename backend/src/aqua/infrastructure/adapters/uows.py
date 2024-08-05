@@ -1,9 +1,9 @@
 from sqlalchemy import update, Update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.aqua.domain import entities
-from src.shared.infrastructure.adapters import uows
-from src.shared.infrastructure.db import tables
+from aqua.domain import entities
+from shared.infrastructure.adapters import uows
+from shared.infrastructure.db import tables
 
 
 class DirtyDayUoW(uows.DBUoW[entities.Day]):

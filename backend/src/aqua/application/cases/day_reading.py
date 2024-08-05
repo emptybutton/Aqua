@@ -2,8 +2,8 @@ from uuid import UUID
 from dataclasses import dataclass
 from datetime import date
 
-from src.aqua.domain import entities
-from src.aqua.application.ports import repos
+from aqua.domain import entities
+from aqua.application.ports import repos
 
 
 @dataclass(frozen=True, kw_only=True)

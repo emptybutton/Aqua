@@ -1,8 +1,8 @@
 from datetime import datetime, UTC
 from uuid import uuid4
 
-from src.auth.domain.value_objects import Password, AccessToken, Username
-from src.auth.infrastructure.adapters import serializers
+from auth.domain.value_objects import Password, AccessToken, Username
+from auth.infrastructure.adapters import serializers
 
 
 def test_password_serializer() -> None:

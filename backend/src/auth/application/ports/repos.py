@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from uuid import UUID
 
-from src.auth.domain import entities
-from src.auth.domain import value_objects
+from auth.domain import entities
+from auth.domain import value_objects
 
 
 class Users(ABC):

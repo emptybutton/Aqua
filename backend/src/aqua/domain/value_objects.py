@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.aqua.domain import errors
+from aqua.domain import errors
 
 
 @dataclass(frozen=True)

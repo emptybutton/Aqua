@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import TypeVar, Optional
 from uuid import UUID
 
-from src.entrypoint.application.ports import gateways
-from src.shared.application.ports.uows import UoW
+from entrypoint.application.ports import gateways
+from shared.application.ports.uows import UoW
 
 
 _UoWT = TypeVar("_UoWT", bound=UoW[object])

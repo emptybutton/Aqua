@@ -6,9 +6,9 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.application.cases import authorization
-from src.auth.infrastructure.adapters import serializers, repos
-from src.auth.presentation import secrets
+from auth.application.cases import authorization
+from auth.infrastructure.adapters import serializers, repos
+from auth.presentation import secrets
 
 
 BaseError: TypeAlias = authorization.BaseError

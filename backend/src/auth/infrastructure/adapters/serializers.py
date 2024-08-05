@@ -5,14 +5,14 @@ import hashlib
 
 import jwt
 
-from src.auth.application.ports import serializers
-from src.auth.domain.value_objects import (
+from auth.application.ports import serializers
+from auth.domain.value_objects import (
     AccessToken,
     Password,
     PasswordHash,
     Username,
 )
-from src.auth.domain.errors import DomainError
+from auth.domain.errors import DomainError
 
 
 JWT: TypeAlias = str

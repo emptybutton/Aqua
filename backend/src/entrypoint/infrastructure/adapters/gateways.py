@@ -2,10 +2,10 @@ from datetime import date
 from typing import Optional
 from uuid import UUID
 
-from src.aqua.presentation.facade import controllers as aqua
-from src.auth.presentation.facade import controllers as auth
-from src.entrypoint.application.ports import gateways
-from src.shared.infrastructure.adapters.uows import DBUoW
+from aqua.presentation.facade import controllers as aqua
+from auth.presentation.facade import controllers as auth
+from entrypoint.application.ports import gateways
+from shared.infrastructure.adapters.uows import DBUoW
 
 
 class AquaGateway(gateways.aqua.Gateway[DBUoW[object]]):

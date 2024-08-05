@@ -3,7 +3,7 @@ from datetime import date
 from uuid import UUID
 from typing import Optional
 
-from src.aqua.domain import entities
+from aqua.domain import entities
 
 
 class Users(ABC):

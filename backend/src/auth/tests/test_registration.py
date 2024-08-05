@@ -3,11 +3,11 @@ from secrets import token_hex
 
 from pytest import raises, mark
 
-from src.auth.application.cases import registration
-from src.auth.domain import errors as domain_errors
-from src.auth.infrastructure.adapters import serializers
-from src.auth.tests import adapters
-from src.shared.infrastructure.adapters import uows
+from auth.application.cases import registration
+from auth.domain import errors as domain_errors
+from auth.infrastructure.adapters import serializers
+from auth.tests import adapters
+from shared.infrastructure.adapters import uows
 
 
 @mark.asyncio

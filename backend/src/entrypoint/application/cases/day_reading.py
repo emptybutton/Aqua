@@ -1,8 +1,8 @@
 from datetime import date
 from typing import TypeVar, TypeAlias
 
-from src.entrypoint.application.ports import gateways
-from src.shared.application.ports.uows import UoW
+from entrypoint.application.ports import gateways
+from shared.application.ports.uows import UoW
 
 
 _UoWT = TypeVar("_UoWT", bound=UoW[object])

@@ -4,7 +4,7 @@ from datetime import datetime, date
 from typing import Optional, TypeVar, Generic
 from uuid import UUID
 
-from src.shared.application.ports.uows import UoW
+from shared.application.ports.uows import UoW
 
 
 @dataclass(frozen=True)

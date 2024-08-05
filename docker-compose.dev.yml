@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    container_name: aqua-backend
+    restart: unless-stopped
+    command: ["ash", "./scripts/start.sh"]
+    volumes:
+      - ./backend:/aqua
+    networks:
+      - private-network
+    environment:
+      JWT_SECRET: mega-secret
+      POSTGRES_DATABASE: aqua
+      POSTGRES_USERNAME: aqua
+      POSTGRES_PASSWORD: aqua
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_ECHO: true
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: aqua-frontend
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/aqua
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:stable-alpine3.19-perl
+    container_name: aqua-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf
+      - ./frontend/static:/aqua/static
+    networks:
+      - private-network
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+      - frontend
+
+  postgres:
+    image: postgres:16.3-alpine3.19
+    container_name: aqua-postgres
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - private-network
+    environment:
+      POSTGRES_DB: aqua
+      POSTGRES_USER: aqua
+      POSTGRES_PASSWORD: aqua
+
+networks:
+  private-network:
+    driver: bridge
+
+volumes:
+  postgres_data: null

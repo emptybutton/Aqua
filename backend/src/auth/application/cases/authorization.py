@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable
 
-from src.auth.domain import entities, value_objects, errors
-from src.auth.application.ports import repos, serializers
+from auth.domain import entities, value_objects, errors
+from auth.application.ports import repos, serializers
 
 
 @dataclass(frozen=True)

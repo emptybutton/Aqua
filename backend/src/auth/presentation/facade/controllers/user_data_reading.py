@@ -4,8 +4,8 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.application.cases import user_data_reading
-from src.auth.infrastructure.adapters import repos
+from auth.application.cases import user_data_reading
+from auth.infrastructure.adapters import repos
 
 
 @dataclass(frozen=True, kw_only=True)

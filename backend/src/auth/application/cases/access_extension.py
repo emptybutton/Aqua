@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.auth.domain import value_objects
-from src.auth.application.ports import serializers
+from auth.domain import value_objects
+from auth.application.ports import serializers
 
 
 @dataclass(frozen=True)
