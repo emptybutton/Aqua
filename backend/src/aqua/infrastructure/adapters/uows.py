@@ -25,9 +25,10 @@ class DirtyDayUoW(uows.DBUoW[entities.Day]):
             .where(tables.Day.id == day.id)
             .values(
                 user_id=day.user_id,
-                real_water_balance=day.real_water_balance.water.milliliters,
-                target_water_balance=day.target_water_balance.water.milliliters,
+                real_water_balance=day.water_balance.water.milliliters,
+                target_water_balance=day.target.water.milliliters,
                 date_=day.date_,
                 result=day.result.value,
+                is_result_pinned=day.is_result_pinned,
             )
         )

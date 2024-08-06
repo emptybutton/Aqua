@@ -1,5 +1,4 @@
 from datetime import datetime, date
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, DateTime
@@ -35,7 +34,7 @@ class AquaUser(Base):
     )
     water_balance: Mapped[int]
     glass: Mapped[int]
-    weight: Mapped[Optional[int]]
+    weight: Mapped[int | None]
     records: Mapped[list["Record"]] = relationship(back_populates="user")
 
 
@@ -56,3 +55,4 @@ class Day(Base):
     target_water_balance: Mapped[int]
     date_: Mapped[date]
     result: Mapped[int]
+    is_result_pinned: Mapped[bool | None]

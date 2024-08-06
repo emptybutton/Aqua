@@ -41,7 +41,7 @@ async def register_user(
 
     return OutputDTO(
         id=user.id,
-        water_balance_milliliters=user.target_water_balance.water.milliliters,
+        water_balance_milliliters=user.target.water.milliliters,
         weight_kilograms=weight_kilograms,
         glass_milliliters=user.glass.capacity.milliliters,
     )

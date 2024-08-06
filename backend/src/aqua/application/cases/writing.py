@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 from typing import Optional, TypeVar
 from uuid import UUID
 
-from aqua.domain import entities, value_objects
+from aqua.domain import entities, value_objects as vos
 from aqua.application.ports import repos
 from shared.application.ports import uows
 
@@ -32,7 +32,7 @@ async def write_water(  # noqa: PLR0913
     if user is None:
         raise NoUserError()
 
-    water = None if milliliters is None else value_objects.Water(milliliters)
+    water = None if milliliters is None else vos.Water(milliliters=milliliters)
     record = user.write_water(water)
 
     record_uow = record_uow_for(records)
@@ -47,16 +47,13 @@ async def write_water(  # noqa: PLR0913
         if day is None:
             day = entities.Day(
                 user_id=user_id,
-                target_water_balance=user.target_water_balance,
-                _real_water_balance=value_objects.WaterBalance(
-                    record.drunk_water,
-                ),
+                target=user.target,
+                _water_balance=vos.WaterBalance(water=record.drunk_water),
             )
             day_uow.register_new(day)
             await days.add(day)
         else:
-            water = day.real_water_balance.water + record.drunk_water
-            day.real_water_balance = value_objects.WaterBalance(water)
+            day.add(record)
             day_uow.register_dirty(day)
 
     return record

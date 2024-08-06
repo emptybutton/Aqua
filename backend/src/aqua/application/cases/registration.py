@@ -1,7 +1,7 @@
 from typing import Optional, TypeVar
 from uuid import UUID
 
-from aqua.domain import entities, value_objects
+from aqua.domain import entities, value_objects as vos
 from aqua.application.ports import repos
 from shared.application.ports import uows
 
@@ -24,21 +24,26 @@ async def register_user(  # noqa: PLR0913
         return user
 
     if water_balance_milliliters is not None:
-        water = value_objects.Water(water_balance_milliliters)
-        water_balance = value_objects.WaterBalance(water)
+        water = vos.Water(milliliters=water_balance_milliliters)
+        target = vos.WaterBalance(water=water)
     else:
-        water_balance = None
+        target = None
 
     if weight_kilograms is not None:
-        weight = value_objects.Weight(weight_kilograms)
+        weight = vos.Weight(kilograms=weight_kilograms)
     else:
         weight = None
 
     if glass_milliliters is None:
         glass_milliliters = 200
 
-    glass = value_objects.Glass(value_objects.Water(glass_milliliters))
-    user = entities.User(glass, weight, water_balance, user_id)
+    glass = vos.Glass(capacity=vos.Water(milliliters=glass_milliliters))
+    user = entities.User(
+        id=user_id,
+        glass=glass,
+        weight=weight,
+        _target=target,
+    )
 
     async with uow_for(users) as uow:
         uow.register_new(user)

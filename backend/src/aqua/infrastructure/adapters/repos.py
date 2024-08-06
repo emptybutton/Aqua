@@ -15,7 +15,7 @@ class Users(repos.Users):
         self.__session = session
 
     async def add(self, user: entities.User) -> None:
-        water_balance = user.target_water_balance.water.milliliters
+        water_balance = user.target.water.milliliters
         weight = None
         glass = None
 
@@ -50,19 +50,22 @@ class Users(repos.Users):
         if raw_user is None:
             return None
 
-        glass = vo.Glass(vo.Water(raw_user.glass))
+        glass = vo.Glass(capacity=vo.Water(milliliters=raw_user.glass))
+        weight = (
+            None
+            if raw_user.weight is None
+            else vo.Weight(kilograms=raw_user.weight)
+        )
 
-        weight = None if raw_user.weight is None else vo.Weight(raw_user.weight)
-
-        water_balance = vo.WaterBalance(
-            vo.Water(raw_user.water_balance)
+        target = vo.WaterBalance(
+            water=vo.Water(milliliters=raw_user.water_balance)
         )
 
         return entities.User(
+            id=raw_user.id,
             weight=weight,
             glass=glass,
-            _target_water_balance=water_balance,
-            id=raw_user.id,
+            _target=target,
         )
 
     async def has_with_id(self, user_id: UUID) -> bool:
@@ -116,7 +119,7 @@ class Records(repos.Records):
         return entities.Record(
             id=record_data.id,
             user_id=user_id,
-            drunk_water=vo.Water(record_data.drunk_water),
+            drunk_water=vo.Water(milliliters=record_data.drunk_water),
             _recording_time=record_data.recording_time,
         )
 
@@ -129,8 +132,8 @@ class Days(repos.Days):
         stmt = insert(tables.Day).values(
             id=day.id,
             user_id=day.user_id,
-            real_water_balance=day.real_water_balance.water.milliliters,
-            target_water_balance=day.target_water_balance.water.milliliters,
+            real_water_balance=day.water_balance.water.milliliters,
+            target_water_balance=day.target.water.milliliters,
             date_=day.date_,
             result=day.result.value,
         )
@@ -150,6 +153,7 @@ class Days(repos.Days):
                 tables.Day.target_water_balance,
                 tables.Day.date_,
                 tables.Day.result,
+                tables.Day.is_result_pinned,
             ).where(
                 (tables.Day.date_ == date_)
                 & (tables.Day.user_id == user_id)
@@ -171,15 +175,24 @@ class Days(repos.Days):
         user_id: UUID,
         date_: date,
     ) -> entities.Day:
-        target = vo.WaterBalance(vo.Water(raw_data.target_water_balance))
-        water_balance = vo.WaterBalance(vo.Water(raw_data.real_water_balance))
-        result = vo.WaterBalanceStatus(raw_data.result)
+        target = vo.WaterBalance(water=vo.Water(
+            milliliters=raw_data.target_water_balance,
+        ))
+        water_balance = vo.WaterBalance(water=vo.Water(
+            milliliters=raw_data.real_water_balance,
+        ))
+        result = vo.WaterBalance.Status(raw_data.result)
+        is_result_pinned = raw_data.is_result_pinned
+
+        if is_result_pinned is None:
+            is_result_pinned = False
 
         return entities.Day(
             id=raw_data.id,
             user_id=user_id,
             date_=date_,
-            target_water_balance=target,
-            _real_water_balance=water_balance,
+            target=target,
+            _water_balance=water_balance,
             _result=result,
+            _is_result_pinned=is_result_pinned,
         )

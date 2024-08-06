@@ -30,7 +30,7 @@ async def read_user_data(
         return None
 
     weight_kilograms = None if user.weight is None else user.weight.kilograms
-    water_balance_milliliters = user.target_water_balance.water.milliliters
+    water_balance_milliliters = user.target.water.milliliters
 
     return OutputDTO(
         user_id=user.id,

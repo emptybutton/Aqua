@@ -35,14 +35,11 @@ async def read_day(
     day = await days.get_on(date_, user_id=user.id)
 
     if day is None:
-        day = entities.Day(
-            user_id=user.id,
-            target_water_balance=user.target_water_balance,
-        )
+        day = entities.Day(user_id=user.id, target=user.target)
 
     return OutputDTO(
         user_id=day.user_id,
-        target_water_balance=day.target_water_balance.water.milliliters,
-        real_water_balance=day.real_water_balance.water.milliliters,
+        target_water_balance=day.target.water.milliliters,
+        real_water_balance=day.water_balance.water.milliliters,
         result_code=day.result.value,
     )
