@@ -32,7 +32,7 @@ async def register_user(  # noqa: PLR0913
     auth_gateway: gateways.auth.Gateway[_UoWT],
     aqua_gateway: gateways.aqua.Gateway[_UoWT],
 ) -> OutputDTO:
-    async with uow as uow:
+    async with uow as uow:  # noqa: PLR1704
         auth_result = await auth_gateway.register_user(name, password, uow=uow)
         auth_user_id = auth_result.user_id
         refresh_token_expiration = auth_result.refresh_token_expiration_date

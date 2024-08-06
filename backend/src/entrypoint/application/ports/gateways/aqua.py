@@ -51,7 +51,7 @@ UoWT_contra = TypeVar("UoWT_contra", bound=UoW[object], contravariant=True)
 
 class Gateway(Generic[UoWT_contra], ABC):
     @abstractmethod
-    async def register_user(  # noqa: PLR0913
+    async def register_user(
         self,
         auth_user_id: UUID,
         water_balance_milliliters: Optional[int],

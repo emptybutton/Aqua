@@ -9,7 +9,7 @@ from shared.infrastructure.adapters.uows import DBUoW
 
 
 class AquaGateway(gateways.aqua.Gateway[DBUoW[object]]):
-    async def register_user(  # noqa: PLR0913
+    async def register_user(
         self,
         auth_user_id: UUID,
         water_balance_milliliters: Optional[int],
