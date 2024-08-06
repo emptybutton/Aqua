@@ -1,4 +1,4 @@
-from aqua.application.cases import (
+from aqua.presentation.di.facade import (
     read_day as read_day,  # noqa: PLC0414
     read_day_records as read_day_records,  # noqa: PLC0414
     read_user as read_user,  # noqa: PLC0414

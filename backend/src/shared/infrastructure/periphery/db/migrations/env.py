@@ -6,8 +6,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from shared.infrastructure.db.engines import db_url
-from shared.infrastructure.db.tables import Base
+from shared.infrastructure.periphery.db.engines import db_url
+from shared.infrastructure.periphery.db.tables import Base
 
 
 config = context.config

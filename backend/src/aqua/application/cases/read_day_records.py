@@ -5,20 +5,20 @@ from aqua.domain import entities
 from aqua.application.ports import repos
 
 
-class BaseError(Exception): ...
+class Error(Exception): ...
 
 
-class NoUserError(BaseError): ...
+class NoUserError(Error): ...
 
 
-async def read_day_records(
+async def perform(
     user_id: UUID,
     date_: date,
     *,
     users: repos.Users,
     records: repos.Records,
 ) -> tuple[entities.Record, ...]:
-    if not await users.has_with_id(user_id):
+    if not await users.contains_with_id(user_id):
         raise NoUserError()
 
-    return await records.get_on(date_, user_id=user_id)
+    return await records.find_from(date_, user_id=user_id)

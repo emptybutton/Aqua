@@ -141,6 +141,17 @@ files = [
 ]
 
 [[package]]
+name = "dishka"
+version = "1.2.0"
+description = "Minimal DI framework"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "dishka-1.2.0-py3-none-any.whl", hash = "sha256:d543497b611a448d14a4a138976435937b3b58e5657549f73e7df8c3fc04ccad"},
+    {file = "dishka-1.2.0.tar.gz", hash = "sha256:aae988a49f9f5e591cb103c45287a709378b2f3924a95192fceede168f8605dd"},
+]
+
+[[package]]
 name = "dnspython"
 version = "2.6.1"
 description = "DNS toolkit"
@@ -1356,4 +1367,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "ff9dd33d7b5ce9262e1ebe40b6aae70c7b62d5c4b103cc2883c2a8931ac27b39"
+content-hash = "8094a4a727460feb79378a337cb317257271f7362e31aad2f388dcacb344ef86"

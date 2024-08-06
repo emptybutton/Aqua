@@ -1,31 +1,12 @@
-from typing import Optional, Type, TypeVar, Self
+from typing import Optional, Type, Self
 from types import TracebackType
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.application.ports import uows
+from shared.application.ports import transactions
 
 
-_ValueT = TypeVar("_ValueT")
-
-
-class FakeUoW(uows.UoW[_ValueT]):
-    def register_new(self, value: _ValueT) -> None: ...
-
-    def register_dirty(self, value: _ValueT) -> None: ...
-
-    def register_deleted(self, value: _ValueT) -> None: ...
-
-    async def __aexit__(
-        self,
-        error_type: Optional[Type[BaseException]],
-        error: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> Optional[bool]:
-        ...
-
-
-class DBUoW(FakeUoW[_ValueT]):
+class DBTransaction(transactions.Transaction):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
@@ -45,12 +26,8 @@ class DBUoW(FakeUoW[_ValueT]):
         traceback: Optional[TracebackType],
     ) -> bool:
         if error is None:
-            await self._finish_work()
             await self._session.commit()
         else:
             await self._session.rollback()
 
         return error is None
-
-    async def _finish_work(self) -> None:
-        ...

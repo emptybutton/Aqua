@@ -1,28 +1,23 @@
-from typing import Optional, TypeVar
+from typing import TypeVar, Callable
 from uuid import UUID
 
 from aqua.domain import entities, value_objects as vos
 from aqua.application.ports import repos
-from shared.application.ports import uows
+from shared.application.ports import transactions
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
-async def register_user(  # noqa: PLR0913
+async def perform(  # noqa: PLR0913
     user_id: UUID,
-    water_balance_milliliters: Optional[int],
-    glass_milliliters: Optional[int],
-    weight_kilograms: Optional[int],
+    water_balance_milliliters: int | None,
+    glass_milliliters: int | None,
+    weight_kilograms: int | None,
     *,
     users: _UsersT,
-    uow_for: uows.UoWFactory[_UsersT, entities.User],
+    transaction_for: Callable[[_UsersT], transactions.Transaction],
 ) -> entities.User:
-    user = await users.get_by_id(user_id)
-
-    if user is not None:
-        return user
-
     if water_balance_milliliters is not None:
         water = vos.Water(milliliters=water_balance_milliliters)
         target = vos.WaterBalance(water=water)
@@ -38,15 +33,20 @@ async def register_user(  # noqa: PLR0913
         glass_milliliters = 200
 
     glass = vos.Glass(capacity=vos.Water(milliliters=glass_milliliters))
-    user = entities.User(
-        id=user_id,
-        glass=glass,
-        weight=weight,
-        _target=target,
-    )
 
-    async with uow_for(users) as uow:
-        uow.register_new(user)
+    async with transaction_for(users):
+        user = await users.find_with_id(user_id)
+
+        if user is not None:
+            return user
+
+        user = entities.User(
+            id=user_id,
+            glass=glass,
+            weight=weight,
+            _target=target,
+        )
+
         await users.add(user)
 
     return user

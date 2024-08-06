@@ -1,7 +1,7 @@
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from shared.infrastructure.envs import Env
+from shared.infrastructure.periphery.envs import Env
 
 
 db_url = URL.create(

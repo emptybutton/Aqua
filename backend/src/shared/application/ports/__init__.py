@@ -1,3 +1,3 @@
 from shared.application.ports import (
-    uows as uows,  # noqa: PLC0414
+    transactions as transactions,  # noqa: PLC0414
 )

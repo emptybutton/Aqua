@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.ports import repos
 from auth.domain import entities, value_objects
-from shared.infrastructure.db import tables
+from shared.infrastructure.periphery.db import tables
 
 
 class Users(repos.Users):
