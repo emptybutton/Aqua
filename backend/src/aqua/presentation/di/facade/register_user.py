@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import register_user
 from aqua.application.ports import repos
-from aqua.domain import errors
+from aqua.domain import entities, value_objects as vos
 from aqua.presentation.di.containers import adapter_container
 from shared.presentation.di.providers import TransactionFactory
 
@@ -19,14 +19,16 @@ class Output:
     weight_kilograms: int | None
 
 
-IncorrectWaterAmountError: TypeAlias = errors.IncorrectWaterAmount
+IncorrectWaterAmountError: TypeAlias = vos.Water.IncorrectAmountError
 
-IncorrectWeightAmountError: TypeAlias = errors.IncorrectWeightAmount
+IncorrectWeightAmountError: TypeAlias = vos.Weight.IncorrectAmountError
 
-NoWeightForWaterBalanceError: TypeAlias = errors.NoWeightForWaterBalance
+NoWeightForWaterBalanceError: TypeAlias = (
+    entities.User.NoWeightForSuitableWaterBalanceError
+)
 
 ExtremeWeightForWaterBalanceError: TypeAlias = (
-    errors.ExtremeWeightForWaterBalance
+    vos.WaterBalance.ExtremeWeightForSuitableWaterBalanceError
 )
 
 Error: TypeAlias = (

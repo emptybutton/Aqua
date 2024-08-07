@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from aqua.domain import errors
-
 
 @dataclass(kw_only=True, frozen=True)
 class Water:
+    class IncorrectAmountError(Exception): ...
+
     milliliters: int
 
     def __post_init__(self) -> None:
         if self.milliliters < 0:
-            raise errors.IncorrectWaterAmount()
+            raise Water.IncorrectAmountError
 
     def __add__(self, water: "Water") -> "Water":
         return Water(milliliters=self.milliliters + water.milliliters)
@@ -37,6 +37,16 @@ class WaterBalance:
 
         return WaterBalance.Status.good
 
+    class ExtremeWeightForSuitableWaterBalanceError(Exception): ...
+
+    @classmethod
+    def suitable_when(cls, *, weight: "Weight") -> "WaterBalance":
+        if weight.kilograms <= 30 or weight.kilograms >= 150:  # noqa: PLR2004
+            raise WaterBalance.ExtremeWeightForSuitableWaterBalanceError
+
+        appropriate_milliliters = 1500 + (weight.kilograms - 20) * 10
+        return WaterBalance(water=Water(milliliters=appropriate_milliliters))
+
 
 @dataclass(kw_only=True, frozen=True)
 class Glass:
@@ -45,8 +55,10 @@ class Glass:
 
 @dataclass(kw_only=True, frozen=True)
 class Weight:
+    class IncorrectAmountError(Exception): ...
+
     kilograms: int
 
     def __post_init__(self) -> None:
         if self.kilograms < 0:
-            raise errors.IncorrectWeightAmount()
+            raise Weight.IncorrectAmountError

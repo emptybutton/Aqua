@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import write_water
 from aqua.application.ports import repos
-from aqua.domain import errors
+from aqua.domain import value_objects as vos
 from aqua.presentation.di.containers import adapter_container
 from shared.presentation.di.providers import TransactionFactory
 
@@ -20,7 +20,7 @@ class Output:
     recording_time: datetime
 
 
-IncorrectWaterAmountError: TypeAlias = errors.IncorrectWaterAmount
+IncorrectWaterAmountError: TypeAlias = vos.Water.IncorrectAmountError
 
 NoUserError: TypeAlias = write_water.NoUserError
 

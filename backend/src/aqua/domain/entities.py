@@ -5,11 +5,12 @@ from uuid import UUID, uuid4
 from operator import add
 
 from aqua.domain.value_objects import Water, WaterBalance, Glass, Weight
-from aqua.domain import errors
 
 
 @dataclass(kw_only=True)
 class Record:
+    class NotUTCRecordingTimeError(Exception): ...
+
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     drunk_water: Water
@@ -24,7 +25,7 @@ class Record:
     @recording_time.setter
     def recording_time(self, recording_time: datetime) -> None:
         if recording_time.tzinfo is not UTC:
-            raise errors.NotUTCRecordingTime()
+            raise Record.NotUTCRecordingTimeError
 
         self._recording_time = recording_time
 
@@ -44,6 +45,8 @@ def water_balance_from(*records: Record) -> WaterBalance:
 
 @dataclass(kw_only=True)
 class User:
+    class NoWeightForSuitableWaterBalanceError(Exception): ...
+
     id: UUID = field(default_factory=uuid4)
     weight: Weight | None = None
     glass: Glass
@@ -58,19 +61,15 @@ class User:
         self._target = target
 
     @property
-    def appropriate_water_balance(self) -> WaterBalance:
+    def suitable_water_balance(self) -> WaterBalance:
         if self.weight is None:
-            raise errors.NoWeightForWaterBalance()
+            raise User.NoWeightForSuitableWaterBalanceError
 
-        if self.weight.kilograms <= 30 or self.weight.kilograms >= 150:  # noqa: PLR2004
-            raise errors.ExtremeWeightForWaterBalance()
-
-        appropriate_milliliters = 1500 + (self.weight.kilograms - 20) * 10
-        return WaterBalance(water=Water(milliliters=appropriate_milliliters))
+        return WaterBalance.suitable_when(weight=self.weight)
 
     def __post_init__(self) -> None:
         if self.target is None:
-            self.target = self.appropriate_water_balance
+            self.target = self.suitable_water_balance
 
     def write_water(self, water: Water | None = None) -> Record:
         if water is None:
