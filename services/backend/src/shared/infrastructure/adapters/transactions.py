@@ -39,5 +39,5 @@ class DBTransactionFactory(
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def __call__(self, _: Any) -> DBTransaction:
+    def __call__(self, _: Any) -> DBTransaction:  # noqa: ANN401
         return DBTransaction(self._session)
