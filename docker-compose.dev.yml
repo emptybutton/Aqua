@@ -1,12 +1,12 @@
 version: "3.9"
 services:
   backend:
-    build: ./backend
+    build: ./services/backend
     container_name: aqua-backend
     restart: unless-stopped
     command: ["ash", "./scripts/start.sh"]
     volumes:
-      - ./backend:/aqua
+      - ./services/backend:/aqua
     networks:
       - private-network
     environment:
@@ -21,11 +21,11 @@ services:
       - postgres
 
   frontend:
-    build: ./frontend
+    build: ./services/frontend
     container_name: aqua-frontend
     restart: unless-stopped
     volumes:
-      - ./frontend:/aqua
+      - ./services/frontend:/aqua
     depends_on:
       - backend
 
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf
-      - ./frontend/static:/aqua/static
+      - ./services/frontend/static:/aqua/static
     networks:
       - private-network
     ports:
