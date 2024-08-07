@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime, UTC
-from typing import TypeVar, Callable
+from typing import TypeVar
 from uuid import UUID
 
 from aqua.domain import entities, value_objects as vos
 from aqua.application.ports import repos
-from shared.application.ports import transactions
+from shared.application.ports.transactions import TransactionFactory
 
 
 @dataclass(kw_only=True)
@@ -33,9 +33,9 @@ async def perform(  # noqa: PLR0913
     users: _UsersT,
     records: _RecordsT,
     days: _DaysT,
-    record_transaction_for: Callable[[_RecordsT], transactions.Transaction],
-    day_transaction_for: Callable[[_DaysT], transactions.Transaction],
-    user_transaction_for: Callable[[_UsersT], transactions.Transaction],
+    record_transaction_for: TransactionFactory[_RecordsT],
+    day_transaction_for: TransactionFactory[_DaysT],
+    user_transaction_for: TransactionFactory[_UsersT],
 ) -> Output:
     water = None if milliliters is None else vos.Water(milliliters=milliliters)
 

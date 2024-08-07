@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import read_user
-from aqua.application.ports import repos
+from aqua.infrastructure import adapters
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -24,7 +24,7 @@ async def perform(
     async with adapter_container(context={AsyncSession: session}) as container:
         user = await read_user.perform(
             user_id,
-            users=await container.get(repos.Users),
+            users=await container.get(adapters.repos.DBUsers),
         )
 
     if user is None:

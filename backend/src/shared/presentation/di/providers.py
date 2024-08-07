@@ -1,13 +1,9 @@
-from typing import Annotated, TypeAlias, Callable
+from typing import Annotated
 
 from dishka import Provider, provide, Scope, from_context, FromComponent
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.application import ports
 from shared.infrastructure import adapters
-
-
-TransactionFactory: TypeAlias = Callable[..., ports.transactions.Transaction]
 
 
 class PeripheryProvider(Provider):
@@ -29,5 +25,5 @@ class TransactionProvider(Provider):
     def get_transaction_factory(
         self,
         session: Annotated[AsyncSession, FromComponent("periphery")],
-    ) -> TransactionFactory:
-        return lambda *_, **__: adapters.transactions.DBTransaction(session)
+    ) -> adapters.transactions.DBTransactionFactory:
+        return adapters.transactions.DBTransactionFactory(session)

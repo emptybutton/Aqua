@@ -1,4 +1,4 @@
-from typing import Optional, Type, Self
+from typing import Type, Self, Any
 from types import TracebackType
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,9 +21,9 @@ class DBTransaction(transactions.Transaction):
 
     async def __aexit__(
         self,
-        error_type: Optional[Type[BaseException]],
-        error: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        error_type: Type[BaseException] | None,
+        error: BaseException | None,
+        traceback: TracebackType | None,
     ) -> bool:
         if error is None:
             await self._session.commit()
@@ -31,3 +31,13 @@ class DBTransaction(transactions.Transaction):
             await self._session.rollback()
 
         return error is None
+
+
+class DBTransactionFactory(
+    transactions.TransactionFactory[Any, DBTransaction],
+):
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    def __call__(self, _: Any) -> DBTransaction:
+        return DBTransaction(self._session)

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, TypeVar, Generic
+from typing import TypeVar, Generic
 
 
 _DeserializedValueT = TypeVar("_DeserializedValueT")
@@ -14,7 +14,7 @@ class AsymmetricSerializer(
     def serialized(self, value: _DeserializedValueT) -> _SerializedValueT: ...
 
 
-class SymmetricSerializer(
+class SecureSymmetricSerializer(
     Generic[_DeserializedValueT, _SerializedValueT],
     AsymmetricSerializer[_DeserializedValueT, _SerializedValueT],
 ):
@@ -22,4 +22,4 @@ class SymmetricSerializer(
     def deserialized(
         self,
         value: _SerializedValueT,
-    ) -> Optional[_DeserializedValueT]: ...
+    ) -> _DeserializedValueT | None: ...

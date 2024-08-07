@@ -6,7 +6,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import read_day
-from aqua.application.ports import repos
+from aqua.infrastructure import adapters
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -33,8 +33,8 @@ async def perform(
         result = await read_day.perform(
             user_id,
             date_,
-            users=await container.get(repos.Users),
-            days=await container.get(repos.Days),
+            users=await container.get(adapters.repos.DBUsers),
+            days=await container.get(adapters.repos.DBDays),
         )
 
     return Output(

@@ -2,7 +2,7 @@ from datetime import date
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, insert, exists, func, update
+from sqlalchemy import insert, exists, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.ports import repos
@@ -39,7 +39,8 @@ class DBUsers(repos.Users):
 
     async def find_with_id(self, user_id: UUID) -> entities.User | None:
         query = (
-            self.__builder.select(
+            self.__builder
+            .select(
                 tables.AquaUser.id,
                 tables.AquaUser.water_balance,
                 tables.AquaUser.glass,
@@ -73,7 +74,11 @@ class DBUsers(repos.Users):
         )
 
     async def contains_with_id(self, user_id: UUID) -> bool:
-        query = select(exists(1).where(tables.AquaUser.id == user_id))
+        query = (
+            self.__builder
+            .select(exists(1).where(tables.AquaUser.id == user_id))
+            .build()
+        )
 
         result = await self.__session.scalar(query)
         return bool(result)

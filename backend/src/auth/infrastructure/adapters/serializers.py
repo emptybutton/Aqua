@@ -1,32 +1,27 @@
 from datetime import datetime, UTC
-from typing import TypeAlias, Optional
+from typing import TypeAlias
 from uuid import UUID
 import hashlib
 
 import jwt
 
 from auth.application.ports import serializers
-from auth.domain.value_objects import (
-    AccessToken,
-    Password,
-    PasswordHash,
-    Username,
-)
-from auth.domain.errors import DomainError
+from auth.domain import value_objects as vos
 
 
 JWT: TypeAlias = str
 
 
-class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
+class AccessTokenSerializer(
+    serializers.SecureSymmetricSerializer[vos.AccessToken, JWT],
+):
     def __init__(self, secret: str, *, algorithm: str = "HS256") -> None:
         self.__secret = secret
         self.__algorithm = algorithm
 
-    def serialized(self, access_token: AccessToken) -> JWT:
+    def serialized(self, access_token: vos.AccessToken) -> JWT:
         payload = {
             "user-id": int(access_token.user_id),
-            "username": access_token.username.text,
         }
 
         headers = {
@@ -40,10 +35,7 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
             algorithm=self.__algorithm,
         )
 
-    def deserialized(
-        self,
-        jwt_: JWT,
-    ) -> Optional[AccessToken]:
+    def deserialized(self, jwt_: JWT) -> vos.AccessToken | None:
         try:
             decoded_jwt = jwt.api_jwt.decode_complete(
                 jwt_,
@@ -66,20 +58,19 @@ class AccessTokenSerializer(serializers.SymmetricSerializer[AccessToken, JWT]):
             return None
 
         try:
-            return AccessToken(
-                user_id,
-                Username(decoded_jwt["payload"]["username"]),
-                expiration_date,
+            return vos.AccessToken(
+                user_id=user_id,
+                expiration_date=expiration_date,
             )
-        except DomainError:
+        except vos.AccessToken.Error:
             return None
 
 
 class PasswordSerializer(
-    serializers.AsymmetricSerializer[Password, PasswordHash],
+    serializers.AsymmetricSerializer[vos.Password, vos.PasswordHash],
 ):
-    def serialized(self, password: Password) -> PasswordHash:
+    def serialized(self, password: vos.Password) -> vos.PasswordHash:
         hash_object = hashlib.sha256()
         hash_object.update(password.text.encode("utf-8"))
 
-        return PasswordHash(hash_object.hexdigest())
+        return vos.PasswordHash(text=hash_object.hexdigest())

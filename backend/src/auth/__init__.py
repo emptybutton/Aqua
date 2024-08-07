@@ -3,5 +3,4 @@ from auth import (
     domain as domain,  # noqa: PLC0414
     infrastructure as infrastructure,  # noqa: PLC0414
     presentation as presentation,  # noqa: PLC0414
-    tests as tests,  # noqa: PLC0414
 )

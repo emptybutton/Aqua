@@ -1,9 +1,9 @@
-from typing import TypeVar, Callable
+from typing import TypeVar
 from uuid import UUID
 
 from aqua.domain import entities, value_objects as vos
 from aqua.application.ports import repos
-from shared.application.ports import transactions
+from shared.application.ports.transactions import TransactionFactory
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
@@ -16,7 +16,7 @@ async def perform(  # noqa: PLR0913
     weight_kilograms: int | None,
     *,
     users: _UsersT,
-    transaction_for: Callable[[_UsersT], transactions.Transaction],
+    transaction_for: TransactionFactory[_UsersT],
 ) -> entities.User:
     if water_balance_milliliters is not None:
         water = vos.Water(milliliters=water_balance_milliliters)

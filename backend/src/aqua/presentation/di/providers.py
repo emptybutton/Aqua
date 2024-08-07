@@ -3,7 +3,6 @@ from typing import Annotated
 from dishka import Provider, provide, Scope, FromComponent
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from aqua.application import ports
 from aqua.infrastructure import adapters
 
 
@@ -14,19 +13,19 @@ class RepoProvider(Provider):
     def get_users(
         self,
         session: Annotated[AsyncSession, FromComponent("periphery")],
-    ) -> ports.repos.Users:
+    ) -> adapters.repos.DBUsers:
         return adapters.repos.DBUsers(session)
 
     @provide(scope=Scope.REQUEST)
     def get_records(
         self,
         session: Annotated[AsyncSession, FromComponent("periphery")],
-    ) -> ports.repos.Records:
+    ) -> adapters.repos.DBRecords:
         return adapters.repos.DBRecords(session)
 
     @provide(scope=Scope.REQUEST)
     def get_days(
         self,
         session: Annotated[AsyncSession, FromComponent("periphery")],
-    ) -> ports.repos.Days:
+    ) -> adapters.repos.DBDays:
         return adapters.repos.DBDays(session)

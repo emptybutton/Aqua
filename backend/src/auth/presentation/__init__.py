@@ -1,3 +1,3 @@
 from auth.presentation import (
-    facade as facade,  # noqa: PLC0414
+    di as di,  # noqa: PLC0414
 )

@@ -1,4 +1,4 @@
-from auth.application.cases import (
+from auth.presentation.di.facade import (
     authenticate_user as authenticate_user,  # noqa: PLC0414
     authorize_user as authorize_user,  # noqa: PLC0414
     read_user as read_user,  # noqa: PLC0414

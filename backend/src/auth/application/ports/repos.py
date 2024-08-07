@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 from uuid import UUID
 
 from auth.domain import entities
-from auth.domain import value_objects
+from auth.domain import value_objects as vos
 
 
 class Users(ABC):
@@ -11,14 +10,17 @@ class Users(ABC):
     async def add(self, user: entities.User) -> None: ...
 
     @abstractmethod
-    async def get_by_id(
+    async def find_with_id(
         self, user_id: UUID
-    ) -> Optional[entities.User]: ...
+    ) -> entities.User | None: ...
 
     @abstractmethod
-    async def get_by_name(
-        self, username: value_objects.Username
-    ) -> Optional[entities.User]: ...
+    async def find_with_name(
+        self, username: vos.Username
+    ) -> entities.User | None: ...
 
     @abstractmethod
-    async def has_with_name(self, username: value_objects.Username) -> bool: ...
+    async def contains_with_name(
+        self,
+        username: vos.Username,
+    ) -> bool: ...

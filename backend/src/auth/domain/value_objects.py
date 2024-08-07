@@ -4,37 +4,53 @@ from functools import cached_property
 from string import digits
 from uuid import UUID
 
-from auth.domain import errors
 
-
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class Username:
+    class Error(Exception): ...
+
+    class EmptyError(Error): ...
+
     text: str
 
     def __post_init__(self) -> None:
         if len(self.text) == 0:
-            raise errors.EmptyUsername()
+            raise Username.EmptyError
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class Password:
+    class Error(Exception): ...
+
+    class WeekError(Error): ...
+
+    class TooShortError(WeekError): ...
+
+    class OnlySmallLettersError(WeekError): ...
+
+    class OnlyCapitalLettersError(WeekError): ...
+
+    class OnlyDigitsError(WeekError): ...
+
+    class NoDigitsError(WeekError): ...
+
     text: str
 
     def __post_init__(self) -> None:
         if len(self.text) < 8:  # noqa: PLR2004
-            raise errors.WeekPassword()
+            raise Password.TooShortError
 
         if self.text.upper() == self.text:
-            raise errors.WeekPassword()
+            raise Password.OnlyCapitalLettersError
 
         if self.text.lower() == self.text:
-            raise errors.WeekPassword()
+            raise Password.OnlySmallLettersError
 
         if self.__has_no_digits():
-            raise errors.WeekPassword()
+            raise Password.NoDigitsError
 
         if self.__has_only_digits():
-            raise errors.WeekPassword()
+            raise Password.OnlyDigitsError
 
     def __has_no_digits(self) -> bool:
         return set(digits) - set(self.text) == set(digits)
@@ -43,17 +59,25 @@ class Password:
         return set(self.text) - set(digits) == set()
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class PasswordHash:
+    class Error(Exception): ...
+
+    class EmptyError(Error): ...
+
     text: str
 
     def __post_init__(self) -> None:
         if len(self.text) == 0:
-            raise errors.EmptyPasswordHash()
+            raise PasswordHash.EmptyError
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class RefreshToken:
+    class Error(Exception): ...
+
+    class NotUTCExpirationDateError(Error): ...
+
     text: str
     expiration_date: datetime = field(
         default_factory=lambda: (datetime.now(UTC) + timedelta(days=60))
@@ -61,29 +85,46 @@ class RefreshToken:
 
     def __post_init__(self) -> None:
         if self.expiration_date.tzinfo is not UTC:
-            raise errors.NotUTCExpirationDate()
+            raise RefreshToken.NotUTCExpirationDateError
 
     @cached_property
     def is_expired(self) -> bool:
         return self.expiration_date <= datetime.now(UTC)
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class AccessToken:
+    class Error(Exception): ...
+
+    class NotUTCExpirationDateError(Error): ...
+
     user_id: UUID
-    username: Username
     expiration_date: datetime = field(
         default_factory=lambda: (datetime.now(UTC) + timedelta(minutes=15))
     )
 
     def __post_init__(self) -> None:
         if self.expiration_date.tzinfo is not UTC:
-            raise errors.NotUTCExpirationDate()
+            raise AccessToken.NotUTCExpirationDateError
 
     @cached_property
     def is_expired(self) -> bool:
         return self.expiration_date <= datetime.now(UTC)
 
+    class AuthenticationError(Error): ...
 
-def refreshed(access_token: AccessToken) -> AccessToken:
-    return AccessToken(access_token.user_id, access_token.username)
+    class ExpiredForAuthenticationError(AuthenticationError): ...
+
+    def authenticate(self) -> None:
+        if self.is_expired:
+            raise AccessToken.ExpiredForAuthenticationError
+
+    class RefreshingError(Error): ...
+
+    class ExpiredRefreshTokenForRefreshingError(RefreshingError): ...
+
+    def refresh(self, *, refresh_token: RefreshToken) -> "AccessToken":
+        if refresh_token.is_expired:
+            raise AccessToken.ExpiredRefreshTokenForRefreshingError
+
+        return AccessToken(user_id=self.user_id)
