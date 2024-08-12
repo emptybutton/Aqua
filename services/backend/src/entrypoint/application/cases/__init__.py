@@ -1,7 +1,9 @@
 from entrypoint.application.cases import (
-    registration as registration,  # noqa: PLC0414
-    writing as writing,  # noqa: PLC0414
-    day_reading as day_reading,  # noqa: PLC0414
-    day_record_reading as day_record_reading,  # noqa: PLC0414
-    user_data_reading as user_data_reading,  # noqa: PLC0414
+    authorize_user as authorize_user,  # noqa: PLC0414
+    read_day as read_day,  # noqa: PLC0414
+    read_day_records as read_day_records,  # noqa: PLC0414
+    read_user as read_user,  # noqa: PLC0414
+    refresh_token as refresh_token,  # noqa: PLC0414
+    register_user as register_user,  # noqa: PLC0414
+    write_water as write_water,  # noqa: PLC0414
 )

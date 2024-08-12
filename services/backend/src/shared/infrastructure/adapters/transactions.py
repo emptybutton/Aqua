@@ -8,14 +8,20 @@ from shared.application.ports import transactions
 
 class DBTransaction(transactions.Transaction):
     def __init__(self, session: AsyncSession) -> None:
-        self._session = session
+        self.__session = session
+        self.__is_rollbacked = False
 
     @property
     def session(self) -> AsyncSession:
-        return self._session
+        return self.__session
+
+    async def rollback(self) -> None:
+        if self.__session.is_active:
+            self.__is_rollbacked = True
+            await self.__session.rollback()
 
     async def __aenter__(self) -> Self:
-        await self._session.begin_nested()
+        await self.__session.begin_nested()
 
         return self
 
@@ -25,10 +31,13 @@ class DBTransaction(transactions.Transaction):
         error: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool:
+        if self.__is_rollbacked:
+            return True
+
         if error is None:
-            await self._session.commit()
+            await self.__session.commit()
         else:
-            await self._session.rollback()
+            await self.__session.rollback()
 
         return error is None
 
@@ -37,7 +46,7 @@ class DBTransactionFactory(
     transactions.TransactionFactory[Any, DBTransaction],
 ):
     def __init__(self, session: AsyncSession) -> None:
-        self._session = session
+        self.__session = session
 
     def __call__(self, _: Any) -> DBTransaction:  # noqa: ANN401
-        return DBTransaction(self._session)
+        return DBTransaction(self.__session)

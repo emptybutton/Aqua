@@ -1,3 +1,4 @@
 from entrypoint.infrastructure.adapters import (
-    gateways as gateways,  # noqa: PLC0414
+    clients as clients,  # noqa: PLC0414
+    loggers as loggers,  # noqa: PLC0414
 )

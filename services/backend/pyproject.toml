@@ -15,6 +15,7 @@ alembic = "^1.13.1"
 typenv = "^0.2.0"
 asyncpg = "^0.29.0"
 dishka = "^1.2.0"
+loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
