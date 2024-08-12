@@ -16,6 +16,9 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     def errors(self) -> tuple[Exception, ...]:
         return tuple(self.__errors)
 
+    async def close(self) -> None:
+        await aqua.close.perform()
+
     async def register_user(
         self,
         auth_user_id: UUID,
@@ -188,6 +191,9 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     @property
     def errors(self) -> tuple[Exception, ...]:
         return tuple(self.__errors)
+
+    async def close(self) -> None:
+        await auth.close.perform()
 
     async def register_user(
         self,

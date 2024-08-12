@@ -49,6 +49,9 @@ class RefreshTokenOutput:
 
 class Auth(Generic[_TransactionT_contra], ABC):
     @abstractmethod
+    async def close(self) -> None: ...
+
+    @abstractmethod
     async def register_user(
         self,
         name: str,
