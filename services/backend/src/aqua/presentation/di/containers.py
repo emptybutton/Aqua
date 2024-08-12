@@ -8,4 +8,5 @@ adapter_container = make_async_container(
     shared_providers.PeripheryProvider(),
     shared_providers.TransactionProvider(),
     aqua_provieers.RepoProvider(),
+    aqua_provieers.LoggerProvider(),
 )

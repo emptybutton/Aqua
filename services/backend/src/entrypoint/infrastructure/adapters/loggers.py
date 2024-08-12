@@ -2,7 +2,7 @@ from uuid import UUID
 
 from entrypoint.application.ports import loggers
 from entrypoint.infrastructure.adapters import clients
-from shared.infrastructure.periphery.loggers import logger
+from shared.infrastructure.periphery.loguru import logger
 
 
 class AquaFacadeLogger(loggers.AquaLogger[clients.AquaFacade]):

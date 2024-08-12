@@ -2,7 +2,7 @@ from typing import TypeVar
 from uuid import UUID
 
 from aqua.domain import entities, value_objects as vos
-from aqua.application.ports import repos
+from aqua.application.ports import repos, loggers
 from shared.application.ports.transactions import TransactionFactory
 
 
@@ -17,6 +17,7 @@ async def perform(  # noqa: PLR0913
     *,
     users: _UsersT,
     transaction_for: TransactionFactory[_UsersT],
+    logger: loggers.Logger,
 ) -> entities.User:
     if water_balance_milliliters is not None:
         water = vos.Water(milliliters=water_balance_milliliters)
@@ -38,6 +39,7 @@ async def perform(  # noqa: PLR0913
         user = await users.find_with_id(user_id)
 
         if user is not None:
+            await logger.log_registered_user_registration(user)
             return user
 
         user = entities.User(

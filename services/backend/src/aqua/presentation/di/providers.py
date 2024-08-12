@@ -29,3 +29,13 @@ class RepoProvider(Provider):
         session: Annotated[AsyncSession, FromComponent("periphery")],
     ) -> adapters.repos.DBDays:
         return adapters.repos.DBDays(session)
+
+
+class LoggerProvider(Provider):
+    component = "loggers"
+
+    @provide(scope=Scope.APP)
+    def get_logger(
+        self,
+    ) -> adapters.loggers.LoguruLogger:
+        return adapters.loggers.LoguruLogger()

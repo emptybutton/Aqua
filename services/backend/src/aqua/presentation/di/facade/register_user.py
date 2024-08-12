@@ -54,6 +54,7 @@ async def perform(
             weight_kilograms,
             users=await container.get(adapters.repos.DBUsers),
             transaction_for=await container.get(DBTransactionFactory),
+            logger=await container.get(adapters.loggers.LoguruLogger),
         )
 
     weight_kilograms = None if user.weight is None else user.weight.kilograms
