@@ -21,7 +21,7 @@ class NoUserError(Error): ...
 class IncorrectPasswordError(Error): ...
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     name_text: str,
     password_text: str,
     *,

@@ -26,7 +26,7 @@ _RecordsT = TypeVar("_RecordsT", bound=repos.Records)
 _DaysT = TypeVar("_DaysT", bound=repos.Days)
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     user_id: UUID,
     milliliters: int | None,
     *,

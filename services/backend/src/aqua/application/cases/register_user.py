@@ -9,7 +9,7 @@ from shared.application.ports.transactions import TransactionFactory
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     user_id: UUID,
     water_balance_milliliters: int | None,
     glass_milliliters: int | None,

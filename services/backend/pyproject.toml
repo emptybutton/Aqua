@@ -35,6 +35,7 @@ strict = true
 no_namespace_packages = true
 
 [tool.ruff]
+src = ["src"]
 line-length = 80
 indent-width = 4
 
@@ -45,3 +46,8 @@ select = [
     "PERF", "INP"
 ]
 ignore = ["ANN101", "ANN102", "N818", "RUF009"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["PLC0414"]
+"*/cases/*" = ["PLR0911", "PLR0913"]
+"*/adapters/*" = ["ARG002"]

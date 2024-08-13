@@ -19,7 +19,7 @@ Output: TypeAlias = (
 )
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     jwt: str,
     date_: date,
     *,

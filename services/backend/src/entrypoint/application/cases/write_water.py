@@ -28,7 +28,7 @@ _AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: igno
 _AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: ignore[valid-type]
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     jwt: str,
     milliliters: int | None,
     *,

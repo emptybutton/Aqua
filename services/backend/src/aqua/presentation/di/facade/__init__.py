@@ -1,8 +1,8 @@
 from aqua.presentation.di.facade import (
-    read_day as read_day,  # noqa: PLC0414
-    read_day_records as read_day_records,  # noqa: PLC0414
-    read_user as read_user,  # noqa: PLC0414
-    register_user as register_user,  # noqa: PLC0414
-    write_water as write_water,  # noqa: PLC0414
-    close as close,  # noqa: PLC0414
+    read_day as read_day,
+    read_day_records as read_day_records,
+    read_user as read_user,
+    register_user as register_user,
+    write_water as write_water,
+    close as close,
 )

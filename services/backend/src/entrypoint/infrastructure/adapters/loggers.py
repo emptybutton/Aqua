@@ -14,7 +14,7 @@ class AquaFacadeLogger(loggers.AquaLogger[clients.AquaFacade]):
 
     async def log_has_extra_user(
         self,
-        aqua: clients.AquaFacade,  # noqa: ARG002
+        aqua: clients.AquaFacade,
         user_id: UUID,
     ) -> None:
         message = (
@@ -33,7 +33,7 @@ class AuthFacadeLogger(loggers.AuthLogger[clients.AuthFacade]):
 
     async def log_has_extra_user(
         self,
-        auth: clients.AuthFacade,  # noqa: ARG002
+        auth: clients.AuthFacade,
         user_id: UUID,
     ) -> None:
         message = (

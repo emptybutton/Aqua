@@ -1,3 +1,3 @@
 from shared.presentation.di import (
-    providers as providers,  # noqa: PLC0414
+    providers as providers,
 )

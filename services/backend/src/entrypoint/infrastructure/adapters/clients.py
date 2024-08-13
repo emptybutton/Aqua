@@ -308,7 +308,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         refresh_token: str,
         refresh_token_expiration_date: datetime,
         *,
-        transaction: DBTransaction,  # noqa: ARG002
+        transaction: DBTransaction,
     ) -> (
         clients.auth.RefreshTokenOutput
         | Literal["auth_is_not_working"]

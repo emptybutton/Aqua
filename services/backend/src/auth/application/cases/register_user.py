@@ -22,7 +22,7 @@ class UserIsAlreadyRegisteredError(Error): ...
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     name_text: str,
     password_text: str,
     *,

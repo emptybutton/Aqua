@@ -18,7 +18,7 @@ Output: TypeAlias = (
 )
 
 
-async def perform(  # noqa: PLR0913
+async def perform(
     jwt: str,
     refresh_token: str,
     refresh_token_expiration_date: datetime,
