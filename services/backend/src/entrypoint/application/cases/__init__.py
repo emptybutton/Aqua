@@ -6,4 +6,5 @@ from entrypoint.application.cases import (
     refresh_token as refresh_token,  # noqa: PLC0414
     register_user as register_user,  # noqa: PLC0414
     write_water as write_water,  # noqa: PLC0414
+    close as close,  # noqa: PLC0414
 )
