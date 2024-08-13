@@ -1,5 +1,5 @@
 from datetime import datetime, UTC, date
-from typing import Optional, Annotated
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
@@ -18,24 +18,18 @@ from shared.infrastructure.db.sessions import postgres_session_factory
 router = APIRouter(prefix="/api/0.1v")
 
 
-class UserRegistrationRequestModel(BaseModel):
+class RegisterUserRequestModel(BaseModel):
     username: str
     password: str
-    water_balance_milliliters: Optional[int] = None
-    glass_milliliters: Optional[int] = None
-    weight_kilograms: Optional[int] = None
-
-
-class UserRegistrationResponseModel(BaseModel):
-    jwt: str
-    water_balance_milliliters: int
-    glass_milliliters: int
+    water_balance_milliliters: int | None = None
+    glass_milliliters: int | None = None
+    weight_kilograms: int | None = None
 
 
 @router.post("/user/register", tags=["access"])
 @handle_base_errors
 async def register_user(
-    request_model: UserRegistrationRequestModel,
+    request_model: RegisterUserRequestModel,
     response: Response,
 ) -> UserRegistrationResponseModel:
     try:
@@ -64,11 +58,7 @@ async def register_user(
 
 class AuthorizationRequestModel(BaseModel):
     username: str
-    password: str
-
-
-class AuthorizationResponseModel(BaseModel):
-    jwt: str
+    password: st
 
 
 @router.post("/user/authorize", tags=["access"])
@@ -103,11 +93,6 @@ async def authorize_user(
     )
 
     return AuthorizationResponseModel(jwt=result.jwt)
-
-
-class AccessTokenRefreshingResponseModel(BaseModel):
-    jwt: str
-
 
 @router.post("/user/access-token", tags=["access"])
 @handle_base_errors
@@ -149,11 +134,6 @@ async def refresh_access_token(
 
 class RecordCreationRequestModel(BaseModel):
     milliliters: Optional[int] = None
-
-
-class RecordCreationResponseModel(BaseModel):
-    record_id: UUID
-    drunk_water_milliliters: int
 
 
 @router.post("/user/records", tags=["records"])
@@ -206,27 +186,6 @@ async def read_day(
     )
 
 
-class DayRecordModel(BaseModel):
-    id: UUID
-    drunk_water: int
-    recording_time: datetime
-
-    @classmethod
-    def of(
-        cls,
-        dto: controllers.day_record_reading.RecordDTO,
-    ) -> "DayRecordModel":
-        return cls(
-            id=dto.id,
-            drunk_water=dto.drunk_water,
-            recording_time=dto.recording_time,
-        )
-
-
-class DayRecordsReadingResponseModel(BaseModel):
-    records: tuple[DayRecordModel, ...]
-
-
 @router.get("/user/day/records", tags=["records"])
 @handle_base_errors
 async def read_day_records(
@@ -245,14 +204,6 @@ async def read_day_records(
 
     records = tuple(map(DayRecordModel.of, result.records))
     return DayRecordsReadingResponseModel(records=records)
-
-
-class UserDataReadingResponseModel(BaseModel):
-    user_id: UUID
-    username: str
-    glass_milliliters: int
-    target_water_balance_milliliters: int
-    weight_kilograms: Optional[int]
 
 
 @router.get("/user", tags=["access"])
