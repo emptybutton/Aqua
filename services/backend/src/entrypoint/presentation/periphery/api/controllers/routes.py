@@ -1,18 +1,13 @@
-from datetime import datetime, UTC, date
-from typing import Annotated
-from uuid import UUID
-
-from fastapi import APIRouter, Response, HTTPException, status, Header, Cookie
+from fastapi import APIRouter, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from aqua.presentation import facade as aqua
-from auth.presentation import facade as auth
-from entrypoint.presentation import cookies
-from entrypoint.presentation.error_responses import (
-    default_error_with, detail_of, detail_from, handle_base_errors
+from entrypoint.presentation.di import facade
+from entrypoint.presentation.periphery.api.views import (
+    bodies,
+    responses,
+    cookies,
 )
-from entrypoint.presentation.facade import controllers
-from shared.infrastructure.db.sessions import postgres_session_factory
 
 
 router = APIRouter(prefix="/api/0.1v")
@@ -26,36 +21,78 @@ class RegisterUserRequestModel(BaseModel):
     weight_kilograms: int | None = None
 
 
-@router.post("/user/register", tags=["access"])
-@handle_base_errors
+@router.post(
+    "/user/register",
+    tags=["access"],
+    status_code=responses.ok.registered_user_view.status_code,
+    responses=responses.common.to_doc(
+        responses.bad.backend_is_not_working_view,
+        responses.bad.incorrect_water_amount_view,
+        responses.bad.incorrect_weight_amount_view,
+        responses.bad.no_weight_for_water_balance_view,
+        responses.bad.extreme_weight_for_water_balance_view,
+        responses.bad.user_is_already_registered_view,
+        responses.bad.empty_username_view,
+        responses.bad.week_password_view,
+        responses.ok.registered_user_view,
+    ),
+)
 async def register_user(
     request_model: RegisterUserRequestModel,
     response: Response,
-) -> UserRegistrationResponseModel:
-    try:
-        result = await controllers.registration.register_user(
-            request_model.username,
-            request_model.password,
-            request_model.water_balance_milliliters,
-            request_model.glass_milliliters,
-            request_model.weight_kilograms,
-        )
-    except auth.controllers.registration.UserIsAlreadyRegisteredError as error:
-        raise default_error_with(detail_of(error)) from error
+) -> JSONResponse:
+    result = await facade.register_user.perform(
+        request_model.username,
+        request_model.password,
+        request_model.water_balance_milliliters,
+        request_model.glass_milliliters,
+        request_model.weight_kilograms,
+    )
 
-    cookies.set_refresh_token(
-        response,
+    if result == "not_working":
+        return responses.bad.backend_is_not_working_view.to_response()
+
+    if result == "incorrect_weight_amount":
+        return responses.bad.incorrect_weight_amount_view.to_response()
+
+    if result == "incorrect_water_amount":
+        return responses.bad.incorrect_water_amount_view.to_response()
+
+    if result == "extreme_weight_for_water_balance":
+        return responses.bad.extreme_weight_for_water_balance_view.to_response()
+
+    if result == "no_weight_for_water_balance":
+        return responses.bad.no_weight_for_water_balance_view.to_response()
+
+    if result == "user_is_already_registered":
+        return responses.bad.user_is_already_registered_view.to_response()
+
+    if result == "empty_username":
+        return responses.bad.empty_username_view.to_response()
+
+    if result == "week_password":
+        return responses.bad.week_password_view.to_response()
+
+    jwt_cookie = cookies.JWTCookie(response)
+    refresh_token_cookie = cookies.RefreshTokenCookie(response)
+
+    jwt_cookie.set(result.jwt)
+    refresh_token_cookie.set(
         result.refresh_token,
         result.refresh_token_expiration_date,
     )
 
-    return UserRegistrationResponseModel(
-        jwt=result.access_token,
-        water_balance_milliliters=result.water_balance_milliliters,
+    target = result.target_water_balance_milliliters
+    body = bodies.ok.RegisteredUserView(
+        user_id=result.user_id,
+        username=result.username,
+        target_water_balance_milliliters=target,
         glass_milliliters=result.glass_milliliters,
+        weight_kilograms=result.weight_kilograms,
     )
+    return responses.ok.registered_user_view.to_response(body)
 
-
+"""
 class AuthorizationRequestModel(BaseModel):
     username: str
     password: st
@@ -225,3 +262,4 @@ async def read_user_data(
         target_water_balance_milliliters=water_balance,
         weight_kilograms=result.weight_kilograms,
     )
+"""

@@ -1,5 +1,5 @@
 from entrypoint.presentation.periphery.api.views import (
-    ok as ok,
-    bad as bad,
-    common as common,
+    bodies as bodies,
+    cookies as cookies,
+    responses as responses,
 )

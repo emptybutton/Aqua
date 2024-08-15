@@ -4,7 +4,7 @@ services:
     build: ./services/backend
     container_name: aqua-backend
     restart: unless-stopped
-    command: ["ash", "./scripts/start.sh"]
+    command: ["ash", "./src/entrypoint/presentation/periphery/api"]
     volumes:
       - ./services/backend:/aqua
     networks:
