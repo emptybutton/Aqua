@@ -16,4 +16,4 @@ jobs:
         run: pip install ruff
 
       - name: ruff
-        run: python -m ruff check ./backend
+        run: python -m ruff check ./services/backend
