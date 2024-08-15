@@ -13,4 +13,4 @@ jobs:
           python-version: 3.12
 
       - name: mypy
-        run: docker compose -f backend/docker-compose.dev.yml run aqua mypy .
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua mypy .

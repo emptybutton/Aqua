@@ -13,4 +13,4 @@ jobs:
           python-version: 3.12
 
       - name: pytest
-        run: docker compose -f backend/docker-compose.dev.yml run aqua pytest
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua pytest
