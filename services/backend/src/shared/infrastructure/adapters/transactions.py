@@ -43,7 +43,7 @@ class DBTransaction(transactions.Transaction):
 
 
 class DBTransactionFactory(
-    transactions.TransactionFactory[Any, DBTransaction],
+    transactions.TransactionFactory[Any],
 ):
     def __init__(self, session: AsyncSession) -> None:
         self.__session = session

@@ -22,6 +22,13 @@ class TransactionProvider(Provider):
     session = from_context(provides=AsyncSession, scope=Scope.REQUEST)
 
     @provide(scope=Scope.REQUEST)
+    def get_transaction(
+        self,
+        session: Annotated[AsyncSession, FromComponent("periphery")],
+    ) -> adapters.transactions.DBTransaction:
+        return adapters.transactions.DBTransaction(session)
+
+    @provide(scope=Scope.REQUEST)
     def get_transaction_factory(
         self,
         session: Annotated[AsyncSession, FromComponent("periphery")],
