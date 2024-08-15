@@ -55,14 +55,18 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             self.__errors.append(error)
             return "aqua_is_not_working"
 
+        target = result.target_water_balance_milliliters
+
         return clients.aqua.RegisterUserOutput(
-            water_balance_milliliters=result.water_balance_milliliters,
+            user_id=result.user_id,
+            target_water_balance_milliliters=target,
             glass_milliliters=result.glass_milliliters,
+            weight_kilograms=result.weight_kilograms,
         )
 
     async def write_water(
         self,
-        auth_user_id: UUID,
+        user_id: UUID,
         milliliters: int | None,
         *,
         transaction: DBTransaction,
@@ -74,7 +78,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.write_water.perform(
-                auth_user_id,
+                user_id,
                 milliliters,
                 session=transaction.session,
             )
@@ -86,36 +90,18 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             self.__errors.append(error)
             return "aqua_is_not_working"
 
+        target = result.target_water_balance_milliliters
         return clients.aqua.WriteWaterOutput(
             record_id=result.record_id,
             drunk_water_milliliters=result.drunk_water_milliliters,
+            user_id=result.user_id,
+            recording_time=result.recording_time,
+            target_water_balance_milliliters=target,
+            water_balance_milliliters=result.water_balance_milliliters,
+            result_code=result.result_code,
+            real_result_code=result.real_result_code,
+            is_result_pinned=result.is_result_pinned,
         )
-
-    async def read_day_records(
-        self,
-        user_id: UUID,
-        date_: date,
-        *,
-        transaction: DBTransaction,
-    ) -> (
-        clients.aqua.ReadDayRecordsOutput
-        | Literal["aqua_is_not_working"]
-        | Literal["no_user"]
-    ):
-        try:
-            result = await aqua.read_day_records.perform(
-                user_id,
-                date_,
-                session=transaction.session,
-            )
-        except aqua.read_day_records.NoUserError:
-            return "no_user"
-        except Exception as error:
-            self.__errors.append(error)
-            return "aqua_is_not_working"
-
-        records = tuple(map(self.__record_data_of, result.records))
-        return clients.aqua.ReadDayRecordsOutput(records=records)
 
     async def read_day(
         self,
@@ -140,10 +126,24 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             self.__errors.append(error)
             return "aqua_is_not_working"
 
+        target = result.target_water_balance_milliliters
+        records = tuple(
+            clients.aqua.ReadDayOutput.RecordData(
+                record_id=record.record_id,
+                drunk_water_milliliters=record.drunk_water_milliliters,
+                recording_time=record.recording_time,
+            )
+            for record in result.records
+        )
         return clients.aqua.ReadDayOutput(
-            target_water_balance=result.target_water_balance,
-            real_water_balance=result.real_water_balance,
+            user_id=result.user_id,
+            date_=result.date_,
+            target_water_balance_milliliters=target,
+            water_balance_milliliters=result.water_balance_milliliters,
             result_code=result.result_code,
+            real_result_code=result.real_result_code,
+            is_result_pinned=result.is_result_pinned,
+            records=records
         )
 
     async def read_user(
@@ -151,7 +151,11 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         user_id: UUID,
         *,
         transaction: DBTransaction,
-    ) -> clients.aqua.ReadUserOutput | Literal["aqua_is_not_working"] | None:
+    ) -> (
+        clients.aqua.ReadUserOutput
+        | Literal["aqua_is_not_working"]
+        | Literal["no_user"]
+    ):
         try:
             result = await aqua.read_user.perform(
                 user_id,
@@ -162,25 +166,28 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             return "aqua_is_not_working"
 
         if result is None:
-            return None
+            return "no_user"
 
+        target = result.target_water_balance_milliliters
+        records = tuple(
+            clients.aqua.ReadUserOutput.RecordData(
+                record_id=record.record_id,
+                drunk_water_milliliters=record.drunk_water_milliliters,
+                recording_time=record.recording_time,
+            )
+            for record in result.records
+        )
         return clients.aqua.ReadUserOutput(
             user_id=result.user_id,
             glass_milliliters=result.glass_milliliters,
             weight_kilograms=result.weight_kilograms,
-            target_water_balance_milliliters=(
-                result.target_water_balance_milliliters
-            ),
-        )
-
-    def __record_data_of(
-        self,
-        facade_data: aqua.read_day_records.RecordData
-    ) -> clients.aqua.ReadDayRecordsOutput.RecordData:
-        return clients.aqua.ReadDayRecordsOutput.RecordData(
-            id=facade_data.id,
-            drunk_water=facade_data.drunk_water,
-            recording_time=facade_data.recording_time,
+            date_=result.date_,
+            target_water_balance_milliliters=target,
+            water_balance_milliliters=result.water_balance_milliliters,
+            result_code=result.result_code,
+            real_result_code=result.real_result_code,
+            is_result_pinned=result.is_result_pinned,
+            records=records
         )
 
 
@@ -224,7 +231,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.RegisterUserOutput(
             user_id=result.user_id,
             username=result.username,
-            access_token=result.serialized_access_token,
+            jwt=result.jwt,
             refresh_token_expiration_date=result.refresh_token_expiration_date,
             refresh_token=result.refresh_token_text,
         )
@@ -236,14 +243,14 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         clients.auth.AuthenticateUserOutput
         | Literal["auth_is_not_working"]
         | Literal["invalid_jwt"]
-        | Literal["expired_access_token"]
+        | Literal["expired_jwt"]
     ):
         try:
             result = await auth.authenticate_user.perform(jwt)
         except auth.authenticate_user.InvalidJWTError:
             return "invalid_jwt"
-        except auth.authenticate_user.ExpiredAccessTokenError:
-            return "expired_access_token"
+        except auth.authenticate_user.ExpiredJWTError:
+            return "expired_jwt"
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"
@@ -289,7 +296,11 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         user_id: UUID,
         *,
         transaction: DBTransaction,
-    ) -> clients.auth.ReadUserOutput | Literal["auth_is_not_working"] | None:
+    ) -> (
+        clients.auth.ReadUserOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+    ):
         try:
             session = transaction.session
             result = await auth.read_user.perform(user_id, session=session)
@@ -298,9 +309,12 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "auth_is_not_working"
 
         if result is None:
-            return None
+            return "no_user"
 
-        return clients.auth.ReadUserOutput(username=result.username)
+        return clients.auth.ReadUserOutput(
+            user_id=result.user_id,
+            username=result.username,
+        )
 
     async def refresh_token(
         self,
@@ -332,4 +346,8 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             self.__errors.append(error)
             return "auth_is_not_working"
 
-        return clients.auth.RefreshTokenOutput(jwt=result.jwt)
+        return clients.auth.RefreshTokenOutput(
+            jwt=result.jwt,
+            refresh_token=result.refresh_token,
+            refresh_token_expiration_date=result.refresh_token_expiration_date,
+        )

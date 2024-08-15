@@ -11,6 +11,8 @@ from auth.presentation.di.containers import sync_container
 @dataclass(kw_only=True, frozen=True)
 class Output:
     jwt: str
+    refresh_token: str
+    refresh_token_expiration_date: datetime
 
 
 InvalidJWTError: TypeAlias = case.NoAccessTokenError
@@ -45,4 +47,8 @@ async def perform(
             ),
         )
 
-    return Output(jwt=result.serialized_refreshed_access_token)
+    return Output(
+        jwt=result.serialized_refreshed_access_token,
+        refresh_token=result.refresh_token.text,
+        refresh_token_expiration_date=result.refresh_token.expiration_date,
+    )

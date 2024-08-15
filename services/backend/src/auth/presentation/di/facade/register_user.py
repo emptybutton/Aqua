@@ -18,7 +18,7 @@ class Output:
     username: str
     refresh_token_text: str
     refresh_token_expiration_date: datetime
-    serialized_access_token: str
+    jwt: str
 
 
 UserIsAlreadyRegisteredError: TypeAlias = (
@@ -64,5 +64,5 @@ async def perform(
         username=result.user.name.text,
         refresh_token_text=result.refresh_token.text,
         refresh_token_expiration_date=result.refresh_token.expiration_date,
-        serialized_access_token=result.serialized_access_token,
+        jwt=result.serialized_access_token,
     )

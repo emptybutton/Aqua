@@ -15,14 +15,14 @@ class Output:
 
 InvalidJWTError: TypeAlias = authenticate_user.NoAccessTokenError
 
-ExpiredAccessTokenError: TypeAlias = (
+ExpiredJWTError: TypeAlias = (
     vos.AccessToken.ExpiredForAuthenticationError
 )
 
 Error: TypeAlias = (
     authenticate_user.Error
     | InvalidJWTError
-    | ExpiredAccessTokenError
+    | ExpiredJWTError
 )
 
 

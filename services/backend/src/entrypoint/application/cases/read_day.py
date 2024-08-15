@@ -14,7 +14,7 @@ Output: TypeAlias = (
     clients.aqua.ReadDayOutput
     | Literal["not_working"]
     | Literal["invalid_jwt"]
-    | Literal["expired_access_token"]
+    | Literal["expired_jwt"]
     | Literal["no_user"]
 )
 

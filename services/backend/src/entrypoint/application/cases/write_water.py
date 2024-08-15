@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import TypeVar, TypeAlias, Literal
 from uuid import UUID
 
@@ -11,13 +12,19 @@ class OutputData:
     user_id: UUID
     record_id: UUID
     drunk_water_milliliters: int
+    recording_time: datetime
+    target_water_balance_milliliters: int
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
 
 
 Output: TypeAlias = (
     OutputData
     | Literal["not_working"]
     | Literal["invalid_jwt"]
-    | Literal["expired_access_token"]
+    | Literal["expired_jwt"]
     | Literal["no_user"]
     | Literal["incorrect_water_amount"]
 )
@@ -58,8 +65,15 @@ async def perform(
     if not isinstance(aqua_result, clients.aqua.WriteWaterOutput):
         return aqua_result
 
+    target = aqua_result.target_water_balance_milliliters
     return OutputData(
-        user_id=auth_result.user_id,
+        user_id=aqua_result.user_id,
         record_id=aqua_result.record_id,
         drunk_water_milliliters=aqua_result.drunk_water_milliliters,
+        recording_time=aqua_result.recording_time,
+        target_water_balance_milliliters=target,
+        water_balance_milliliters=aqua_result.water_balance_milliliters,
+        result_code=aqua_result.result_code,
+        real_result_code=aqua_result.real_result_code,
+        is_result_pinned=aqua_result.is_result_pinned,
     )

@@ -14,7 +14,7 @@ from shared.infrastructure.adapters.transactions import DBTransactionFactory
 @dataclass(kw_only=True, frozen=True)
 class Output:
     user_id: UUID
-    water_balance_milliliters: int
+    target_water_balance_milliliters: int
     glass_milliliters: int
     weight_kilograms: int | None
 
@@ -61,7 +61,7 @@ async def perform(
 
     return Output(
         user_id=user.id,
-        water_balance_milliliters=user.target.water.milliliters,
+        target_water_balance_milliliters=user.target.water.milliliters,
         weight_kilograms=weight_kilograms,
         glass_milliliters=user.glass.capacity.milliliters,
     )

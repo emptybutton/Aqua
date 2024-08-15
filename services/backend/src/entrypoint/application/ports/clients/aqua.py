@@ -16,29 +16,39 @@ _TransactionT_contra = TypeVar(
 
 @dataclass(kw_only=True, frozen=True)
 class RegisterUserOutput:
-    water_balance_milliliters: int
+    user_id: UUID
+    target_water_balance_milliliters: int
     glass_milliliters: int
+    weight_kilograms: int | None
 
 
 @dataclass(kw_only=True, frozen=True)
 class WriteWaterOutput:
+    user_id: UUID
     record_id: UUID
     drunk_water_milliliters: int
+    recording_time: datetime
+    target_water_balance_milliliters: int
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
 
 
 @dataclass(kw_only=True, frozen=True)
 class ReadDayOutput:
-    target_water_balance: int
-    real_water_balance: int
+    user_id: UUID
+    date_: date
+    target_water_balance_milliliters: int
+    water_balance_milliliters: int
     result_code: int
+    real_result_code: int
+    is_result_pinned: bool
 
-
-@dataclass(kw_only=True, frozen=True)
-class ReadDayRecordsOutput:
     @dataclass(kw_only=True, frozen=True)
     class RecordData:
-        id: UUID
-        drunk_water: int
+        record_id: UUID
+        drunk_water_milliliters: int
         recording_time: datetime
 
     records: tuple[RecordData, ...]
@@ -50,6 +60,19 @@ class ReadUserOutput:
     glass_milliliters: int
     weight_kilograms: int | None
     target_water_balance_milliliters: int
+    date_: date
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
+
+    @dataclass(kw_only=True, frozen=True)
+    class RecordData:
+        record_id: UUID
+        drunk_water_milliliters: int
+        recording_time: datetime
+
+    records: tuple[RecordData, ...]
 
 
 class Aqua(Generic[_TransactionT_contra], ABC):
@@ -60,7 +83,7 @@ class Aqua(Generic[_TransactionT_contra], ABC):
     async def register_user(
         self,
         auth_user_id: UUID,
-        water_balance_milliliters: int | None,
+        target_water_balance_milliliters: int | None,
         glass_milliliters: int | None,
         weight_kilograms: int | None,
         *,
@@ -77,7 +100,7 @@ class Aqua(Generic[_TransactionT_contra], ABC):
     @abstractmethod
     async def write_water(
         self,
-        auth_user_id: UUID,
+        user_id: UUID,
         milliliters: int | None,
         *,
         transaction: _TransactionT_contra,
@@ -97,21 +120,8 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         transaction: _TransactionT_contra,
     ) -> (
         ReadDayOutput
-        | Literal["aqua_is_not_working"]
         | Literal["no_user"]
-    ): ...
-
-    @abstractmethod
-    async def read_day_records(
-        self,
-        user_id: UUID,
-        date_: date,
-        *,
-        transaction: _TransactionT_contra,
-    ) -> (
-        ReadDayRecordsOutput
         | Literal["aqua_is_not_working"]
-        | Literal["no_user"]
     ): ...
 
     @abstractmethod
@@ -120,4 +130,8 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         user_id: UUID,
         *,
         transaction: _TransactionT_contra,
-    ) -> ReadUserOutput | None | Literal["aqua_is_not_working"]: ...
+    ) -> (
+        ReadUserOutput
+        | Literal["no_user"]
+        | Literal["aqua_is_not_working"]
+    ): ...

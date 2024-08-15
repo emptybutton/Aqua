@@ -18,6 +18,11 @@ class Output:
     record_id: UUID
     drunk_water_milliliters: int
     recording_time: datetime
+    target_water_balance_milliliters: int
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
 
 
 IncorrectWaterAmountError: TypeAlias = vos.Water.IncorrectAmountError
@@ -50,4 +55,9 @@ async def perform(
         record_id=result.record.id,
         drunk_water_milliliters=result.record.drunk_water.milliliters,
         recording_time=result.record.recording_time,
+        target_water_balance_milliliters=result.day.target.water.milliliters,
+        water_balance_milliliters=result.day.water_balance.water.milliliters,
+        result_code=result.day.result.value,
+        real_result_code=result.day.correct_result.value,
+        is_result_pinned=result.day.is_result_pinned,
     )

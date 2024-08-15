@@ -19,7 +19,7 @@ Output: TypeAlias = (
     OutputData
     | Literal["not_working"]
     | Literal["invalid_jwt"]
-    | Literal["expired_access_token"]
+    | Literal["expired_jwt"]
     | Literal["no_user"]
     | Literal["incorrect_water_amount"]
 )

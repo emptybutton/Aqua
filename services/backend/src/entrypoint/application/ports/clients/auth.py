@@ -18,9 +18,9 @@ _TransactionT_contra = TypeVar(
 class RegisterUserOutput:
     user_id: UUID
     username: str
-    access_token: str
     refresh_token: str
     refresh_token_expiration_date: datetime
+    jwt: str
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -30,6 +30,7 @@ class AuthenticateUserOutput:
 
 @dataclass(kw_only=True, frozen=True)
 class ReadUserOutput:
+    user_id: UUID
     username: str
 
 
@@ -37,14 +38,16 @@ class ReadUserOutput:
 class AuthorizeUserOutput:
     user_id: UUID
     username: str
+    jwt: str
     refresh_token: str
     refresh_token_expiration_date: datetime
-    jwt: str
 
 
 @dataclass(kw_only=True, frozen=True)
 class RefreshTokenOutput:
     jwt: str
+    refresh_token: str
+    refresh_token_expiration_date: datetime
 
 
 class Auth(Generic[_TransactionT_contra], ABC):
@@ -71,7 +74,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
         AuthenticateUserOutput
         | Literal["auth_is_not_working"]
         | Literal["invalid_jwt"]
-        | Literal["expired_access_token"]
+        | Literal["expired_jwt"]
     ): ...
 
     @abstractmethod
@@ -94,7 +97,11 @@ class Auth(Generic[_TransactionT_contra], ABC):
         user_id: UUID,
         *,
         transaction: _TransactionT_contra,
-    ) -> ReadUserOutput | Literal["auth_is_not_working"] | None: ...
+    ) -> (
+        ReadUserOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+    ): ...
 
     @abstractmethod
     async def refresh_token(

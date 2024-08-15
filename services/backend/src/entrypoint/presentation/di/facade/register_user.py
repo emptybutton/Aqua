@@ -13,10 +13,10 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 class OutputData:
     user_id: UUID
     username: str
-    access_token: str
+    jwt: str
     refresh_token: str
     refresh_token_expiration_date: datetime
-    water_balance_milliliters: int
+    target_water_balance_milliliters: int
     glass_milliliters: int
 
 
@@ -36,7 +36,7 @@ Output: TypeAlias = (
 async def perform(
     name: str,
     password: str,
-    water_balance_milliliters: int | None,
+    target_water_balance_milliliters: int | None,
     glass_milliliters: int | None,
     weight_kilograms: int | None,
 ) -> Output:
@@ -44,7 +44,7 @@ async def perform(
         result = await register_user.perform(
             name,
             password,
-            water_balance_milliliters,
+            target_water_balance_milliliters,
             glass_milliliters,
             weight_kilograms,
             transaction=await container.get(DBTransaction),
@@ -60,9 +60,9 @@ async def perform(
     return OutputData(
         user_id=result.user_id,
         username=result.username,
-        access_token=result.access_token,
+        jwt=result.jwt,
         refresh_token=result.refresh_token,
         refresh_token_expiration_date=result.refresh_token_expiration_date,
-        water_balance_milliliters=result.water_balance_milliliters,
+        target_water_balance_milliliters=result.target_water_balance_milliliters,
         glass_milliliters=result.glass_milliliters,
     )

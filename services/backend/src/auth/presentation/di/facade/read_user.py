@@ -10,6 +10,7 @@ from auth.presentation.di.containers import async_container
 
 @dataclass(kw_only=True, frozen=True)
 class Output:
+    user_id: UUID
     username: str
 
 
@@ -27,4 +28,4 @@ async def perform(
     if user is None:
         return None
 
-    return Output(username=user.name.text)
+    return Output(user_id=user.id, username=user.name.text)

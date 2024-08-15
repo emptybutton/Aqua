@@ -8,6 +8,7 @@ from auth.application.ports import serializers
 @dataclass(kw_only=True, frozen=True)
 class Output:
     serialized_refreshed_access_token: str
+    refresh_token: vos.RefreshToken
 
 
 class Error(Exception): ...
@@ -43,4 +44,5 @@ async def perform(
 
     return Output(
         serialized_refreshed_access_token=serialized_refreshed_access_token,
+        refresh_token=refresh_token,
     )

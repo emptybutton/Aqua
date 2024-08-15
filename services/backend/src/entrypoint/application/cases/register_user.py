@@ -11,11 +11,12 @@ from shared.application.ports.transactions import Transaction
 class OutputData:
     user_id: UUID
     username: str
-    access_token: str
+    jwt: str
     refresh_token: str
     refresh_token_expiration_date: datetime
-    water_balance_milliliters: int
+    target_water_balance_milliliters: int
     glass_milliliters: int
+    weight_kilograms: int | None
 
 
 Output: TypeAlias = (
@@ -39,7 +40,7 @@ _AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: igno
 async def perform(
     name: str,
     password: str,
-    water_balance_milliliters: int | None,
+    target_water_balance_milliliters: int | None,
     glass_milliliters: int | None,
     weight_kilograms: int | None,
     *,
@@ -65,7 +66,7 @@ async def perform(
 
         aqua_result = await aqua.register_user(
             auth_result.user_id,
-            water_balance_milliliters,
+            target_water_balance_milliliters,
             glass_milliliters,
             weight_kilograms,
             transaction=transaction,
@@ -79,12 +80,15 @@ async def perform(
             return aqua_result
 
         refresh_token_expiration = auth_result.refresh_token_expiration_date
+        target = aqua_result.target_water_balance_milliliters
+
         return OutputData(
             user_id=auth_result.user_id,
             username=auth_result.username,
-            access_token=auth_result.access_token,
+            jwt=auth_result.jwt,
             refresh_token=auth_result.refresh_token,
             refresh_token_expiration_date=refresh_token_expiration,
-            water_balance_milliliters=aqua_result.water_balance_milliliters,
+            target_water_balance_milliliters=target,
             glass_milliliters=aqua_result.glass_milliliters,
+            weight_kilograms=aqua_result.weight_kilograms,
         )
