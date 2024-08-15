@@ -18,6 +18,7 @@ class OutputData:
     refresh_token_expiration_date: datetime
     target_water_balance_milliliters: int
     glass_milliliters: int
+    weight_kilograms: int | None
 
 
 Output: TypeAlias = (
@@ -65,4 +66,5 @@ async def perform(
         refresh_token_expiration_date=result.refresh_token_expiration_date,
         target_water_balance_milliliters=result.target_water_balance_milliliters,
         glass_milliliters=result.glass_milliliters,
+        weight_kilograms=result.weight_kilograms,
     )

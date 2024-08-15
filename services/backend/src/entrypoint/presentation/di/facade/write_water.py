@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID
@@ -13,6 +14,12 @@ class OutputData:
     user_id: UUID
     record_id: UUID
     drunk_water_milliliters: int
+    recording_time: datetime
+    target_water_balance_milliliters: int
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
 
 
 Output: TypeAlias = (
@@ -43,8 +50,15 @@ async def perform(
     if not isinstance(result, write_water.OutputData):
         return result
 
+    target = result.target_water_balance_milliliters
     return OutputData(
         user_id=result.user_id,
         record_id=result.record_id,
         drunk_water_milliliters=result.drunk_water_milliliters,
+        recording_time=result.recording_time,
+        target_water_balance_milliliters=target,
+        water_balance_milliliters=result.water_balance_milliliters,
+        result_code=result.result_code,
+        real_result_code=result.real_result_code,
+        is_result_pinned=result.is_result_pinned,
     )
