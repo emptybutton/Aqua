@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/0.1v")
 class RegisterUserRequestModel(BaseModel):
     username: str
     password: str
-    water_balance_milliliters: int | None = None
+    target_water_balance_milliliters: int | None = None
     glass_milliliters: int | None = None
     weight_kilograms: int | None = None
 
@@ -44,7 +44,7 @@ async def register_user(
     result = await facade.register_user.perform(
         request_model.username,
         request_model.password,
-        request_model.water_balance_milliliters,
+        request_model.target_water_balance_milliliters,
         request_model.glass_milliliters,
         request_model.weight_kilograms,
     )
