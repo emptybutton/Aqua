@@ -4,7 +4,7 @@ from typing import Literal, TypeAlias
 
 from entrypoint.application.cases import refresh_token as case
 from entrypoint.application import ports
-from entrypoint.infrastructure import adapters
+from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -34,8 +34,10 @@ async def perform(
             refresh_token,
             refresh_token_expiration_date,
             transaction=await container.get(DBTransaction),
-            auth=await container.get(adapters.clients.AuthFacade),
-            auth_logger=await container.get(adapters.loggers.AuthFacadeLogger),
+            auth=await container.get(clients.AuthFacade, "clients"),
+            auth_logger=await container.get(
+                loggers.AuthFacadeLogger, "loggers"
+            ),
         )
 
     if not isinstance(result, ports.clients.auth.RefreshTokenOutput):

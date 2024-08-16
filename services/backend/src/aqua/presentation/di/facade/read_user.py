@@ -6,7 +6,7 @@ from typing import TypeAlias
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import read_user
-from aqua.infrastructure import adapters
+from aqua.infrastructure.adapters import repos
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -44,9 +44,9 @@ async def perform(
     async with adapter_container(context={AsyncSession: session}) as container:
         result = await read_user.perform(
             user_id,
-            users=await container.get(adapters.repos.DBUsers),
-            days=await container.get(adapters.repos.DBDays),
-            records=await container.get(adapters.repos.DBRecords),
+            users=await container.get(repos.DBUsers, "repos"),
+            days=await container.get(repos.DBDays, "repos"),
+            records=await container.get(repos.DBRecords, "repos"),
         )
 
     records = tuple(

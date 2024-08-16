@@ -22,7 +22,7 @@ async def perform(
     async with async_container(context={AsyncSession: session}) as container:
         user = await read_user.perform(
             user_id,
-            users=await container.get(repos.DBUsers),
+            users=await container.get(repos.DBUsers, "repos"),
         )
 
     if user is None:

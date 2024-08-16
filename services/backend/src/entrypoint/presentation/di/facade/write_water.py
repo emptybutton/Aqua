@@ -4,7 +4,7 @@ from typing import Literal, TypeAlias
 from uuid import UUID
 
 from entrypoint.application.cases import write_water
-from entrypoint.infrastructure import adapters
+from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -41,10 +41,14 @@ async def perform(
             jwt,
             milliliters,
             transaction=await container.get(DBTransaction),
-            auth=await container.get(adapters.clients.AuthFacade),
-            aqua=await container.get(adapters.clients.AquaFacade),
-            auth_logger=await container.get(adapters.loggers.AuthFacadeLogger),
-            aqua_logger=await container.get(adapters.loggers.AquaFacadeLogger),
+            auth=await container.get(clients.AuthFacade, "clients"),
+            aqua=await container.get(clients.AquaFacade, "clients"),
+            auth_logger=await container.get(
+                loggers.AuthFacadeLogger, "loggers"
+            ),
+            aqua_logger=await container.get(
+                loggers.AquaFacadeLogger, "loggers"
+            ),
         )
 
     if not isinstance(result, write_water.OutputData):

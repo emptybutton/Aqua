@@ -5,7 +5,7 @@ from uuid import UUID
 
 from entrypoint.application.cases import read_day
 from entrypoint.application import ports
-from entrypoint.infrastructure import adapters
+from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -44,10 +44,14 @@ async def perform(jwt: str, date_: date) -> Output:
             jwt,
             date_,
             transaction=await container.get(DBTransaction),
-            auth=await container.get(adapters.clients.AuthFacade),
-            aqua=await container.get(adapters.clients.AquaFacade),
-            auth_logger=await container.get(adapters.loggers.AuthFacadeLogger),
-            aqua_logger=await container.get(adapters.loggers.AquaFacadeLogger),
+            auth=await container.get(clients.AuthFacade, "clients"),
+            aqua=await container.get(clients.AquaFacade, "clients"),
+            auth_logger=await container.get(
+                loggers.AuthFacadeLogger, "loggers"
+            ),
+            aqua_logger=await container.get(
+                loggers.AquaFacadeLogger, "loggers"
+            ),
         )
 
     if not isinstance(result, ports.clients.aqua.ReadDayOutput):

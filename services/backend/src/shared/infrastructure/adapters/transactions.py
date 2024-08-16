@@ -1,7 +1,7 @@
 from typing import Type, Self, Any
 from types import TracebackType
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 from shared.application.ports import transactions
 
@@ -15,13 +15,36 @@ class DBTransaction(transactions.Transaction):
     def session(self) -> AsyncSession:
         return self.__session
 
+    @property
+    def __commiter(self) -> AsyncSession | AsyncSessionTransaction:
+        sync_savepoint = self.__session.sync_session.get_nested_transaction()
+        if sync_savepoint is not None:
+            savepoint = AsyncSessionTransaction(self.__session, nested=True)
+            savepoint.sync_transaction = sync_savepoint
+
+            return savepoint
+
+        sync_transaction = self.__session.sync_session.get_transaction()
+        if sync_transaction is not None:
+            transaction = AsyncSessionTransaction(self.__session, nested=False)
+            transaction.sync_transaction = sync_transaction
+
+            return transaction
+
+        return self.__session
+
     async def rollback(self) -> None:
-        if self.__session.is_active:
-            self.__is_rollbacked = True
-            await self.__session.rollback()
+        self.__is_rollbacked = True
+        await self.__commiter.rollback()
 
     async def __aenter__(self) -> Self:
-        await self.__session.begin_nested()
+        in_transaction = self.__session.in_transaction()
+        in_nested_transaction = self.__session.in_nested_transaction()
+
+        if in_transaction or in_nested_transaction:
+            await self.__session.begin_nested()
+        else:
+            await self.__session.begin()
 
         return self
 
@@ -35,16 +58,14 @@ class DBTransaction(transactions.Transaction):
             return True
 
         if error is None:
-            await self.__session.commit()
+            await self.__commiter.commit()
         else:
-            await self.__session.rollback()
+            await self.__commiter.rollback()
 
         return error is None
 
 
-class DBTransactionFactory(
-    transactions.TransactionFactory[Any],
-):
+class DBTransactionFactory(transactions.TransactionFactory[Any]):
     def __init__(self, session: AsyncSession) -> None:
         self.__session = session
 

@@ -28,11 +28,11 @@ Error: TypeAlias = (
 
 async def perform(jwt: str) -> Output:
     with sync_container() as container:
-        serializer = container.get(serializers.AccessTokenSerializer)
-
         access_token = await authenticate_user.perform(
             jwt,
-            access_token_serializer=serializer,
+            access_token_serializer=container.get(
+                serializers.AccessTokenSerializer, "serializers"
+            ),
         )
 
     return Output(user_id=access_token.user_id)

@@ -5,7 +5,7 @@ from uuid import UUID
 
 from entrypoint.application.cases import authorize_user
 from entrypoint.application import ports
-from entrypoint.infrastructure import adapters
+from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -32,9 +32,11 @@ async def perform(name: str, password: str) -> Output:
         result = await authorize_user.perform(
             name,
             password,
-            transaction=await container.get(DBTransaction),
-            auth=await container.get(adapters.clients.AuthFacade),
-            auth_logger=await container.get(adapters.loggers.AuthFacadeLogger),
+            transaction=await container.get(DBTransaction, "transactions"),
+            auth=await container.get(clients.AuthFacade, "clients"),
+            auth_logger=await container.get(
+                loggers.AuthFacadeLogger, "loggers"
+            ),
         )
 
     if not isinstance(result, ports.clients.auth.AuthorizeUserOutput):

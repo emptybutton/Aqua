@@ -42,8 +42,8 @@ async def perform(
             jwt,
             refresh_token,
             refresh_token_expiration_date,
-            access_token_serializer=(
-                container.get(serializers.AccessTokenSerializer)
+            access_token_serializer=container.get(
+                serializers.AccessTokenSerializer, "serializers"
             ),
         )
 

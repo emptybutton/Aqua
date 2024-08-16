@@ -8,5 +8,5 @@ logger.add(
     rotation="00:00",
     enqueue=True,
     backtrace=True,
-    diagnose=True,
+    diagnose=False,
 )

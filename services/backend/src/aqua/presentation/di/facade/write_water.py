@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from aqua.application.cases import write_water
 from aqua.domain import value_objects as vos
 from aqua.presentation.di.containers import adapter_container
-from aqua.infrastructure import adapters
+from aqua.infrastructure.adapters import repos
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
 
@@ -42,12 +42,18 @@ async def perform(
         result = await write_water.perform(
             user_id,
             milliliters,
-            users=await container.get(adapters.repos.DBUsers),
-            records=await container.get(adapters.repos.DBRecords),
-            days=await container.get(adapters.repos.DBDays),
-            record_transaction_for=await container.get(DBTransactionFactory),
-            day_transaction_for=await container.get(DBTransactionFactory),
-            user_transaction_for=await container.get(DBTransactionFactory),
+            users=await container.get(repos.DBUsers, "repos"),
+            records=await container.get(repos.DBRecords, "repos"),
+            days=await container.get(repos.DBDays, "repos"),
+            record_transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
+            day_transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
+            user_transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
         )
 
     return Output(

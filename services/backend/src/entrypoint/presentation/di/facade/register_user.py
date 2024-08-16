@@ -4,7 +4,7 @@ from typing import Literal, TypeAlias
 from uuid import UUID
 
 from entrypoint.application.cases import register_user
-from entrypoint.infrastructure import adapters
+from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -48,11 +48,15 @@ async def perform(
             target_water_balance_milliliters,
             glass_milliliters,
             weight_kilograms,
-            transaction=await container.get(DBTransaction),
-            auth=await container.get(adapters.clients.AuthFacade),
-            aqua=await container.get(adapters.clients.AquaFacade),
-            auth_logger=await container.get(adapters.loggers.AuthFacadeLogger),
-            aqua_logger=await container.get(adapters.loggers.AquaFacadeLogger),
+            transaction=await container.get(DBTransaction, "transactions"),
+            aqua=await container.get(clients.AquaFacade, "clients"),
+            auth=await container.get(clients.AuthFacade, "clients"),
+            aqua_logger=await container.get(
+                loggers.AquaFacadeLogger, "loggers"
+            ),
+            auth_logger=await container.get(
+                loggers.AuthFacadeLogger, "loggers"
+            ),
         )
 
     if not isinstance(result, register_user.OutputData):

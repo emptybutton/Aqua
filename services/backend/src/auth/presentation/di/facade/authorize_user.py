@@ -36,15 +36,15 @@ async def perform(
         result = await authorize_user.perform(
             name,
             password,
-            users=await container.get(repos.DBUsers),
-            password_serializer=(
-                await container.get(serializers.PasswordSerializer)
+            users=await container.get(repos.DBUsers, "repos"),
+            password_serializer=await container.get(
+                serializers.PasswordSerializer, "serializers"
             ),
-            access_token_serializer=(
-                await container.get(serializers.AccessTokenSerializer)
+            access_token_serializer=await container.get(
+                serializers.AccessTokenSerializer, "serializers"
             ),
-            generate_refresh_token_text=(
-                await container.get(generators.GenerateByTokenHex)
+            generate_refresh_token_text=await container.get(
+                generators.GenerateByTokenHex, "generators"
             ),
         )
 

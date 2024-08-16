@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Response
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from entrypoint.presentation.di import facade
@@ -37,10 +36,7 @@ class RegisterUserRequestModel(BaseModel):
         responses.ok.registered_user_view,
     ),
 )
-async def register_user(
-    request_model: RegisterUserRequestModel,
-    response: Response,
-) -> JSONResponse:
+async def register_user(request_model: RegisterUserRequestModel) -> Response:
     result = await facade.register_user.perform(
         request_model.username,
         request_model.password,
@@ -73,6 +69,16 @@ async def register_user(
     if result == "week_password":
         return responses.bad.week_password_view.to_response()
 
+    target = result.target_water_balance_milliliters
+    body = bodies.ok.RegisteredUserView(
+        user_id=result.user_id,
+        username=result.username,
+        target_water_balance_milliliters=target,
+        glass_milliliters=result.glass_milliliters,
+        weight_kilograms=result.weight_kilograms,
+    )
+    response = responses.ok.registered_user_view.to_response(body)
+
     jwt_cookie = cookies.JWTCookie(response)
     refresh_token_cookie = cookies.RefreshTokenCookie(response)
 
@@ -82,15 +88,8 @@ async def register_user(
         result.refresh_token_expiration_date,
     )
 
-    target = result.target_water_balance_milliliters
-    body = bodies.ok.RegisteredUserView(
-        user_id=result.user_id,
-        username=result.username,
-        target_water_balance_milliliters=target,
-        glass_milliliters=result.glass_milliliters,
-        weight_kilograms=result.weight_kilograms,
-    )
-    return responses.ok.registered_user_view.to_response(body)
+    return response
+
 
 """
 class AuthorizationRequestModel(BaseModel):

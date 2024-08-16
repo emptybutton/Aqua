@@ -1,7 +1,8 @@
-from typing import Mapping, TypeVar, Callable, Generic, Any, TypeAlias
+from collections import defaultdict
+from typing import Mapping, TypeVar, Callable, Generic, Any, TypeAlias, Union
 
 from fastapi import BackgroundTasks, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 
@@ -49,20 +50,31 @@ class View(Generic[_BaseModelT_co]):
         model: _BaseModelT_co | None = None,
         *,
         headers: Mapping[str, str] | None = None,
-        media_type: str | None = None,
         background: BackgroundTasks | None = None,
-    ) -> JSONResponse:
-        return JSONResponse(
-            self.__body_type() if model is None else model.model_dump(),
+    ) -> Response:
+        model = self.__body_type() if model is None else model
+
+        return Response(
+            model.model_dump_json(),
             self.__status_code,
             headers,
-            media_type,
+            "application/json",
             background,
         )
 
 
 def to_doc(*views: View[BaseModel]) -> _Doc:
+    body_types_by_status_code: dict[int, list[type[BaseModel]]]
+    body_types_by_status_code = defaultdict(list)
+
+    for view in views:
+        body_types_by_status_code[view.status_code].append(view.body_type)
+
     return {
-        view.status_code: {"model": view.body_type}
-        for view in views
+        status_code: {"model": (
+            body_types[0]
+            if len(body_types) == 1
+            else Union[*body_types]
+        )}
+        for status_code, body_types in body_types_by_status_code.items()
     }

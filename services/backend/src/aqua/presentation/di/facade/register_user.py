@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases import register_user
 from aqua.domain import entities, value_objects as vos
-from aqua.infrastructure import adapters
+from aqua.infrastructure.adapters import repos, loggers
 from aqua.presentation.di.containers import adapter_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -52,9 +52,11 @@ async def perform(
             water_balance_milliliters,
             glass_milliliters,
             weight_kilograms,
-            users=await container.get(adapters.repos.DBUsers),
-            transaction_for=await container.get(DBTransactionFactory),
-            logger=await container.get(adapters.loggers.LoguruLogger),
+            users=await container.get(repos.DBUsers, "repos"),
+            logger=await container.get(loggers.LoguruLogger, "loggers"),
+            transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
         )
 
     weight_kilograms = None if user.weight is None else user.weight.kilograms
