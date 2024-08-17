@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import insert, exists
+from sqlalchemy import insert, exists, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.ports import repos
@@ -81,3 +81,53 @@ class DBUsers(repos.Users):
         )
 
         return bool(await self.__session.scalar(query))
+
+
+class DBSessions(repos.Sessions):
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
+        self.__builder = STMTBuilder.of(session)
+
+    async def add(self, session: entities.Session) -> None:
+        await self.__session.execute(
+            insert(tables.Session)
+            .values(
+                id=session.id,
+                user_id=session.user_id,
+                expiration_date=session.expiration_date,
+            )
+        )
+
+    async def find_with_id(self, session_id: UUID) -> entities.Session | None:
+        query = (
+            self.__builder
+            .select(
+                tables.Session.user_id,
+                tables.Session.expiration_date,
+            )
+            .build()
+            .where(tables.Session.id == session_id)
+            .limit(1)
+        )
+
+        results = await self.__session.execute(query)
+        raw_session = results.first()
+
+        if raw_session is None:
+            return None
+
+        return entities.Session(
+            id=session_id,
+            user_id=raw_session.user_id,
+            __expiration_date=raw_session.expiration_date,
+        )
+
+    async def update(self, session: entities.Session) -> None:
+        await self.__session.execute(
+            update(tables.Session)
+            .where(tables.Session.id == session.id)
+            .values(
+                user_id=session.user_id,
+                expiration_date=session.expiration_date,
+            )
+        )

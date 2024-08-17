@@ -1,8 +1,5 @@
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from functools import cached_property
+from dataclasses import dataclass
 from string import digits
-from uuid import UUID
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -70,61 +67,3 @@ class PasswordHash:
     def __post_init__(self) -> None:
         if len(self.text) == 0:
             raise PasswordHash.EmptyError
-
-
-@dataclass(kw_only=True, frozen=True)
-class RefreshToken:
-    class Error(Exception): ...
-
-    class NotUTCExpirationDateError(Error): ...
-
-    text: str
-    expiration_date: datetime = field(
-        default_factory=lambda: (datetime.now(UTC) + timedelta(days=60))
-    )
-
-    def __post_init__(self) -> None:
-        if self.expiration_date.tzinfo is not UTC:
-            raise RefreshToken.NotUTCExpirationDateError
-
-    @cached_property
-    def is_expired(self) -> bool:
-        return self.expiration_date <= datetime.now(UTC)
-
-
-@dataclass(kw_only=True, frozen=True)
-class AccessToken:
-    class Error(Exception): ...
-
-    class NotUTCExpirationDateError(Error): ...
-
-    user_id: UUID
-    expiration_date: datetime = field(
-        default_factory=lambda: (datetime.now(UTC) + timedelta(minutes=15))
-    )
-
-    def __post_init__(self) -> None:
-        if self.expiration_date.tzinfo is not UTC:
-            raise AccessToken.NotUTCExpirationDateError
-
-    @cached_property
-    def is_expired(self) -> bool:
-        return self.expiration_date <= datetime.now(UTC)
-
-    class AuthenticationError(Error): ...
-
-    class ExpiredForAuthenticationError(AuthenticationError): ...
-
-    def authenticate(self) -> None:
-        if self.is_expired:
-            raise AccessToken.ExpiredForAuthenticationError
-
-    class RefreshingError(Error): ...
-
-    class ExpiredRefreshTokenForRefreshingError(RefreshingError): ...
-
-    def refresh(self, *, refresh_token: RefreshToken) -> "AccessToken":
-        if refresh_token.is_expired:
-            raise AccessToken.ExpiredRefreshTokenForRefreshingError
-
-        return AccessToken(user_id=self.user_id)

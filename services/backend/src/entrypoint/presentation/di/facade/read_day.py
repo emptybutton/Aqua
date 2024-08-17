@@ -4,44 +4,48 @@ from typing import Literal, TypeAlias
 from uuid import UUID
 
 from entrypoint.application.cases import read_day
-from entrypoint.application import ports
 from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
 
 @dataclass(kw_only=True, frozen=True)
-class OutputData:
-    user_id: UUID
+class RecordData:
+    record_id: UUID
+    drunk_water_milliliters: int
+    recording_time: datetime
+
+
+@dataclass(kw_only=True, frozen=True)
+class OtherData:
     target_water_balance_milliliters: int
     date_: date
     water_balance_milliliters: int
     result_code: int
     real_result_code: int
     is_result_pinned: bool
-
-    @dataclass(kw_only=True, frozen=True)
-    class RecordData:
-        record_id: UUID
-        drunk_water_milliliters: int
-        recording_time: datetime
-
     records: tuple[RecordData, ...]
+
+
+@dataclass(kw_only=True, frozen=True)
+class OutputData:
+    user_id: UUID
+    session_id: UUID
+    session_expiration_date: datetime
+    other: OtherData | None
 
 
 Output: TypeAlias = (
     OutputData
     | Literal["not_working"]
-    | Literal["invalid_jwt"]
-    | Literal["expired_jwt"]
-    | Literal["no_user"]
+    | Literal["not_authenticated"]
 )
 
 
-async def perform(jwt: str, date_: date) -> Output:
+async def perform(session_id: UUID, date_: date) -> Output:
     async with async_container() as container:
         result = await read_day.perform(
-            jwt,
+            session_id,
             date_,
             transaction=await container.get(DBTransaction),
             auth=await container.get(clients.AuthFacade, "clients"),
@@ -54,26 +58,37 @@ async def perform(jwt: str, date_: date) -> Output:
             ),
         )
 
-    if not isinstance(result, ports.clients.aqua.ReadDayOutput):
+    if not isinstance(result, read_day.OutputData):
         return result
 
-    records = tuple(
-        OutputData.RecordData(
-            record_id=record.record_id,
-            drunk_water_milliliters=record.drunk_water_milliliters,
-            recording_time=record.recording_time,
-        )
-        for record in result.records
-    )
+    other = None
 
-    target = result.target_water_balance_milliliters
+    if result.aqua_result is not None:
+        records = tuple(
+            RecordData(
+                record_id=record.record_id,
+                drunk_water_milliliters=record.drunk_water_milliliters,
+                recording_time=record.recording_time,
+            )
+            for record in result.aqua_result.records
+        )
+
+        target = result.aqua_result.target_water_balance_milliliters
+        water_balance = result.aqua_result.water_balance_milliliters
+        other = OtherData(
+            target_water_balance_milliliters=target,
+            date_=result.aqua_result.date_,
+            water_balance_milliliters=water_balance,
+            result_code=result.aqua_result.result_code,
+            real_result_code=result.aqua_result.real_result_code,
+            is_result_pinned=result.aqua_result.is_result_pinned,
+            records=records,
+        )
+
+
     return OutputData(
-        user_id=result.user_id,
-        records=records,
-        target_water_balance_milliliters=target,
-        date_=result.date_,
-        water_balance_milliliters=result.water_balance_milliliters,
-        result_code=result.result_code,
-        real_result_code=result.real_result_code,
-        is_result_pinned=result.is_result_pinned,
+        user_id=result.auth_result.user_id,
+        session_id=result.auth_result.session_id,
+        session_expiration_date=result.auth_result.session_expiration_date,
+        other=other,
     )

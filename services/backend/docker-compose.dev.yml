@@ -10,7 +10,6 @@ services:
     networks:
       - private-network
     environment:
-      JWT_SECRET: mega-secret
       POSTGRES_DATABASE: aqua
       POSTGRES_USERNAME: aqua
       POSTGRES_PASSWORD: aqua

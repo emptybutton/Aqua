@@ -2,15 +2,14 @@ from dataclasses import dataclass
 from typing import TypeVar
 
 from auth.domain import entities, value_objects as vos
-from auth.application.ports import repos, serializers, generators
+from auth.application.ports import repos, serializers
 from shared.application.ports.transactions import TransactionFactory
 
 
 @dataclass(kw_only=True, frozen=True)
 class Output:
     user: entities.User
-    refresh_token: vos.RefreshToken
-    serialized_access_token: str
+    session: entities.Session
 
 
 class Error(Exception): ...
@@ -20,6 +19,7 @@ class UserIsAlreadyRegisteredError(Error): ...
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
+_SessionsT = TypeVar("_SessionsT", bound=repos.Sessions)
 
 
 async def perform(
@@ -27,36 +27,27 @@ async def perform(
     password_text: str,
     *,
     users: _UsersT,
-    transaction_for: TransactionFactory[_UsersT],
-    access_token_serializer: serializers.SecureSymmetricSerializer[
-        vos.AccessToken,
-        str,
-    ],
+    sessions: _SessionsT,
+    user_transaction_for: TransactionFactory[_UsersT],
+    session_transaction_for: TransactionFactory[_SessionsT],
     password_serializer: serializers.AsymmetricSerializer[
         vos.Password,
         vos.PasswordHash,
     ],
-    generate_high_entropy_text: generators.GenerateHighEntropyText,
 ) -> Output:
     username = vos.Username(text=name_text)
     password = vos.Password(text=password_text)
     password_hash = password_serializer.serialized(password)
-    refresh_token = vos.RefreshToken(text=generate_high_entropy_text())
 
-    async with transaction_for(users):
+    async with user_transaction_for(users):
         if await users.contains_with_name(username):
             raise UserIsAlreadyRegisteredError
 
         user = entities.User(name=username, password_hash=password_hash)
         await users.add(user)
 
-        access_token = vos.AccessToken(user_id=user.id)
-        serialized_access_token = (
-            access_token_serializer.serialized(access_token)
-        )
+        async with session_transaction_for(sessions):
+            session = entities.Session.for_(user)
+            await sessions.add(session)
 
-        return Output(
-            user=user,
-            refresh_token=refresh_token,
-            serialized_access_token=serialized_access_token,
-        )
+            return Output(user=user, session=session)

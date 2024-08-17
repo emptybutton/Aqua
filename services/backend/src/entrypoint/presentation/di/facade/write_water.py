@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID
 
+from entrypoint.application import ports
 from entrypoint.application.cases import write_water
 from entrypoint.infrastructure.adapters import loggers, clients
 from entrypoint.presentation.di.containers import async_container
@@ -10,8 +11,7 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 
 
 @dataclass(kw_only=True, frozen=True)
-class OutputData:
-    user_id: UUID
+class OtherData:
     record_id: UUID
     drunk_water_milliliters: int
     recording_time: datetime
@@ -22,23 +22,28 @@ class OutputData:
     is_result_pinned: bool
 
 
+@dataclass(kw_only=True, frozen=True)
+class OutputData:
+    session_id: UUID
+    session_expiration_date: datetime
+    user_id: UUID
+    other: OtherData | Literal["error"] | Literal["incorrect_water_amount"]
+
+
 Output: TypeAlias = (
     OutputData
     | Literal["not_working"]
-    | Literal["invalid_jwt"]
-    | Literal["expired_jwt"]
-    | Literal["no_user"]
-    | Literal["incorrect_water_amount"]
+    | Literal["not_authenticated"]
 )
 
 
 async def perform(
-    jwt: str,
+    session_id: UUID,
     milliliters: int | None,
 ) -> Output:
     async with async_container() as container:
         result = await write_water.perform(
-            jwt,
+            session_id,
             milliliters,
             transaction=await container.get(DBTransaction),
             auth=await container.get(clients.AuthFacade, "clients"),
@@ -54,15 +59,23 @@ async def perform(
     if not isinstance(result, write_water.OutputData):
         return result
 
-    target = result.target_water_balance_milliliters
+    if isinstance(result.aqua_result, ports.clients.aqua.WriteWaterOutput):
+        target = result.aqua_result.target_water_balance_milliliters
+        water_balance = result.aqua_result.water_balance_milliliters
+        other = OtherData(
+            record_id=result.aqua_result.record_id,
+            drunk_water_milliliters=result.aqua_result.drunk_water_milliliters,
+            recording_time=result.aqua_result.recording_time,
+            target_water_balance_milliliters=target,
+            water_balance_milliliters=water_balance,
+            result_code=result.aqua_result.result_code,
+            real_result_code=result.aqua_result.real_result_code,
+            is_result_pinned=result.aqua_result.is_result_pinned,
+        )
+
     return OutputData(
-        user_id=result.user_id,
-        record_id=result.record_id,
-        drunk_water_milliliters=result.drunk_water_milliliters,
-        recording_time=result.recording_time,
-        target_water_balance_milliliters=target,
-        water_balance_milliliters=result.water_balance_milliliters,
-        result_code=result.result_code,
-        real_result_code=result.real_result_code,
-        is_result_pinned=result.is_result_pinned,
+        session_id=result.auth_result.session_id,
+        session_expiration_date=result.auth_result.session_expiration_date,
+        user_id=result.auth_result.user_id,
+        other=other,
     )

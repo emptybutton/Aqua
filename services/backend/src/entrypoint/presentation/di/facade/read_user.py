@@ -10,48 +10,50 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 
 
 @dataclass(kw_only=True, frozen=True)
+class FirstPart:
+    username: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class RecordData:
+    record_id: UUID
+    drunk_water_milliliters: int
+    recording_time: datetime
+
+
+@dataclass(kw_only=True, frozen=True)
+class SecondPart:
+    glass_milliliters: int
+    weight_kilograms: int | None
+    target_water_balance_milliliters: int
+    date_: date
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
+    records: tuple[RecordData, ...]
+
+
+@dataclass(kw_only=True, frozen=True)
 class OutputData:
-    @dataclass(kw_only=True, frozen=True)
-    class AuthPart:
-        username: str
-
-    @dataclass(kw_only=True, frozen=True)
-    class AquaPart:
-        glass_milliliters: int
-        weight_kilograms: int | None
-        target_water_balance_milliliters: int
-        date_: date
-        water_balance_milliliters: int
-        result_code: int
-        real_result_code: int
-        is_result_pinned: bool
-
-        @dataclass(kw_only=True, frozen=True)
-        class RecordData:
-            record_id: UUID
-            drunk_water_milliliters: int
-            recording_time: datetime
-
-        records: tuple[RecordData, ...]
-
     user_id: UUID
-    auth_part: AuthPart | None = None
-    aqua_part: AquaPart | None = None
+    session_id: UUID
+    session_expiration_date: datetime
+    first_part: FirstPart | None = None
+    second_part: SecondPart | None = None
 
 
 Output: TypeAlias = (
     OutputData
-    | None
     | Literal["not_working"]
-    | Literal["invalid_jwt"]
-    | Literal["expired_jwt"]
+    | Literal["not_authenticated"]
 )
 
 
-async def perform(jwt: str) -> Output:
+async def perform(session_id: UUID) -> Output:
     async with async_container() as container:
         result = await read_user.perform(
-            jwt,
+            session_id,
             transaction=await container.get(DBTransaction),
             auth=await container.get(clients.AuthFacade, "clients"),
             aqua=await container.get(clients.AquaFacade, "clients"),
@@ -66,37 +68,41 @@ async def perform(jwt: str) -> Output:
     if not isinstance(result, read_user.OutputData):
         return result
 
-    aqua_part = None
-    auth_part = None
+    first_part = None
+    second_part = None
 
-    if result.aqua_part is not None:
-        target = result.aqua_part.target_water_balance_milliliters
+    if result.read_auth_user_result is not None:
+        first_part = FirstPart(username=result.read_auth_user_result.username)
+
+    if result.read_aqua_user_result is not None:
         records = tuple(
-            OutputData.AquaPart.RecordData(
+            RecordData(
                 record_id=record.record_id,
                 drunk_water_milliliters=record.drunk_water_milliliters,
                 recording_time=record.recording_time,
             )
-            for record in result.aqua_part.records
+            for record in result.read_aqua_user_result.records
         )
 
-        aqua_part = OutputData.AquaPart(
-            records=records,
-            glass_milliliters=result.aqua_part.glass_milliliters,
-            weight_kilograms=result.aqua_part.weight_kilograms,
+        target = result.read_aqua_user_result.target_water_balance_milliliters
+        water_balance = result.read_aqua_user_result.water_balance_milliliters
+        second_part = SecondPart(
+            glass_milliliters=result.read_aqua_user_result.glass_milliliters,
+            weight_kilograms=result.read_aqua_user_result.weight_kilograms,
             target_water_balance_milliliters=target,
-            date_=result.aqua_part.date_,
-            water_balance_milliliters=result.aqua_part.water_balance_milliliters,
-            result_code=result.aqua_part.result_code,
-            real_result_code=result.aqua_part.real_result_code,
-            is_result_pinned=result.aqua_part.is_result_pinned,
+            date_=result.read_aqua_user_result.date_,
+            water_balance_milliliters=water_balance,
+            result_code=result.read_aqua_user_result.result_code,
+            real_result_code=result.read_aqua_user_result.real_result_code,
+            is_result_pinned=result.read_aqua_user_result.is_result_pinned,
+            records=records,
         )
 
-    if result.auth_part is not None:
-        auth_part = OutputData.AuthPart(username=result.auth_part.username)
-
+    expiration_date = result.authenticate_user_result.session_expiration_date
     return OutputData(
-        user_id=result.user_id,
-        aqua_part=aqua_part,
-        auth_part=auth_part,
+        user_id=result.authenticate_user_result.user_id,
+        session_id=result.authenticate_user_result.session_id,
+        session_expiration_date=expiration_date,
+        first_part=first_part,
+        second_part=second_part,
     )

@@ -18,14 +18,15 @@ _TransactionT_contra = TypeVar(
 class RegisterUserOutput:
     user_id: UUID
     username: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
-    jwt: str
+    session_id: UUID
+    session_expiration_date: datetime
 
 
 @dataclass(kw_only=True, frozen=True)
 class AuthenticateUserOutput:
     user_id: UUID
+    session_id: UUID
+    session_expiration_date: datetime
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -38,16 +39,8 @@ class ReadUserOutput:
 class AuthorizeUserOutput:
     user_id: UUID
     username: str
-    jwt: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
-
-
-@dataclass(kw_only=True, frozen=True)
-class RefreshTokenOutput:
-    jwt: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
+    session_id: UUID
+    session_expiration_date: datetime
 
 
 class Auth(Generic[_TransactionT_contra], ABC):
@@ -70,11 +63,16 @@ class Auth(Generic[_TransactionT_contra], ABC):
     ): ...
 
     @abstractmethod
-    async def authenticate_user(self, jwt: str) -> (
+    async def authenticate_user(
+        self,
+        session_id: UUID,
+        *,
+        transaction: _TransactionT_contra,
+    ) -> (
         AuthenticateUserOutput
         | Literal["auth_is_not_working"]
-        | Literal["invalid_jwt"]
-        | Literal["expired_jwt"]
+        | Literal["no_session"]
+        | Literal["expired_session"]
     ): ...
 
     @abstractmethod
@@ -101,20 +99,4 @@ class Auth(Generic[_TransactionT_contra], ABC):
         ReadUserOutput
         | Literal["auth_is_not_working"]
         | Literal["no_user"]
-    ): ...
-
-    @abstractmethod
-    async def refresh_token(
-        self,
-        jwt: str,
-        refresh_token: str,
-        refresh_token_expiration_date: datetime,
-        *,
-        transaction: _TransactionT_contra,
-    ) -> (
-        RefreshTokenOutput
-        | Literal["auth_is_not_working"]
-        | Literal["invalid_jwt"]
-        | Literal["not_utc_refresh_token_expiration_date"]
-        | Literal["expired_refresh_token"]
     ): ...

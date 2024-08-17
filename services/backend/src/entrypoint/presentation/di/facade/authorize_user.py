@@ -14,9 +14,8 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 class OutputData:
     user_id: UUID
     username: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
-    jwt: str
+    session_id: UUID
+    session_expiration_date: datetime
 
 
 Output: TypeAlias = (
@@ -45,7 +44,6 @@ async def perform(name: str, password: str) -> Output:
     return OutputData(
         user_id=result.user_id,
         username=result.username,
-        refresh_token=result.refresh_token,
-        refresh_token_expiration_date=result.refresh_token_expiration_date,
-        jwt=result.jwt,
+        session_id=result.session_id,
+        session_expiration_date=result.session_expiration_date,
     )

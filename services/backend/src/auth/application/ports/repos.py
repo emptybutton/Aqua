@@ -24,3 +24,16 @@ class Users(ABC):
         self,
         username: vos.Username,
     ) -> bool: ...
+
+
+class Sessions(ABC):
+    @abstractmethod
+    async def add(self, session: entities.Session) -> None: ...
+
+    @abstractmethod
+    async def find_with_id(
+        self, session_id: UUID
+    ) -> entities.Session | None: ...
+
+    @abstractmethod
+    async def update(self, session: entities.Session) -> None: ...

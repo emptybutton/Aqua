@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date
 from typing import Literal
 from uuid import UUID
 
@@ -231,31 +231,39 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.RegisterUserOutput(
             user_id=result.user_id,
             username=result.username,
-            jwt=result.jwt,
-            refresh_token_expiration_date=result.refresh_token_expiration_date,
-            refresh_token=result.refresh_token_text,
+            session_id=result.session_id,
+            session_expiration_date=result.session_expiration_date,
         )
 
     async def authenticate_user(
         self,
-        jwt: str,
+        session_id: UUID,
+        *,
+        transaction: DBTransaction,
     ) -> (
         clients.auth.AuthenticateUserOutput
         | Literal["auth_is_not_working"]
-        | Literal["invalid_jwt"]
-        | Literal["expired_jwt"]
+        | Literal["no_session"]
+        | Literal["expired_session"]
     ):
         try:
-            result = await auth.authenticate_user.perform(jwt)
-        except auth.authenticate_user.InvalidJWTError:
-            return "invalid_jwt"
-        except auth.authenticate_user.ExpiredJWTError:
-            return "expired_jwt"
+            result = await auth.authenticate_user.perform(
+                session_id,
+                session=transaction.session,
+            )
+        except auth.authenticate_user.NoSessionError:
+            return "no_session"
+        except auth.authenticate_user.ExpiredSessionError:
+            return "expired_session"
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"
 
-        return clients.auth.AuthenticateUserOutput(user_id=result.user_id)
+        return clients.auth.AuthenticateUserOutput(
+            user_id=result.user_id,
+            session_id=result.session_id,
+            session_expiration_date=result.session_expiration_date,
+        )
 
     async def authorize_user(
         self,
@@ -286,9 +294,8 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.AuthorizeUserOutput(
             user_id=result.user_id,
             username=result.username,
-            refresh_token=result.refresh_token,
-            refresh_token_expiration_date=result.refresh_token_expiration_date,
-            jwt=result.jwt,
+            session_id=result.session_id,
+            session_expiration_date=result.session_expiration_date,
         )
 
     async def read_user(
@@ -314,40 +321,4 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.ReadUserOutput(
             user_id=result.user_id,
             username=result.username,
-        )
-
-    async def refresh_token(
-        self,
-        jwt: str,
-        refresh_token: str,
-        refresh_token_expiration_date: datetime,
-        *,
-        transaction: DBTransaction,
-    ) -> (
-        clients.auth.RefreshTokenOutput
-        | Literal["auth_is_not_working"]
-        | Literal["invalid_jwt"]
-        | Literal["not_utc_refresh_token_expiration_date"]
-        | Literal["expired_refresh_token"]
-    ):
-        try:
-            result = await auth.refresh_token.perform(
-                jwt,
-                refresh_token,
-                refresh_token_expiration_date,
-            )
-        except auth.refresh_token.InvalidJWTError:
-            return "invalid_jwt"
-        except auth.refresh_token.NotUTCRefreshTokenExpirationDateError:
-            return "not_utc_refresh_token_expiration_date"
-        except auth.refresh_token.ExpiredRefreshTokenError:
-            return "expired_refresh_token"
-        except Exception as error:
-            self.__errors.append(error)
-            return "auth_is_not_working"
-
-        return clients.auth.RefreshTokenOutput(
-            jwt=result.jwt,
-            refresh_token=result.refresh_token,
-            refresh_token_expiration_date=result.refresh_token_expiration_date,
         )

@@ -25,6 +25,13 @@ class AuthUser(Base):
         return f"db.AuthUser(id={self.id!r}, name={self.name!r})"
 
 
+class Session(Base):
+    __tablename__ = "sessions"
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("auth_users.id"))
+    expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class AquaUser(Base):
     __tablename__ = "aqua_users"
 

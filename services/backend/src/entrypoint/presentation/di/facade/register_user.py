@@ -11,11 +11,10 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
+    session_id: UUID
+    session_expiration_date: datetime
     user_id: UUID
     username: str
-    jwt: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
     target_water_balance_milliliters: int
     glass_milliliters: int
     weight_kilograms: int | None
@@ -62,13 +61,13 @@ async def perform(
     if not isinstance(result, register_user.OutputData):
         return result
 
+    target = result.aqua_result.target_water_balance_milliliters
     return OutputData(
-        user_id=result.user_id,
-        username=result.username,
-        jwt=result.jwt,
-        refresh_token=result.refresh_token,
-        refresh_token_expiration_date=result.refresh_token_expiration_date,
-        target_water_balance_milliliters=result.target_water_balance_milliliters,
-        glass_milliliters=result.glass_milliliters,
-        weight_kilograms=result.weight_kilograms,
+        user_id=result.auth_result.user_id,
+        username=result.auth_result.username,
+        session_id=result.auth_result.session_id,
+        session_expiration_date=result.auth_result.session_expiration_date,
+        target_water_balance_milliliters=target,
+        glass_milliliters=result.aqua_result.glass_milliliters,
+        weight_kilograms=result.aqua_result.weight_kilograms,
     )

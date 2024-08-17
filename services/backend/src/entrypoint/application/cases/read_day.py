@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 from datetime import date
 from typing import TypeVar, Literal, TypeAlias
+from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -10,17 +12,21 @@ _AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: igno
 _AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: ignore[valid-type]
 
 
+@dataclass(kw_only=True, frozen=True)
+class OutputData:
+    auth_result: clients.auth.AuthenticateUserOutput
+    aqua_result: clients.aqua.ReadDayOutput | None
+
+
 Output: TypeAlias = (
-    clients.aqua.ReadDayOutput
+    OutputData
     | Literal["not_working"]
-    | Literal["invalid_jwt"]
-    | Literal["expired_jwt"]
-    | Literal["no_user"]
+    | Literal["not_authenticated"]
 )
 
 
 async def perform(
-    jwt: str,
+    session_id: UUID,
     date_: date,
     *,
     transaction: _TransactionT,
@@ -29,13 +35,16 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    auth_result = await auth.authenticate_user(jwt)
+    auth_result = await auth.authenticate_user(
+        session_id,
+        transaction=transaction,
+    )
 
     if auth_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
         return "not_working"
     if not isinstance(auth_result, clients.auth.AuthenticateUserOutput):
-        return auth_result
+        return "not_authenticated"
 
     aqua_result = await aqua.read_day(
         auth_result.user_id,
@@ -45,8 +54,16 @@ async def perform(
 
     if aqua_result == "aqua_is_not_working":
         await aqua_logger.log_aqua_is_not_working(aqua)
-        return "not_working"
-    if not isinstance(aqua_result, clients.aqua.ReadDayOutput):
-        return aqua_result
 
-    return aqua_result
+    if aqua_result == "no_user":
+        await auth_logger.log_has_extra_user(auth, auth_result.user_id)
+
+    output_aqua_result: clients.aqua.ReadDayOutput | None = None
+
+    if isinstance(aqua_result, clients.aqua.ReadDayOutput):
+        output_aqua_result = aqua_result
+
+    return OutputData(
+        auth_result=auth_result,
+        aqua_result=output_aqua_result,
+    )

@@ -6,8 +6,6 @@ _env.read_env(".env")
 
 
 class Env:
-    jwt_secret = _env.str("JWT_SECRET")
-
     postgres_database = _env.str("POSTGRES_DATABASE")
     postgres_username = _env.str("POSTGRES_USERNAME")
     postgres_password = _env.str("POSTGRES_PASSWORD")

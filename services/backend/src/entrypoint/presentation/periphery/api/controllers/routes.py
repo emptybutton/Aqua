@@ -79,14 +79,8 @@ async def register_user(request_model: RegisterUserRequestModel) -> Response:
     )
     response = responses.ok.registered_user_view.to_response(body)
 
-    jwt_cookie = cookies.JWTCookie(response)
-    refresh_token_cookie = cookies.RefreshTokenCookie(response)
-
-    jwt_cookie.set(result.jwt)
-    refresh_token_cookie.set(
-        result.refresh_token,
-        result.refresh_token_expiration_date,
-    )
+    session_cookie = cookies.SessionCookie(response)
+    session_cookie.set(result.session_id, result.session_expiration_date)
 
     return response
 

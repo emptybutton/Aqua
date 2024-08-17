@@ -1,54 +1,30 @@
 from datetime import datetime, UTC
+from uuid import UUID
 
 from fastapi import Response
 
 
-class RefreshTokenCookie:
+class SessionCookie:
     def __init__(self, response: Response) -> None:
         self.__response = response
 
-    def set(self, refresh_token: str, expiration_date: datetime) -> None:
+    def set(self, session_id: UUID, expiration_date: datetime) -> None:
         expiration_timedelta = expiration_date - datetime.now(UTC)
 
         self.__response.set_cookie(
-            "refresh_token",
-            refresh_token,
+            "session_id",
+            str(session_id),
             httponly=True,
             expires=expiration_timedelta.seconds,
         )
 
         self.__response.set_cookie(
-            "refresh_token_expiration_date",
+            "session_expiration_date",
             str(expiration_date.timestamp()),
             httponly=True,
             expires=expiration_timedelta.seconds,
         )
 
     def delete(self) -> None:
-        self.__response.delete_cookie("refresh_token", httponly=True)
-        self.__response.delete_cookie(
-            "refresh_token_expiration_date",
-            httponly=True,
-        )
-
-
-class JWTCookie:
-    def __init__(self, response: Response) -> None:
-        self.__response = response
-
-    def set(self, jwt: str) -> None:
-        self.__response.set_cookie("jwt", jwt, httponly=True)
-
-    def delete(self) -> None:
-        self.__response.delete_cookie("jwt", httponly=True)
-
-
-class RottenJWTCookie:
-    def __init__(self, response: Response) -> None:
-        self.__response = response
-
-    def set(self, jwt: str) -> None:
-        self.__response.set_cookie("rotten_jwt", jwt, httponly=True)
-
-    def delete(self) -> None:
-        self.__response.delete_cookie("rotten_jwt", httponly=True)
+        self.__response.delete_cookie("session_id", httponly=True)
+        self.__response.delete_cookie("session_expiration_date", httponly=True)

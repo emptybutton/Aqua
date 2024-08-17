@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.cases import register_user
 from auth.domain import value_objects as vos
-from auth.infrastructure.adapters import serializers, repos, generators
+from auth.infrastructure.adapters import serializers, repos
 from auth.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -16,9 +16,8 @@ from shared.infrastructure.adapters.transactions import DBTransactionFactory
 class Output:
     user_id: UUID
     username: str
-    refresh_token_text: str
-    refresh_token_expiration_date: datetime
-    jwt: str
+    session_id: UUID
+    session_expiration_date: datetime
 
 
 UserIsAlreadyRegisteredError: TypeAlias = (
@@ -47,24 +46,21 @@ async def perform(
             username,
             password,
             users=await container.get(repos.DBUsers, "repos"),
+            sessions=await container.get(repos.DBSessions, "repos"),
+            user_transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
+            session_transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
+            ),
             password_serializer=await container.get(
                 serializers.PasswordSerializer, "serializers"
-            ),
-            access_token_serializer=await container.get(
-                serializers.AccessTokenSerializer, "serializers"
-            ),
-            generate_high_entropy_text=await container.get(
-                generators.GenerateByTokenHex, "generators"
-            ),
-            transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
             ),
         )
 
     return Output(
         user_id=result.user.id,
         username=result.user.name.text,
-        refresh_token_text=result.refresh_token.text,
-        refresh_token_expiration_date=result.refresh_token.expiration_date,
-        jwt=result.serialized_access_token,
+        session_id=result.session.id,
+        session_expiration_date=result.session.expiration_date,
     )

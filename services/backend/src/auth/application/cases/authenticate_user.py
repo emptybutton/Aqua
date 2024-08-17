@@ -1,31 +1,33 @@
 from typing import TypeVar
+from uuid import UUID
 
-from auth.domain import value_objects as vos
+from auth.domain import entities
 from auth.application import ports
+from shared.application.ports.transactions import TransactionFactory
 
 
 class Error(Exception): ...
 
 
-class NoAccessTokenError(Error): ...
+class NoSessionError(Error): ...
 
 
-_UsersT = TypeVar("_UsersT", bound=ports.repos.Users)
+_SessionsT = TypeVar("_SessionsT", bound=ports.repos.Sessions)
 
 
 async def perform(
-    serialized_access_token: str,
+    session_id: UUID,
     *,
-    access_token_serializer: ports.serializers.SecureSymmetricSerializer[
-        vos.AccessToken,
-        str,
-    ],
-) -> vos.AccessToken:
-    access_token = access_token_serializer.deserialized(serialized_access_token)
+    sessions: _SessionsT,
+    transaction_for: TransactionFactory[_SessionsT],
+) -> entities.Session:
+    async with transaction_for(sessions):
+        session = await sessions.find_with_id(session_id)
 
-    if access_token is None:
-        raise NoAccessTokenError
+        if session is None:
+            raise NoSessionError
 
-    access_token.authenticate()
+        session.authenticate()
+        await sessions.update(session)
 
-    return access_token
+        return session

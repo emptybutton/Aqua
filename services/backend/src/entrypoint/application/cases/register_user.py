@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TypeVar, TypeAlias, Literal
-from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -9,14 +7,8 @@ from shared.application.ports.transactions import Transaction
 
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
-    user_id: UUID
-    username: str
-    jwt: str
-    refresh_token: str
-    refresh_token_expiration_date: datetime
-    target_water_balance_milliliters: int
-    glass_milliliters: int
-    weight_kilograms: int | None
+    auth_result: clients.auth.RegisterUserOutput
+    aqua_result: clients.aqua.RegisterUserOutput
 
 
 Output: TypeAlias = (
@@ -79,16 +71,4 @@ async def perform(
                 return "not_working"
             return aqua_result
 
-        refresh_token_expiration = auth_result.refresh_token_expiration_date
-        target = aqua_result.target_water_balance_milliliters
-
-        return OutputData(
-            user_id=auth_result.user_id,
-            username=auth_result.username,
-            jwt=auth_result.jwt,
-            refresh_token=auth_result.refresh_token,
-            refresh_token_expiration_date=refresh_token_expiration,
-            target_water_balance_milliliters=target,
-            glass_milliliters=aqua_result.glass_milliliters,
-            weight_kilograms=aqua_result.weight_kilograms,
-        )
+        return OutputData(auth_result=auth_result, aqua_result=aqua_result)
