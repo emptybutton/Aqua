@@ -94,6 +94,7 @@ class DBSessions(repos.Sessions):
             .values(
                 id=session.id,
                 user_id=session.user_id,
+                start_time=session.start_time,
                 expiration_date=session.expiration_date,
             )
         )
@@ -103,6 +104,7 @@ class DBSessions(repos.Sessions):
             self.__builder
             .select(
                 tables.Session.user_id,
+                tables.Session.start_time,
                 tables.Session.expiration_date,
             )
             .build()
@@ -119,6 +121,7 @@ class DBSessions(repos.Sessions):
         return entities.Session(
             id=session_id,
             user_id=raw_session.user_id,
+            __start_time=raw_session.start_time,
             __expiration_date=raw_session.expiration_date,
         )
 
@@ -128,6 +131,7 @@ class DBSessions(repos.Sessions):
             .where(tables.Session.id == session.id)
             .values(
                 user_id=session.user_id,
+                start_time=session.start_time,
                 expiration_date=session.expiration_date,
             )
         )

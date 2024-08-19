@@ -31,11 +31,27 @@ class Session:
 
     class NotUTCExpirationDateError(Error): ...
 
+    class NotUTCStartTimeError(Error): ...
+
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
+    __start_time: datetime | None = field(
+        default_factory=lambda: datetime.now(UTC)
+    )
     __expiration_date: datetime = field(
         default_factory=lambda: Session.__create_expiration_date()
     )
+
+    @property
+    def start_time(self) -> datetime | None:
+        return self.__start_time
+
+    @start_time.setter
+    def start_time(self, start_time: datetime | None) -> None:
+        if start_time is not None and start_time.tzinfo is not UTC:
+            raise Session.NotUTCStartTimeError
+
+        self.__start_time = start_time
 
     @property
     def expiration_date(self) -> datetime:
@@ -68,6 +84,7 @@ class Session:
 
     def __post_init__(self) -> None:
         self.expiration_date = self.__expiration_date
+        self.start_time = self.__start_time
 
     @property
     def __extended_expiration_date(self) -> datetime:
