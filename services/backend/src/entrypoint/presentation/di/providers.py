@@ -20,12 +20,12 @@ class LogerProvider(Provider):
     component = "loggers"
 
     @provide(scope=Scope.APP)
-    def get_aqua_logger(self) -> adapters.loggers.AquaFacadeLogger:
-        return adapters.loggers.AquaFacadeLogger()
+    def get_aqua_logger(self) -> adapters.loggers.AquaFacadeDevLogger:
+        return adapters.loggers.AquaFacadeDevLogger()
 
     @provide(scope=Scope.APP)
-    def get_auth_logger(self) -> adapters.loggers.AuthFacadeLogger:
-        return adapters.loggers.AuthFacadeLogger()
+    def get_auth_logger(self) -> adapters.loggers.AuthFacadeDevLogger:
+        return adapters.loggers.AuthFacadeDevLogger()
 
 
 class ClientProvider(Provider):

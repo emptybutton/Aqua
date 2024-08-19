@@ -30,3 +30,11 @@ class SerializerProvider(Provider):
     @provide(scope=Scope.APP)
     def get_b(self) -> adapters.serializers.PasswordSerializer:
         return adapters.serializers.PasswordSerializer()
+
+
+class LoggerProvider(Provider):
+    component = "loggers"
+
+    @provide(scope=Scope.APP)
+    def get_a(self) -> adapters.loggers.StructlogDevLogger:
+        return adapters.loggers.StructlogDevLogger()

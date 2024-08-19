@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TypeVar
 
 from auth.domain import entities, value_objects as vos
-from auth.application.ports import repos, serializers
+from auth.application.ports import repos, serializers, loggers
 from shared.application.ports.transactions import TransactionFactory
 
 
@@ -34,6 +34,7 @@ async def perform(
         vos.Password,
         vos.PasswordHash,
     ],
+    logger: loggers.Logger,
 ) -> Output:
     username = vos.Username(text=name_text)
     password = vos.Password(text=password_text)
@@ -49,5 +50,6 @@ async def perform(
         async with session_transaction_for(sessions):
             session = entities.Session.for_(user)
             await sessions.add(session)
+            await logger.log_registration(user=user, session=session)
 
             return Output(user=user, session=session)

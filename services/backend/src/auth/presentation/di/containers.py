@@ -9,4 +9,5 @@ async_container = make_async_container(
     shared_providers.TransactionProvider(),
     auth_providers.RepoProvider(),
     auth_providers.SerializerProvider(),
+    auth_providers.LoggerProvider(),
 )

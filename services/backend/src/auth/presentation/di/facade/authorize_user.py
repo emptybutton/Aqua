@@ -6,7 +6,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.cases import authorize_user
-from auth.infrastructure.adapters import serializers, repos
+from auth.infrastructure.adapters import serializers, repos, loggers
 from auth.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -46,7 +46,8 @@ async def perform(
             ),
             session_transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
-            )
+            ),
+            logger=await container.get(loggers.StructlogDevLogger),
         )
 
     return Output(

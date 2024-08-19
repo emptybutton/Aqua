@@ -53,7 +53,7 @@ async def perform(
             glass_milliliters,
             weight_kilograms,
             users=await container.get(repos.DBUsers, "repos"),
-            logger=await container.get(loggers.LoguruLogger, "loggers"),
+            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
             transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),

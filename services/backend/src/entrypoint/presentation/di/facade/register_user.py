@@ -51,10 +51,10 @@ async def perform(
             aqua=await container.get(clients.AquaFacade, "clients"),
             auth=await container.get(clients.AuthFacade, "clients"),
             aqua_logger=await container.get(
-                loggers.AquaFacadeLogger, "loggers"
+                loggers.AquaFacadeDevLogger, "loggers"
             ),
             auth_logger=await container.get(
-                loggers.AuthFacadeLogger, "loggers"
+                loggers.AuthFacadeDevLogger, "loggers"
             ),
         )
 

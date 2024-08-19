@@ -20,6 +20,7 @@ async def perform(
     *,
     sessions: _SessionsT,
     transaction_for: TransactionFactory[_SessionsT],
+    logger: ports.loggers.Logger,
 ) -> entities.Session:
     async with transaction_for(sessions):
         session = await sessions.find_with_id(session_id)
@@ -29,5 +30,6 @@ async def perform(
 
         session.authenticate()
         await sessions.update(session)
+        await logger.log_session_extension(session)
 
         return session

@@ -34,7 +34,7 @@ async def perform(name: str, password: str) -> Output:
             transaction=await container.get(DBTransaction, "transactions"),
             auth=await container.get(clients.AuthFacade, "clients"),
             auth_logger=await container.get(
-                loggers.AuthFacadeLogger, "loggers"
+                loggers.AuthFacadeDevLogger, "loggers"
             ),
         )
 

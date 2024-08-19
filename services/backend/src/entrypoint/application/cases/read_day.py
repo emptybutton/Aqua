@@ -56,7 +56,10 @@ async def perform(
         await aqua_logger.log_aqua_is_not_working(aqua)
 
     if aqua_result == "no_user":
-        await auth_logger.log_has_extra_user(auth, auth_result.user_id)
+        await aqua_logger.log_no_user_from_other_parts(
+            aqua,
+            auth_result.user_id,
+        )
 
     output_aqua_result: clients.aqua.ReadDayOutput | None = None
 

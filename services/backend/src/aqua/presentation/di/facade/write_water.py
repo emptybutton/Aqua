@@ -61,7 +61,7 @@ async def perform(
             user_transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),
-            logger=await container.get(loggers.LoguruLogger, "loggers"),
+            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
         )
 
     return Output(

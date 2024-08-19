@@ -50,5 +50,6 @@ async def perform(
         )
 
         await users.add(user)
+        await logger.log_registered_user(user)
 
     return user

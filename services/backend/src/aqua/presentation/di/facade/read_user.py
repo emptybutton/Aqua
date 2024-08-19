@@ -47,7 +47,7 @@ async def perform(
             users=await container.get(repos.DBUsers, "repos"),
             days=await container.get(repos.DBDays, "repos"),
             records=await container.get(repos.DBRecords, "repos"),
-            logger=await container.get(loggers.LoguruLogger, "loggers"),
+            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
         )
 
     records = tuple(

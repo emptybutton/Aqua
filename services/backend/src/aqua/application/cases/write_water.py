@@ -59,6 +59,7 @@ async def perform(
                 day = entities.Day.empty_of(user, date_=today)
                 day.add(new_record)
                 await days.add(day)
+                await logger.log_new_day(day)
             else:
                 found_day = await days.find_from(today, user_id=user.id)
 
@@ -66,14 +67,17 @@ async def perform(
                     day = found_day
                     day.add(new_record)
                     await days.update(day)
+                    await logger.log_new_day_state(day)
                 else:
-                    await logger.log_records_without_day(previous_records)
+                    for record in previous_records:
+                        await logger.log_record_without_day(record)
 
                     day = entities.Day.empty_of(user, date_=today)
                     day.add(new_record)
                     await days.add(day)
+                    await logger.log_new_day(day)
 
-            await logger.log_new_day_record(new_record, day=day)
+            await logger.log_new_record(new_record)
 
     return Output(
         previous_records=previous_records,

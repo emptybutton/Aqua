@@ -62,12 +62,14 @@ async def perform(
     if auth_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
 
+    aqua_has_no_user = aqua_result == "no_user"
+    auth_has_no_user = auth_result == "no_user"
 
-    if auth_result != "no_user" and aqua_result == "no_user":
-        await auth_logger.log_has_extra_user(auth, user_id)
+    if not auth_has_no_user and aqua_has_no_user:
+        await aqua_logger.log_no_user_from_other_parts(aqua, user_id)
 
-    if auth_result == "no_user" and aqua_result != "no_user":
-        await aqua_logger.log_has_extra_user(aqua, user_id)
+    if auth_has_no_user and not aqua_has_no_user:
+        await auth_logger.log_no_user_from_other_parts(auth, user_id)
 
     output_auth_result: clients.auth.ReadUserOutput | None = None
     output_aqua_result: clients.aqua.ReadUserOutput | None = None

@@ -37,5 +37,5 @@ class LoggerProvider(Provider):
     @provide(scope=Scope.APP)
     def get_logger(
         self,
-    ) -> adapters.loggers.LoguruLogger:
-        return adapters.loggers.LoguruLogger()
+    ) -> adapters.loggers.StructlogDevLogger:
+        return adapters.loggers.StructlogDevLogger()
