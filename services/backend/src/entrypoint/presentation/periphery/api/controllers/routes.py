@@ -80,7 +80,7 @@ async def register_user(request_model: RegisterUserRequestModel) -> Response:
     response = responses.ok.registered_user_view.to_response(body)
 
     session_cookie = cookies.SessionCookie(response)
-    session_cookie.set(result.session_id, result.session_expiration_date)
+    session_cookie.set(result.session_id)
 
     return response
 

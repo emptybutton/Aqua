@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TypeAlias
 from uuid import UUID
 
@@ -17,7 +16,6 @@ class Output:
     user_id: UUID
     username: str
     session_id: UUID
-    session_expiration_date: datetime
 
 
 UserIsAlreadyRegisteredError: TypeAlias = (
@@ -63,5 +61,4 @@ async def perform(
         user_id=result.user.id,
         username=result.user.name.text,
         session_id=result.session.id,
-        session_expiration_date=result.session.expiration_date,
     )

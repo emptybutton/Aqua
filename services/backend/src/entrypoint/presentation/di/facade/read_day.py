@@ -31,7 +31,6 @@ class OtherData:
 class OutputData:
     user_id: UUID
     session_id: UUID
-    session_expiration_date: datetime
     other: OtherData | None
 
 
@@ -89,6 +88,5 @@ async def perform(session_id: UUID, date_: date) -> Output:
     return OutputData(
         user_id=result.auth_result.user_id,
         session_id=result.auth_result.session_id,
-        session_expiration_date=result.auth_result.session_expiration_date,
         other=other,
     )

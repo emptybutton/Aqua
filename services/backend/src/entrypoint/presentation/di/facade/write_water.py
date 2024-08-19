@@ -32,7 +32,6 @@ class OtherData:
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
     session_id: UUID
-    session_expiration_date: datetime
     user_id: UUID
     other: OtherData | Literal["error"] | Literal["incorrect_water_amount"]
 
@@ -86,7 +85,6 @@ async def perform(
 
     return OutputData(
         session_id=result.auth_result.session_id,
-        session_expiration_date=result.auth_result.session_expiration_date,
         user_id=result.auth_result.user_id,
         other=other,
     )

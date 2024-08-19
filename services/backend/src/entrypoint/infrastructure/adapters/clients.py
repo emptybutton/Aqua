@@ -247,7 +247,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             user_id=result.user_id,
             username=result.username,
             session_id=result.session_id,
-            session_expiration_date=result.session_expiration_date,
         )
 
     async def authenticate_user(
@@ -277,7 +276,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.AuthenticateUserOutput(
             user_id=result.user_id,
             session_id=result.session_id,
-            session_expiration_date=result.session_expiration_date,
         )
 
     async def authorize_user(
@@ -310,7 +308,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             user_id=result.user_id,
             username=result.username,
             session_id=result.session_id,
-            session_expiration_date=result.session_expiration_date,
         )
 
     async def read_user(

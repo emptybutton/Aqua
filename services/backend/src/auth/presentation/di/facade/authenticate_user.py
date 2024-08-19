@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TypeAlias
 from uuid import UUID
 
@@ -16,7 +15,6 @@ from shared.infrastructure.adapters.transactions import DBTransactionFactory
 class Output:
     user_id: UUID
     session_id: UUID
-    session_expiration_date: datetime
 
 
 NoSessionError: TypeAlias = authenticate_user.NoSessionError
@@ -46,5 +44,4 @@ async def perform(session_id: UUID, *, session: AsyncSession) -> Output:
     return Output(
         user_id=result.user_id,
         session_id=result.id,
-        session_expiration_date=result.expiration_date,
     )

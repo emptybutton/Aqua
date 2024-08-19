@@ -38,7 +38,6 @@ class SecondPart:
 class OutputData:
     user_id: UUID
     session_id: UUID
-    session_expiration_date: datetime
     first_part: FirstPart | None = None
     second_part: SecondPart | None = None
 
@@ -98,11 +97,9 @@ async def perform(session_id: UUID) -> Output:
             records=records,
         )
 
-    expiration_date = result.authenticate_user_result.session_expiration_date
     return OutputData(
         user_id=result.authenticate_user_result.user_id,
         session_id=result.authenticate_user_result.session_id,
-        session_expiration_date=expiration_date,
         first_part=first_part,
         second_part=second_part,
     )

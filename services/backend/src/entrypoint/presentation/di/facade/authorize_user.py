@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Literal, TypeAlias
 from uuid import UUID
 
@@ -15,7 +14,6 @@ class OutputData:
     user_id: UUID
     username: str
     session_id: UUID
-    session_expiration_date: datetime
 
 
 Output: TypeAlias = (
@@ -45,5 +43,4 @@ async def perform(name: str, password: str) -> Output:
         user_id=result.user_id,
         username=result.username,
         session_id=result.session_id,
-        session_expiration_date=result.session_expiration_date,
     )

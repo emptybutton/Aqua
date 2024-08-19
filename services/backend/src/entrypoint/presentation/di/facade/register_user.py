@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Literal, TypeAlias
 from uuid import UUID
 
@@ -12,7 +11,6 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
     session_id: UUID
-    session_expiration_date: datetime
     user_id: UUID
     username: str
     target_water_balance_milliliters: int
@@ -66,7 +64,6 @@ async def perform(
         user_id=result.auth_result.user_id,
         username=result.auth_result.username,
         session_id=result.auth_result.session_id,
-        session_expiration_date=result.auth_result.session_expiration_date,
         target_water_balance_milliliters=target,
         glass_milliliters=result.aqua_result.glass_milliliters,
         weight_kilograms=result.aqua_result.weight_kilograms,

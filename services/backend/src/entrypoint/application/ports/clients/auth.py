@@ -1,6 +1,5 @@
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TypeVar, Generic, Literal
 from uuid import UUID
 
@@ -19,14 +18,12 @@ class RegisterUserOutput:
     user_id: UUID
     username: str
     session_id: UUID
-    session_expiration_date: datetime
 
 
 @dataclass(kw_only=True, frozen=True)
 class AuthenticateUserOutput:
     user_id: UUID
     session_id: UUID
-    session_expiration_date: datetime
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -40,7 +37,6 @@ class AuthorizeUserOutput:
     user_id: UUID
     username: str
     session_id: UUID
-    session_expiration_date: datetime
 
 
 class Auth(Generic[_TransactionT_contra], ABC):
