@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID
@@ -11,15 +11,22 @@ from shared.infrastructure.adapters.transactions import DBTransaction
 
 
 @dataclass(kw_only=True, frozen=True)
-class OtherData:
+class RecordData:
     record_id: UUID
     drunk_water_milliliters: int
     recording_time: datetime
+
+
+@dataclass(kw_only=True, frozen=True)
+class OtherData:
     target_water_balance_milliliters: int
     water_balance_milliliters: int
     result_code: int
     real_result_code: int
     is_result_pinned: bool
+    date_: date
+    previous_records: tuple[RecordData, ...]
+    new_record: RecordData
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -62,15 +69,19 @@ async def perform(
     if isinstance(result.aqua_result, ports.clients.aqua.WriteWaterOutput):
         target = result.aqua_result.target_water_balance_milliliters
         water_balance = result.aqua_result.water_balance_milliliters
+        previous_records = tuple(map(
+            _record_data_of,
+            result.aqua_result.previous_records,
+        ))
         other = OtherData(
-            record_id=result.aqua_result.record_id,
-            drunk_water_milliliters=result.aqua_result.drunk_water_milliliters,
-            recording_time=result.aqua_result.recording_time,
             target_water_balance_milliliters=target,
             water_balance_milliliters=water_balance,
             result_code=result.aqua_result.result_code,
             real_result_code=result.aqua_result.real_result_code,
             is_result_pinned=result.aqua_result.is_result_pinned,
+            date_=result.aqua_result.date_,
+            new_record=_record_data_of(result.aqua_result.new_record),
+            previous_records=previous_records,
         )
 
     return OutputData(
@@ -78,4 +89,14 @@ async def perform(
         session_expiration_date=result.auth_result.session_expiration_date,
         user_id=result.auth_result.user_id,
         other=other,
+    )
+
+
+def _record_data_of(
+    data: ports.clients.aqua.WriteWaterOutput.RecordData
+) -> RecordData:
+    return RecordData(
+        record_id=data.record_id,
+        drunk_water_milliliters=data.drunk_water_milliliters,
+        recording_time=data.recording_time,
     )

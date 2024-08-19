@@ -4,13 +4,14 @@ from typing import TypeVar
 from uuid import UUID
 
 from aqua.domain import entities, value_objects as vos
-from aqua.application.ports import repos
+from aqua.application.ports import repos, loggers
 from shared.application.ports.transactions import TransactionFactory
 
 
 @dataclass(kw_only=True)
 class Output:
-    record: entities.Record
+    new_record: entities.Record
+    previous_records: tuple[entities.Record, ...]
     day: entities.Day
     user: entities.User
 
@@ -36,8 +37,10 @@ async def perform(
     record_transaction_for: TransactionFactory[_RecordsT],
     day_transaction_for: TransactionFactory[_DaysT],
     user_transaction_for: TransactionFactory[_UsersT],
+    logger: loggers.Logger,
 ) -> Output:
     water = None if milliliters is None else vos.Water(milliliters=milliliters)
+    today = datetime.now(UTC).date()
 
     async with user_transaction_for(users):
         user = await users.find_with_id(user_id)
@@ -45,23 +48,36 @@ async def perform(
         if user is None:
             raise NoUserError()
 
-        record = user.write_water(water)
+        new_record = user.write_water(water)
 
         async with record_transaction_for(records), day_transaction_for(days):
-            await records.add(record)
+            previous_records = await records.find_from(today, user_id=user_id)
 
-            today = datetime.now(UTC).date()
-            day = await days.find_from(today, user_id=user.id)
+            await records.add(new_record)
 
-            if day is None:
-                day = entities.Day(
-                    user_id=user_id,
-                    target=user.target,
-                    _water_balance=vos.WaterBalance(water=record.drunk_water),
-                )
+            if len(previous_records) == 0:
+                day = entities.Day.empty_of(user, date_=today)
+                day.add(new_record)
                 await days.add(day)
             else:
-                day.add(record)
-                await days.update(day)
+                found_day = await days.find_from(today, user_id=user.id)
 
-    return Output(record=record, day=day, user=user)
+                if found_day is not None:
+                    day = found_day
+                    day.add(new_record)
+                    await days.update(day)
+                else:
+                    await logger.log_records_without_day(previous_records)
+
+                    day = entities.Day.empty_of(user, date_=today)
+                    day.add(new_record)
+                    await days.add(day)
+
+            await logger.log_new_day_record(new_record, day=day)
+
+    return Output(
+        previous_records=previous_records,
+        new_record=new_record,
+        day=day,
+        user=user,
+    )

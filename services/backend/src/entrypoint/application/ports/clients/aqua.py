@@ -25,14 +25,21 @@ class RegisterUserOutput:
 @dataclass(kw_only=True, frozen=True)
 class WriteWaterOutput:
     user_id: UUID
-    record_id: UUID
-    drunk_water_milliliters: int
-    recording_time: datetime
     target_water_balance_milliliters: int
     water_balance_milliliters: int
     result_code: int
     real_result_code: int
     is_result_pinned: bool
+    date_: date
+
+    @dataclass(kw_only=True, frozen=True)
+    class RecordData:
+        record_id: UUID
+        drunk_water_milliliters: int
+        recording_time: datetime
+
+    previous_records: tuple[RecordData, ...]
+    new_record: RecordData
 
 
 @dataclass(kw_only=True, frozen=True)

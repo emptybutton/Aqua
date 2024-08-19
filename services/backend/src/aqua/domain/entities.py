@@ -126,16 +126,20 @@ class Day:
         if not self._is_result_pinned:
             self._result = self.correct_result
 
-    def __post_init__(self) -> None:
-        if self._is_result_pinned is None:
-            self._is_result_pinned = self._result is not None
-
-        if self._result is None:
-            self._result = self.correct_result
-
     def add(self, record: Record) -> None:
         assert self.user_id == record.user_id
         assert self.date_ == record.recording_time.date()
 
         water = self.water_balance.water + record.drunk_water
         self.water_balance = WaterBalance(water=water)
+
+    @classmethod
+    def empty_of(cls, user: User, *, date_: date) -> "Day":
+        return Day(user_id=user.id, target=user.target, date_=date_)
+
+    def __post_init__(self) -> None:
+        if self._is_result_pinned is None:
+            self._is_result_pinned = self._result is not None
+
+        if self._result is None:
+            self._result = self.correct_result
