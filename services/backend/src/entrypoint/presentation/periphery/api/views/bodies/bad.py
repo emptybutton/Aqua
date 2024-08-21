@@ -85,7 +85,7 @@ class ExtremeWeightForWaterBalanceView(BaseModel):
     detail: _Detail = _detail_with(
         type_="ExtremeWeightForWaterBalanceError",
         message=(
-            "weight must be between 30 and 150 kg (not inclusive) to"
+            "weight must be between 30 and 150 kg inclusive to"
             " calculate water balance"
         ),
     )
