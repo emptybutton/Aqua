@@ -45,7 +45,7 @@ async def perform(
             session_transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),
-            logger=await container.get(loggers.StructlogDevLogger),
+            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
         )
 
     return Output(

@@ -1,6 +1,6 @@
 from auth.application.ports import loggers
 from auth.domain import entities
-from shared.infrastructure.periphery.structlog import dev_logger
+from shared.infrastructure.periphery.structlog import dev_logger, prod_logger
 
 
 class StructlogDevLogger(loggers.Logger):

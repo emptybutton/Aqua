@@ -54,7 +54,7 @@ async def perform(
             password_serializer=await container.get(
                 serializers.PasswordSerializer, "serializers"
             ),
-            logger=await container.get(loggers.StructlogDevLogger),
+            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
         )
 
     return Output(
