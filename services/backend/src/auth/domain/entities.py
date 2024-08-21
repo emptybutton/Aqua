@@ -38,8 +38,8 @@ class Session:
     __start_time: datetime | None = field(
         default_factory=lambda: datetime.now(UTC)
     )
-    __expiration_date: datetime = field(
-        default_factory=lambda: Session.__create_expiration_date()
+    __end_time: datetime = field(
+        default_factory=lambda: Session.__create_end_time()
     )
 
     @property
@@ -54,19 +54,19 @@ class Session:
         self.__start_time = start_time
 
     @property
-    def expiration_date(self) -> datetime:
-        return self.__expiration_date
+    def end_time(self) -> datetime:
+        return self.__end_time
 
-    @expiration_date.setter
-    def expiration_date(self, expiration_date: datetime) -> None:
-        if expiration_date.tzinfo is not UTC:
+    @end_time.setter
+    def end_time(self, end_time: datetime) -> None:
+        if end_time.tzinfo is not UTC:
             raise Session.NotUTCExpirationDateError
 
-        self.__expiration_date = expiration_date
+        self.__end_time = end_time
 
     @property
     def is_expired(self) -> bool:
-        return self.__expiration_date <= datetime.now(UTC)
+        return self.__end_time <= datetime.now(UTC)
 
     class AuthenticationError(Error): ...
 
@@ -76,20 +76,20 @@ class Session:
         if self.is_expired:
             raise Session.ExpiredForAuthenticationError
 
-        self.__expiration_date = self.__extended_expiration_date
+        self.__end_time = self.__extended_end_time
 
     @classmethod
     def for_(cls, user: User) -> "Session":
         return Session(user_id=user.id)
 
     def __post_init__(self) -> None:
-        self.expiration_date = self.__expiration_date
+        self.end_time = self.__end_time
         self.start_time = self.__start_time
 
     @property
-    def __extended_expiration_date(self) -> datetime:
-        return self.__create_expiration_date()
+    def __extended_end_time(self) -> datetime:
+        return self.__create_end_time()
 
     @classmethod
-    def __create_expiration_date(cls) -> datetime:
+    def __create_end_time(cls) -> datetime:
         return datetime.now(UTC) + Session.lifespan
