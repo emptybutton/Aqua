@@ -22,7 +22,7 @@ class _Mapper:
             session_id=session.id,
             session_user_id=session.user_id,
             session_start_time=session.start_time,
-            session_expiration_date=session.expiration_date,
+            session_end_time=session.end_time,
         )
 
 

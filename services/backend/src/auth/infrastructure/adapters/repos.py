@@ -95,7 +95,7 @@ class DBSessions(repos.Sessions):
                 id=session.id,
                 user_id=session.user_id,
                 start_time=session.start_time,
-                expiration_date=session.expiration_date,
+                expiration_date=session.end_time,
             )
         )
 
@@ -122,7 +122,7 @@ class DBSessions(repos.Sessions):
             id=session_id,
             user_id=raw_session.user_id,
             __start_time=raw_session.start_time,
-            __expiration_date=raw_session.expiration_date,
+            __end_time=raw_session.expiration_date,
         )
 
     async def update(self, session: entities.Session) -> None:
@@ -132,6 +132,6 @@ class DBSessions(repos.Sessions):
             .values(
                 user_id=session.user_id,
                 start_time=session.start_time,
-                expiration_date=session.expiration_date,
+                expiration_date=session.end_time,
             )
         )
