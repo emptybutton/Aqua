@@ -4,9 +4,10 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.application import ports
 from auth.application.cases import register_user
 from auth.domain import value_objects as vos
-from auth.infrastructure.adapters import serializers, repos, loggers
+from auth.infrastructure.adapters import serializers, repos
 from auth.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -54,7 +55,7 @@ async def perform(
             password_serializer=await container.get(
                 serializers.PasswordSerializer, "serializers"
             ),
-            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
+            logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
     return Output(

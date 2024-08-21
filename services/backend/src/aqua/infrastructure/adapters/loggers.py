@@ -1,6 +1,51 @@
+from typing import Any
+from functools import singledispatchmethod
+
 from aqua.application.ports import loggers
 from aqua.domain import entities
-from shared.infrastructure.periphery.structlog import dev_logger
+from aqua.infrastructure.periphery import logs
+from shared.infrastructure.periphery.structlog import dev_logger, prod_logger
+
+
+class _Mapper:
+    @singledispatchmethod
+    def to_dict(self, value: object) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @to_dict.register
+    def _(self, user: entities.User) -> dict[str, Any]:
+        suitable_milliliters = user.suitable_water_balance.water.milliliters
+        kilograms = None if user.weight is None else user.weight.kilograms
+
+        return dict(
+            user_id=user.id,
+            user_weight_kilograms=kilograms,
+            user_glass_water_milliliters=user.glass.capacity.milliliters,
+            user_target_water_balance_milliliters=user.target.water.milliliters,
+            user_suitable_target_water_balance_milliliters=suitable_milliliters,
+        )
+
+    @to_dict.register
+    def _(self, record: entities.Record) -> dict[str, Any]:
+        return dict(
+            record_id=record.id,
+            record_user_id=record.user_id,
+            record_drunk_water_milliliters=record.drunk_water.milliliters,
+            recording_time=record.recording_time,
+        )
+
+    @to_dict.register
+    def _(self, day: entities.Day) -> dict[str, Any]:
+        return dict(
+            day_id=day.id,
+            day_user_id=day.user_id,
+            day_date=day.date_,
+            day_target_water_balance_milliliters=day.target.water.milliliters,
+            day_water_balance_milliliters=day.water_balance.water.milliliters,
+            day_result_code=day.result.value,
+            day_correct_result_code=day.correct_result.value,
+            is_day_result_pinned=day.is_result_pinned,
+        )
 
 
 class StructlogDevLogger(loggers.Logger):
@@ -8,30 +53,72 @@ class StructlogDevLogger(loggers.Logger):
         self,
         user: entities.User,
     ) -> None:
-        message = "attempt to register a registered user"
-        await dev_logger.awarning(message, user=user)
+        log = logs.registered_user_registration_log
+        await dev_logger.awarning(log, user=user)
 
-    async def log_record_without_day(
-        self,
-        record: entities.Record,
-    ) -> None:
-        message = "record exists without day"
-        await dev_logger.awarning(message, record=record)
+    async def log_record_without_day(self, record: entities.Record) -> None:
+        await dev_logger.awarning(logs.record_without_day_log, record=record)
 
     async def log_day_without_records(self, day: entities.Day) -> None:
-        await dev_logger.awarning("day exists without records", day=day)
+        await dev_logger.awarning(logs.day_without_records_log, day=day)
 
     async def log_new_day(self, day: entities.Day) -> None:
-        await dev_logger.ainfo("new day", day=day)
+        await dev_logger.ainfo(logs.new_day_log, day=day)
 
     async def log_new_day_state(self, day: entities.Day) -> None:
-        await dev_logger.ainfo("new day state", day=day)
+        await dev_logger.ainfo(logs.new_day_state_log, day=day)
 
-    async def log_new_record(
-        self,
-        record: entities.Record,
-    ) -> None:
-        await dev_logger.ainfo("new record", record=record)
+    async def log_new_record(self, record: entities.Record) -> None:
+        await dev_logger.ainfo(logs.new_record_log, record=record)
 
     async def log_registered_user(self, user: entities.User) -> None:
-        await dev_logger.ainfo("new user in aqua module", user=user)
+        await dev_logger.ainfo(logs.registered_user_log, user=user)
+
+
+class StructlogProdLogger(loggers.Logger):
+    __mapper = _Mapper()
+
+    async def log_registered_user_registration(
+        self,
+        user: entities.User,
+    ) -> None:
+        await prod_logger.awarning(
+            logs.registered_user_registration_log,
+            **self.__mapper.to_dict(user),
+        )
+
+    async def log_record_without_day(self, record: entities.Record) -> None:
+        await prod_logger.awarning(
+            logs.record_without_day_log,
+            **self.__mapper.to_dict(record),
+        )
+
+    async def log_day_without_records(self, day: entities.Day) -> None:
+        await prod_logger.awarning(
+            logs.day_without_records_log,
+            **self.__mapper.to_dict(day),
+        )
+
+    async def log_new_day(self, day: entities.Day) -> None:
+        await prod_logger.ainfo(
+            logs.new_day_log,
+            **self.__mapper.to_dict(day),
+        )
+
+    async def log_new_day_state(self, day: entities.Day) -> None:
+        await prod_logger.ainfo(
+            logs.new_day_state_log,
+            **self.__mapper.to_dict(day),
+        )
+
+    async def log_new_record(self, record: entities.Record) -> None:
+        await prod_logger.ainfo(
+            logs.new_record_log,
+            **self.__mapper.to_dict(record),
+        )
+
+    async def log_registered_user(self, user: entities.User) -> None:
+        await prod_logger.ainfo(
+            logs.registered_user_log,
+            **self.__mapper.to_dict(user),
+        )

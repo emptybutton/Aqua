@@ -10,6 +10,7 @@ services:
     networks:
       - private-network
     environment:
+      FOR_DEV: true
       POSTGRES_DATABASE: aqua
       POSTGRES_USERNAME: aqua
       POSTGRES_PASSWORD: aqua

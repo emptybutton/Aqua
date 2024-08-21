@@ -6,6 +6,8 @@ _env.read_env(".env")
 
 
 class Env:
+    for_dev = _env.bool("FOR_DEV")
+
     postgres_database = _env.str("POSTGRES_DATABASE")
     postgres_username = _env.str("POSTGRES_USERNAME")
     postgres_password = _env.str("POSTGRES_PASSWORD")

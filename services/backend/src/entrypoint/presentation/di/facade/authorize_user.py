@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID
 
-from entrypoint.application.cases import authorize_user
 from entrypoint.application import ports
-from entrypoint.infrastructure.adapters import loggers, clients
+from entrypoint.application.cases import authorize_user
+from entrypoint.infrastructure.adapters import clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -32,7 +32,7 @@ async def perform(name: str, password: str) -> Output:
             transaction=await container.get(DBTransaction, "transactions"),
             auth=await container.get(clients.AuthFacade, "clients"),
             auth_logger=await container.get(
-                loggers.AuthFacadeDevLogger, "loggers"
+                ports.loggers.AuthLogger[clients.AuthFacade], "loggers"
             ),
         )
 

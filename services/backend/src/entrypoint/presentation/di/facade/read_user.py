@@ -3,8 +3,9 @@ from datetime import datetime, date
 from typing import Literal, TypeAlias
 from uuid import UUID
 
+from entrypoint.application import ports
 from entrypoint.application.cases import read_user
-from entrypoint.infrastructure.adapters import loggers, clients
+from entrypoint.infrastructure.adapters import clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -57,10 +58,10 @@ async def perform(session_id: UUID) -> Output:
             auth=await container.get(clients.AuthFacade, "clients"),
             aqua=await container.get(clients.AquaFacade, "clients"),
             auth_logger=await container.get(
-                loggers.AuthFacadeDevLogger, "loggers"
+                ports.loggers.AuthLogger[clients.AuthFacade], "loggers"
             ),
             aqua_logger=await container.get(
-                loggers.AquaFacadeDevLogger, "loggers"
+                ports.loggers.AquaLogger[clients.AquaFacade], "loggers"
             ),
         )
 

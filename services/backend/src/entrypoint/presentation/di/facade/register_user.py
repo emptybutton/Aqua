@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID
 
+from entrypoint.application import ports
 from entrypoint.application.cases import register_user
-from entrypoint.infrastructure.adapters import loggers, clients
+from entrypoint.infrastructure.adapters import clients
 from entrypoint.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransaction
 
@@ -49,10 +50,10 @@ async def perform(
             aqua=await container.get(clients.AquaFacade, "clients"),
             auth=await container.get(clients.AuthFacade, "clients"),
             aqua_logger=await container.get(
-                loggers.AquaFacadeDevLogger, "loggers"
+                ports.loggers.AquaLogger[clients.AquaFacade], "loggers"
             ),
             auth_logger=await container.get(
-                loggers.AuthFacadeDevLogger, "loggers"
+                ports.loggers.AuthLogger[clients.AuthFacade], "loggers"
             ),
         )
 

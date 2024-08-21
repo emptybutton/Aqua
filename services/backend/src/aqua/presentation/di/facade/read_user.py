@@ -5,8 +5,9 @@ from typing import TypeAlias
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from aqua.application import ports
 from aqua.application.cases import read_user
-from aqua.infrastructure.adapters import repos, loggers
+from aqua.infrastructure.adapters import repos
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -47,7 +48,7 @@ async def perform(
             users=await container.get(repos.DBUsers, "repos"),
             days=await container.get(repos.DBDays, "repos"),
             records=await container.get(repos.DBRecords, "repos"),
-            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
+            logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
     records = tuple(

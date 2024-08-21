@@ -4,9 +4,10 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from aqua.application import ports
 from aqua.application.cases import register_user
 from aqua.domain import entities, value_objects as vos
-from aqua.infrastructure.adapters import repos, loggers
+from aqua.infrastructure.adapters import repos
 from aqua.presentation.di.containers import adapter_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -53,7 +54,7 @@ async def perform(
             glass_milliliters,
             weight_kilograms,
             users=await container.get(repos.DBUsers, "repos"),
-            logger=await container.get(loggers.StructlogDevLogger, "loggers"),
+            logger=await container.get(ports.loggers.Logger, "loggers"),
             transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),
