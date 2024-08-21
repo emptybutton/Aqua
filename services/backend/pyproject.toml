@@ -17,6 +17,7 @@ dishka = "^1.3.0"
 uvicorn = "^0.30.6"
 structlog = "^24.4.0"
 rich = "^13.7.1"
+dirty-equals = "^0.8.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.1"
@@ -52,4 +53,5 @@ ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018"]
 "__init__.py" = ["PLC0414"]
 "*/cases/*" = ["PLR0911", "PLR0913"]
 "*/adapters/*" = ["ARG002"]
+"*/domain/*" = ["PLR2004"]
 "src/entrypoint/presentation/periphery/api/controllers/routes.py" = ["PLR0911"]

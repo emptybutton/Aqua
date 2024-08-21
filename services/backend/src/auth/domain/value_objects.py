@@ -34,7 +34,7 @@ class Password:
     text: str
 
     def __post_init__(self) -> None:
-        if len(self.text) < 8:  # noqa: PLR2004
+        if len(self.text) < 8:
             raise Password.TooShortError
 
         if self.text.upper() == self.text:

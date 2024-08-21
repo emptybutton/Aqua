@@ -41,11 +41,11 @@ class WaterBalance:
 
     @classmethod
     def suitable_when(cls, *, weight: "Weight") -> "WaterBalance":
-        if weight.kilograms < 30 or weight.kilograms > 150:  # noqa: PLR2004
+        if weight.kilograms < 30 or weight.kilograms > 150:
             raise WaterBalance.ExtremeWeightForSuitableWaterBalanceError
 
-        appropriate_milliliters = 1500 + (weight.kilograms - 20) * 10
-        return WaterBalance(water=Water(milliliters=appropriate_milliliters))
+        suitable_milliliters = 1500 + (weight.kilograms - 20) * 10
+        return WaterBalance(water=Water(milliliters=suitable_milliliters))
 
 
 @dataclass(kw_only=True, frozen=True)
