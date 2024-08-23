@@ -21,8 +21,8 @@ class _Mapper:
         return dict(
             session_id=session.id,
             session_user_id=session.user_id,
-            session_start_time=session.start_time,
-            session_end_time=session.end_time,
+            session_start_time=session.lifetime.start_time,
+            session_end_time=session.lifetime.end_time,
         )
 
 

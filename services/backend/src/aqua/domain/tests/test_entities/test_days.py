@@ -1,7 +1,6 @@
 from datetime import datetime, UTC
 from uuid import uuid4
 
-
 from aqua.domain import entities, value_objects as vos
 
 

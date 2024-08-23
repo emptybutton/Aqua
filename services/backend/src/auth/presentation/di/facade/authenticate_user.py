@@ -21,7 +21,7 @@ class Output:
 NoSessionError: TypeAlias = authenticate_user.NoSessionError
 
 ExpiredSessionError: TypeAlias = (
-    entities.Session.ExpiredForAuthenticationError
+    entities.Session.ExpiredLifetimeForAuthenticationError
 )
 
 Error: TypeAlias = (

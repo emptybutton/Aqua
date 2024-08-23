@@ -94,8 +94,8 @@ class DBSessions(repos.Sessions):
             .values(
                 id=session.id,
                 user_id=session.user_id,
-                start_time=session.start_time,
-                expiration_date=session.end_time,
+                start_time=session.lifetime.start_time,
+                expiration_date=session.lifetime.end_time,
             )
         )
 
@@ -118,11 +118,15 @@ class DBSessions(repos.Sessions):
         if raw_session is None:
             return None
 
+        lifetime = vos.SessionLifetime(
+            _start_time=raw_session.start_time,
+            _end_time=raw_session.expiration_date,
+        )
+
         return entities.Session(
             id=session_id,
             user_id=raw_session.user_id,
-            __start_time=raw_session.start_time,
-            __end_time=raw_session.expiration_date,
+            lifetime=lifetime,
         )
 
     async def update(self, session: entities.Session) -> None:
@@ -131,7 +135,7 @@ class DBSessions(repos.Sessions):
             .where(tables.Session.id == session.id)
             .values(
                 user_id=session.user_id,
-                start_time=session.start_time,
-                expiration_date=session.end_time,
+                start_time=session.lifetime.start_time,
+                expiration_date=session.lifetime.end_time,
             )
         )
