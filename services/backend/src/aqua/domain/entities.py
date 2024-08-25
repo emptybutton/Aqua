@@ -9,7 +9,9 @@ from aqua.domain.value_objects import Water, WaterBalance, Glass, Weight
 
 @dataclass(kw_only=True)
 class Record:
-    class NotUTCRecordingTimeError(Exception): ...
+    class Error(Exception): ...
+
+    class NotUTCRecordingTimeError(Error): ...
 
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
@@ -45,7 +47,9 @@ def water_balance_from(*records: Record) -> WaterBalance:
 
 @dataclass(kw_only=True)
 class User:
-    class NoWeightForSuitableWaterBalanceError(Exception): ...
+    class Error(Exception): ...
+
+    class NoWeightForSuitableWaterBalanceError(Error): ...
 
     id: UUID = field(default_factory=uuid4)
     weight: Weight | None = None

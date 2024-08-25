@@ -4,7 +4,9 @@ from enum import Enum, auto
 
 @dataclass(kw_only=True, frozen=True)
 class Water:
-    class IncorrectAmountError(Exception): ...
+    class Error(Exception): ...
+
+    class IncorrectAmountError(Error): ...
 
     milliliters: int
 
@@ -18,6 +20,8 @@ class Water:
 
 @dataclass(kw_only=True, frozen=True)
 class WaterBalance:
+    class Error(Exception): ...
+
     class Status(Enum):
         good = auto()
         not_enough_water = auto()
@@ -37,7 +41,7 @@ class WaterBalance:
 
         return WaterBalance.Status.good
 
-    class ExtremeWeightForSuitableWaterBalanceError(Exception): ...
+    class ExtremeWeightForSuitableWaterBalanceError(Error): ...
 
     @classmethod
     def suitable_when(cls, *, weight: "Weight") -> "WaterBalance":
@@ -55,7 +59,9 @@ class Glass:
 
 @dataclass(kw_only=True, frozen=True)
 class Weight:
-    class IncorrectAmountError(Exception): ...
+    class Error(Exception): ...
+
+    class IncorrectAmountError(Error): ...
 
     kilograms: int
 

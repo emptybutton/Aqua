@@ -46,41 +46,38 @@ async def perform(
         user = await users.find_with_id(user_id)
 
         if user is None:
-            raise NoUserError()
+            raise NoUserError
 
         new_record = user.write_water(water)
 
         async with record_transaction_for(records), day_transaction_for(days):
-            previous_records = await records.find_from(today, user_id=user_id)
+            found_day = await days.find_from(today, user_id=user.id)
+            found_records = await records.find_from(today, user_id=user.id)
 
             await records.add(new_record)
+            await logger.log_new_record(new_record)
 
-            if len(previous_records) == 0:
+            if found_day:
+                if not found_records:
+                    await logger.log_day_without_records(found_day)
+
+                day = found_day
+                day.add(new_record)
+                await days.update(day)
+                await logger.log_new_day_state(day)
+            else:
                 day = entities.Day.empty_of(user, date_=today)
+
+                for record in found_records:
+                    await logger.log_record_without_day(record)
+                    day.add(record)
+
                 day.add(new_record)
                 await days.add(day)
                 await logger.log_new_day(day)
-            else:
-                found_day = await days.find_from(today, user_id=user.id)
-
-                if found_day is not None:
-                    day = found_day
-                    day.add(new_record)
-                    await days.update(day)
-                    await logger.log_new_day_state(day)
-                else:
-                    for record in previous_records:
-                        await logger.log_record_without_day(record)
-
-                    day = entities.Day.empty_of(user, date_=today)
-                    day.add(new_record)
-                    await days.add(day)
-                    await logger.log_new_day(day)
-
-            await logger.log_new_record(new_record)
 
     return Output(
-        previous_records=previous_records,
+        previous_records=found_records,
         new_record=new_record,
         day=day,
         user=user,
