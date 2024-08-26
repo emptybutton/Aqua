@@ -49,7 +49,7 @@ async def perform(
                 DBTransactionFactory, "transactions"
             ),
             password_serializer=await container.get(
-                serializers.PasswordSerializer, "serializers"
+                serializers.SHA256PasswordHasher, "serializers"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )

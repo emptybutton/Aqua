@@ -128,6 +128,14 @@ class InMemoryStorageLogger(loggers.Logger):
     def session_extension_logs(self) -> list[SessionExtensionLog]:
         return list(self.__session_extension_logs)
 
+    @property
+    def is_empty(self) -> bool:
+        return (
+            not self.__registration_logs
+            and not self.__login_logs
+            and not self.__session_extension_logs
+        )
+
     async def log_registration(
         self,
         *,

@@ -30,8 +30,8 @@ class SerializerProvider(Provider):
     component = "serializers"
 
     @provide(scope=Scope.APP)
-    def get_b(self) -> adapters.serializers.PasswordSerializer:
-        return adapters.serializers.PasswordSerializer()
+    def get_b(self) -> adapters.serializers.SHA256PasswordHasher:
+        return adapters.serializers.SHA256PasswordHasher()
 
 
 class LoggerProvider(Provider):

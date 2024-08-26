@@ -36,7 +36,7 @@ async def perform(
             name,
             password,
             password_serializer=await container.get(
-                serializers.PasswordSerializer, "serializers"
+                serializers.SHA256PasswordHasher, "serializers"
             ),
             users=await container.get(repos.DBUsers, "repos"),
             sessions=await container.get(repos.DBSessions, "repos"),

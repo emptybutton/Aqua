@@ -58,12 +58,11 @@ async def perform(
             raise NoUserError
 
         try:
-            user.authorize(password_hash=password_hash)
+            session = user.authorize(password_hash=password_hash)
         except entities.User.IncorrectPasswordHashForAuthorizationError as err:
             raise IncorrectPasswordError from err
 
         async with session_transaction_for(sessions):
-            session = entities.Session.for_(user)
             await sessions.add(session)
             await logger.log_login(user=user, session=session)
 
