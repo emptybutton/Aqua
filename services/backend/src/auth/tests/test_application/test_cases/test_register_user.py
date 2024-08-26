@@ -270,7 +270,7 @@ async def test_session_storage_values(
         logger=logger,
     )
 
-    assert tuple(sessions) == (result.session, )
+    assert tuple(sessions) == (result.session,)
 
 
 @mark.asyncio

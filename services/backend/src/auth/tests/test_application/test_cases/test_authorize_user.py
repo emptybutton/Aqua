@@ -236,7 +236,7 @@ async def test_session_storage(
 ) -> None:
     result = await case("username1", "pAssword1")
 
-    assert tuple(sessions) == (result.session, )
+    assert tuple(sessions) == (result.session,)
 
 
 @mark.asyncio

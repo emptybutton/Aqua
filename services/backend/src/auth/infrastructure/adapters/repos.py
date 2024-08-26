@@ -166,9 +166,7 @@ class InMemorySessions(repos.Sessions, uows.InMemoryUoW[entities.Session]):
     async def add(self, session: entities.Session) -> None:
         self._storage.append(copy(session))
 
-    async def find_with_id(
-        self, session_id: UUID
-    ) -> entities.Session | None:
+    async def find_with_id(self, session_id: UUID) -> entities.Session | None:
         for session in self._storage:
             if session.id == session_id:
                 return session

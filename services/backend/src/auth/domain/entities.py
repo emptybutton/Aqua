@@ -34,7 +34,7 @@ class User:
         name: Username,
         password_hash: PasswordHash,
         *,
-        current_time: datetime | None = None
+        current_time: datetime | None = None,
     ) -> tuple["User", "Session"]:
         user = User(name=name, password_hash=password_hash)
         session = Session.for_(user, start_time=current_time)

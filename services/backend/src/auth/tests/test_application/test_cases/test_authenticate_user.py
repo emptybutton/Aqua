@@ -4,8 +4,8 @@ from uuid import uuid4
 from dirty_equals import IsDatetime
 from pytest import mark, raises
 
-from auth.domain import entities
 from auth.application.cases import authenticate_user
+from auth.domain import entities
 from auth.infrastructure import adapters
 from shared.infrastructure.adapters.transactions import (
     InMemoryUoWTransactionFactory,
