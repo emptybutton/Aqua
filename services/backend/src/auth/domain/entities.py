@@ -21,6 +21,22 @@ class User:
         if self.password_hash != password_hash:
             raise User.IncorrectPasswordHashForAuthorizationError
 
+    @classmethod
+    def register(
+        cls,
+        name: Username,
+        password_hash: PasswordHash,
+        *,
+        current_time: datetime | None = None
+    ) -> tuple["User", "Session"]:
+        if current_time is None:
+            current_time = datetime.now(UTC)
+
+        user = User(name=name, password_hash=password_hash)
+        session = Session.for_(user, start_time=current_time)
+
+        return user, session
+
 
 @dataclass(kw_only=True)
 class Session:

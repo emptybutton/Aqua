@@ -44,11 +44,10 @@ async def perform(
         if await users.contains_with_name(username):
             raise UserIsAlreadyRegisteredError
 
-        user = entities.User(name=username, password_hash=password_hash)
+        user, session = entities.User.register(username, password_hash)
         await users.add(user)
 
         async with session_transaction_for(sessions):
-            session = entities.Session.for_(user)
             await sessions.add(session)
             await logger.log_registration(user=user, session=session)
 

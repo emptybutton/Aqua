@@ -12,29 +12,29 @@ def test_creation_without_points() -> None:
 
 
 def test_end_time_on_creation_without_start_time() -> None:
-    lifespan = vos.SessionLifetime(_end_time=datetime.now(UTC))
+    lifetime = vos.SessionLifetime(_end_time=datetime.now(UTC))
 
-    assert lifespan.end_time == IsNow(tz=UTC)
+    assert lifetime.end_time == IsNow(tz=UTC)
 
 
 def test_start_time_on_creation_without_start_time() -> None:
-    lifespan = vos.SessionLifetime(_end_time=datetime.now(UTC))
+    lifetime = vos.SessionLifetime(_end_time=datetime.now(UTC))
 
-    assert lifespan.start_time is None
+    assert lifetime.start_time is None
 
 
 def test_end_time_on_creation_without_end_time() -> None:
     start_time = datetime(2000, 1, 1, tzinfo=UTC)
-    lifespan = vos.SessionLifetime(_start_time=start_time)
+    lifetime = vos.SessionLifetime(_start_time=start_time)
 
-    assert lifespan.end_time == datetime(2000, 3, 1, tzinfo=UTC)
+    assert lifetime.end_time == datetime(2000, 3, 1, tzinfo=UTC)
 
 
 def test_start_time_on_creation_without_end_time() -> None:
     start_time = datetime(2000, 1, 1, tzinfo=UTC)
-    lifespan = vos.SessionLifetime(_start_time=start_time)
+    lifetime = vos.SessionLifetime(_start_time=start_time)
 
-    assert lifespan.end_time == datetime(2000, 3, 1, tzinfo=UTC)
+    assert lifetime.end_time == datetime(2000, 3, 1, tzinfo=UTC)
 
 
 def test_creation_with_not_utc_end_time() -> None:
