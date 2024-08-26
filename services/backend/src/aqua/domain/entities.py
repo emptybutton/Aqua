@@ -77,6 +77,10 @@ class User:
 
     class NotUTCCurrentTimeForWritingError(WritingError): ...
 
+    class OtherUserRecordForWritingError(WritingError): ...
+
+    class OtherUserDayForWritingError(WritingError): ...
+
     class NotCurrentDayRecordForWritingError(WritingError): ...
 
     class NotCurerntDayForWritingError(WritingError): ...
@@ -95,6 +99,8 @@ class User:
         for record in day_prevous_records:
             if record.recording_time.date() != current_time.date():
                 raise User.NotCurrentDayRecordForWritingError
+            if record.user_id != self.id:
+                raise User.OtherUserRecordForWritingError
 
         if not water:
             water = self.glass.capacity
@@ -110,6 +116,8 @@ class User:
 
             for record in day_prevous_records:
                 current_day.add(record)
+        elif current_day.user_id != self.id:
+            raise User.OtherUserDayForWritingError
         elif current_day.date_ != current_time.date():
             raise User.NotCurerntDayForWritingError
 
