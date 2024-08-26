@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import singledispatchmethod
 from typing import Any
 
@@ -89,3 +90,65 @@ class StructlogProdLogger(loggers.Logger):
             logs.login_log,
             **self.__mapper.to_dict(session),
         )
+
+
+class InMemoryStorageLogger(loggers.Logger):
+    @dataclass(kw_only=True, frozen=True)
+    class RegistrationLog:
+        user: entities.User
+        session: entities.Session
+
+    @dataclass(kw_only=True, frozen=True)
+    class LoginLog:
+        user: entities.User
+        session: entities.Session
+
+    @dataclass(kw_only=True, frozen=True)
+    class SessionExtensionLog:
+        session: entities.Session
+
+    __registration_logs: list[RegistrationLog]
+    __login_logs: list[LoginLog]
+    __session_extension_logs: list[SessionExtensionLog]
+
+    def __init__(self) -> None:
+        self.__registration_logs = list()
+        self.__login_logs = list()
+        self.__session_extension_logs = list()
+
+    @property
+    def registration_logs(self) -> list[RegistrationLog]:
+        return list(self.__registration_logs)
+
+    @property
+    def login_logs(self) -> list[LoginLog]:
+        return list(self.__login_logs)
+
+    @property
+    def session_extension_logs(self) -> list[SessionExtensionLog]:
+        return list(self.__session_extension_logs)
+
+    async def log_registration(
+        self,
+        *,
+        user: entities.User,
+        session: entities.Session,
+    ) -> None:
+        log = InMemoryStorageLogger.RegistrationLog(user=user, session=session)
+        self.__registration_logs.append(log)
+
+    async def log_login(
+        self,
+        *,
+        user: entities.User,
+        session: entities.Session,
+    ) -> None:
+        log = InMemoryStorageLogger.LoginLog(user=user, session=session)
+        self.__login_logs.append(log)
+
+    async def log_session_extension(
+        self,
+        session: entities.Session,
+    ) -> None:
+        log = InMemoryStorageLogger.SessionExtensionLog(session=session)
+        self.__session_extension_logs.append(log)
