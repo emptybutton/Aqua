@@ -15,4 +15,3 @@ def test_sum() -> None:
     sum_ = water1 + water2
 
     assert sum_ == expected_sum
-

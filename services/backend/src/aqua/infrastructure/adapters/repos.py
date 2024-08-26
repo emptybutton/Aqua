@@ -1,4 +1,5 @@
 from datetime import date
+from copy import copy
 from typing import Any
 from uuid import UUID
 
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.ports import repos
 from aqua.domain import entities, value_objects as vos
+from shared.infrastructure.periphery import uows
 from shared.infrastructure.periphery.db import tables
 from shared.infrastructure.periphery.db.stmt_builders import STMTBuilder
 
@@ -28,8 +30,7 @@ class DBUsers(repos.Users):
             glass = user.glass.capacity.milliliters
 
         await self.__session.execute(
-            insert(tables.AquaUser)
-            .values(
+            insert(tables.AquaUser).values(
                 id=user.id,
                 water_balance=water_balance,
                 weight=weight,
@@ -39,8 +40,7 @@ class DBUsers(repos.Users):
 
     async def find_with_id(self, user_id: UUID) -> entities.User | None:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.AquaUser.id,
                 tables.AquaUser.water_balance,
                 tables.AquaUser.glass,
@@ -74,11 +74,9 @@ class DBUsers(repos.Users):
         )
 
     async def contains_with_id(self, user_id: UUID) -> bool:
-        query = (
-            self.__builder
-            .select(exists(1).where(tables.AquaUser.id == user_id))
-            .build()
-        )
+        query = self.__builder.select(
+            exists(1).where(tables.AquaUser.id == user_id)
+        ).build()
 
         result = await self.__session.scalar(query)
         return bool(result)
@@ -91,8 +89,7 @@ class DBRecords(repos.Records):
 
     async def add(self, record: entities.Record) -> None:
         await self.__session.execute(
-            insert(tables.Record)
-            .values(
+            insert(tables.Record).values(
                 id=record.id,
                 drunk_water=record.drunk_water.milliliters,
                 recording_time=record.recording_time,
@@ -107,8 +104,7 @@ class DBRecords(repos.Records):
         user_id: UUID,
     ) -> tuple[entities.Record, ...]:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.Record.id,
                 tables.Record.drunk_water,
                 tables.Record.recording_time,
@@ -144,8 +140,7 @@ class DBDays(repos.Days):
 
     async def add(self, day: entities.Day) -> None:
         await self.__session.execute(
-            insert(tables.Day)
-            .values(
+            insert(tables.Day).values(
                 id=day.id,
                 user_id=day.user_id,
                 real_water_balance=day.water_balance.water.milliliters,
@@ -162,8 +157,7 @@ class DBDays(repos.Days):
         user_id: UUID,
     ) -> entities.Day | None:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.Day.id,
                 tables.Day.real_water_balance,
                 tables.Day.target_water_balance,
@@ -173,8 +167,7 @@ class DBDays(repos.Days):
             )
             .build()
             .where(
-                (tables.Day.date_ == date_)
-                & (tables.Day.user_id == user_id)
+                (tables.Day.date_ == date_) & (tables.Day.user_id == user_id)
             )
             .limit(1)
         )
@@ -207,12 +200,16 @@ class DBDays(repos.Days):
         user_id: UUID,
         date_: date,
     ) -> entities.Day:
-        target = vos.WaterBalance(water=vos.Water(
-            milliliters=raw_data.target_water_balance,
-        ))
-        water_balance = vos.WaterBalance(water=vos.Water(
-            milliliters=raw_data.real_water_balance,
-        ))
+        target = vos.WaterBalance(
+            water=vos.Water(
+                milliliters=raw_data.target_water_balance,
+            )
+        )
+        water_balance = vos.WaterBalance(
+            water=vos.Water(
+                milliliters=raw_data.real_water_balance,
+            )
+        )
         result = vos.WaterBalance.Status(raw_data.result)
         is_result_pinned = raw_data.is_result_pinned
 
@@ -228,3 +225,62 @@ class DBDays(repos.Days):
             _result=result,
             _is_result_pinned=is_result_pinned,
         )
+
+
+class InMemoryUsers(repos.Users, uows.InMemoryUoW[entities.User]):
+    async def add(self, user: entities.User) -> None:
+        self._storage.append(copy(user))
+
+    async def find_with_id(self, user_id: UUID) -> entities.User | None:
+        for user in self._storage:
+            if user.id == user_id:
+                return copy(user)
+
+        return None
+
+    async def contains_with_id(self, user_id: UUID) -> bool:
+        return any(user.id == user_id for user in self._storage)
+
+
+class InMemoryRecords(repos.Records, uows.InMemoryUoW[entities.Record]):
+    async def add(self, record: entities.Record) -> None:
+        self._storage.append(copy(record))
+
+    async def find_from(
+        self,
+        date_: date,
+        *,
+        user_id: UUID,
+    ) -> tuple[entities.Record, ...]:
+        found_records = list()
+
+        for record in self._storage:
+            recording_date = record.recording_time.date()
+            if record.user_id == user_id and recording_date == date_:
+                found_records.append(copy(record))
+
+        return tuple(found_records)
+
+
+class InMemoryDays(repos.Days, uows.InMemoryUoW[entities.Day]):
+    async def add(self, day: entities.Day) -> None:
+        self._storage.append(copy(day))
+
+    async def find_from(
+        self,
+        date_: date,
+        *,
+        user_id: UUID,
+    ) -> entities.Day | None:
+        for day in self._storage:
+            if day.date_ == date_ and day.user_id == user_id:
+                return day
+
+        return None
+
+    async def update(self, day: entities.Day) -> None:
+        for stored_day in self._storage:
+            if day.id == stored_day.id:
+                self._storage.remove(stored_day)
+                self._storage.append(day)
+                break

@@ -3,10 +3,9 @@ from uuid import UUID
 
 from pytest import mark, raises, fixture
 
-
-from aqua.domain import entities, value_objects as vos
 from aqua.application.cases import read_day
-from aqua.application.tests import adapters
+from aqua.domain import entities, value_objects as vos
+from aqua.infrastructure import adapters
 
 
 @fixture
@@ -24,7 +23,7 @@ async def test_without_user(user1: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1])
     records = adapters.repos.InMemoryRecords()
     days = adapters.repos.InMemoryDays()
-    logger = adapters.loggers.SavingLogger()
+    logger = adapters.loggers.InMemoryStorageLogger()
 
     with raises(read_day.NoUserError):
         await read_day.perform(
@@ -44,7 +43,7 @@ async def test_with_user(user1: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1])
     records = adapters.repos.InMemoryRecords()
     days = adapters.repos.InMemoryDays()
-    logger = adapters.loggers.SavingLogger()
+    logger = adapters.loggers.InMemoryStorageLogger()
     date_ = datetime(2006, 1, 1, tzinfo=UTC).date()
     expected_day_water = vos.Water(milliliters=0)
     expected_day_water_balance = vos.WaterBalance(water=expected_day_water)
@@ -80,7 +79,7 @@ async def test_with_day(user1: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1])
     records = adapters.repos.InMemoryRecords()
     days = adapters.repos.InMemoryDays([day1])
-    logger = adapters.loggers.SavingLogger()
+    logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await read_day.perform(
         user1.id,
@@ -124,7 +123,7 @@ async def test_with_day_and_records(user1: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1])
     records = adapters.repos.InMemoryRecords([record1, record2])
     days = adapters.repos.InMemoryDays([day1])
-    logger = adapters.loggers.SavingLogger()
+    logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await read_day.perform(
         user1.id,
@@ -136,7 +135,7 @@ async def test_with_day_and_records(user1: entities.User) -> None:
     )
 
     assert result.user == user1
-    assert result.records == (record1, )
+    assert result.records == (record1,)
     assert result.day == day1
     assert logger.is_empty
 
@@ -163,7 +162,7 @@ async def test_with_records(user1: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1])
     records = adapters.repos.InMemoryRecords([record1, record2])
     days = adapters.repos.InMemoryDays()
-    logger = adapters.loggers.SavingLogger()
+    logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await read_day.perform(
         user1.id,
@@ -175,7 +174,7 @@ async def test_with_records(user1: entities.User) -> None:
     )
 
     assert result.user == user1
-    assert result.records == (record1, )
+    assert result.records == (record1,)
     assert result.day.user_id == user1.id
     assert result.day.date_ == recording_date
     assert result.day.target == user1.target

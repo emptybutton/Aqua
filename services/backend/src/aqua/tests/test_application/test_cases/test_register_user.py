@@ -4,15 +4,17 @@ from pytest import mark, raises
 
 from aqua.domain import entities, value_objects as vos
 from aqua.application.cases import register_user
-from aqua.application.tests import adapters
-from shared.application.tests.adapters.transactions import UoWTransactionFactory
+from aqua.infrastructure import adapters
+from shared.infrastructure.adapters.transactions import (
+    InMemoryUoWTransactionFactory,
+)
 
 
 @mark.asyncio
 async def test_result_user_data() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -36,8 +38,8 @@ async def test_result_user_data() -> None:
 @mark.asyncio
 async def test_user_in_storage() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -61,8 +63,8 @@ async def test_user_in_storage() -> None:
 @mark.asyncio
 async def test_storage_size() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     await register_user.perform(
         UUID(int=1),
@@ -88,8 +90,8 @@ async def test_not_empty_on_start_storage_size() -> None:
         )
         for _ in range(10)
     )
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     await register_user.perform(
         UUID(int=1),
@@ -107,8 +109,8 @@ async def test_not_empty_on_start_storage_size() -> None:
 @mark.asyncio
 async def test_registration_log() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -132,8 +134,8 @@ async def test_registration_log() -> None:
 @mark.asyncio
 async def test_with_invalid_grass() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.IncorrectAmountError):
         await register_user.perform(
@@ -150,8 +152,8 @@ async def test_with_invalid_grass() -> None:
 @mark.asyncio
 async def test_with_invalid_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Weight.IncorrectAmountError):
         await register_user.perform(
@@ -168,8 +170,8 @@ async def test_with_invalid_weight() -> None:
 @mark.asyncio
 async def test_with_invalid_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.IncorrectAmountError):
         await register_user.perform(
@@ -182,11 +184,12 @@ async def test_with_invalid_water_balance() -> None:
             logger=logger,
         )
 
+
 @mark.asyncio
 async def test_storage_on_invalid_grass() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.Error):
         await register_user.perform(
@@ -205,8 +208,8 @@ async def test_storage_on_invalid_grass() -> None:
 @mark.asyncio
 async def test_storage_on_invalid_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Weight.Error):
         await register_user.perform(
@@ -225,8 +228,8 @@ async def test_storage_on_invalid_weight() -> None:
 @mark.asyncio
 async def test_storage_on_invalid_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.Error):
         await register_user.perform(
@@ -245,8 +248,8 @@ async def test_storage_on_invalid_water_balance() -> None:
 @mark.asyncio
 async def test_logger_on_invalid_grass() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.Error):
         await register_user.perform(
@@ -265,8 +268,8 @@ async def test_logger_on_invalid_grass() -> None:
 @mark.asyncio
 async def test_logger_on_invalid_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Weight.Error):
         await register_user.perform(
@@ -285,8 +288,8 @@ async def test_logger_on_invalid_weight() -> None:
 @mark.asyncio
 async def test_logger_on_invalid_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.Water.Error):
         await register_user.perform(
@@ -305,8 +308,8 @@ async def test_logger_on_invalid_water_balance() -> None:
 @mark.asyncio
 async def test_result_without_glass() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -330,8 +333,8 @@ async def test_result_without_glass() -> None:
 @mark.asyncio
 async def test_result_without_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=None,
@@ -355,8 +358,8 @@ async def test_result_without_weight() -> None:
 @mark.asyncio
 async def test_result_without_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -380,8 +383,8 @@ async def test_result_without_water_balance() -> None:
 @mark.asyncio
 async def test_storage_without_glass() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -405,8 +408,8 @@ async def test_storage_without_glass() -> None:
 @mark.asyncio
 async def test_storage_without_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=None,
@@ -430,8 +433,8 @@ async def test_storage_without_weight() -> None:
 @mark.asyncio
 async def test_storage_without_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -455,8 +458,8 @@ async def test_storage_without_water_balance() -> None:
 @mark.asyncio
 async def test_storage_without_water_balance_and_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(entities.User.NoWeightForSuitableWaterBalanceError):
         await register_user.perform(
@@ -475,8 +478,8 @@ async def test_storage_without_water_balance_and_weight() -> None:
 @mark.asyncio
 async def test_logger_without_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=None,
@@ -500,8 +503,8 @@ async def test_logger_without_weight() -> None:
 @mark.asyncio
 async def test_logger_without_water_balance() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
     expected_user = entities.User(
         id=UUID(int=1),
         weight=vos.Weight(kilograms=70),
@@ -525,8 +528,8 @@ async def test_logger_without_water_balance() -> None:
 @mark.asyncio
 async def test_logger_without_water_balance_and_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(entities.User.NoWeightForSuitableWaterBalanceError):
         await register_user.perform(
@@ -551,8 +554,8 @@ async def test_result_on_registred_user_registration() -> None:
         _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
     )
     users = adapters.repos.InMemoryUsers([registred_user])
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     user = await register_user.perform(
         UUID(int=1),
@@ -569,14 +572,18 @@ async def test_result_on_registred_user_registration() -> None:
 
 @mark.asyncio
 async def test_storage_on_registred_user_registration() -> None:
-    users = adapters.repos.InMemoryUsers([entities.User(
-        id=UUID(int=1),
-        weight=vos.Weight(kilograms=70),
-        glass=vos.Glass(capacity=vos.Water(milliliters=500)),
-        _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
-    )])
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    users = adapters.repos.InMemoryUsers(
+        [
+            entities.User(
+                id=UUID(int=1),
+                weight=vos.Weight(kilograms=70),
+                glass=vos.Glass(capacity=vos.Water(milliliters=500)),
+                _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
+            )
+        ]
+    )
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     await register_user.perform(
         UUID(int=1),
@@ -600,8 +607,8 @@ async def test_logger_on_registred_user_registration() -> None:
         _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
     )
     users = adapters.repos.InMemoryUsers([registred_user])
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     await register_user.perform(
         UUID(int=1),
@@ -619,8 +626,8 @@ async def test_logger_on_registred_user_registration() -> None:
 @mark.asyncio
 async def test_storage_without_water_balance_with_extreme_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.WaterBalance.ExtremeWeightForSuitableWaterBalanceError):
         await register_user.perform(
@@ -639,8 +646,8 @@ async def test_storage_without_water_balance_with_extreme_weight() -> None:
 @mark.asyncio
 async def test_logger_without_water_balance_with_extreme_weight() -> None:
     users = adapters.repos.InMemoryUsers()
-    logger = adapters.loggers.SavingLogger()
-    transaction_factory = UoWTransactionFactory()
+    logger = adapters.loggers.InMemoryStorageLogger()
+    transaction_factory = InMemoryUoWTransactionFactory()
 
     with raises(vos.WaterBalance.ExtremeWeightForSuitableWaterBalanceError):
         await register_user.perform(

@@ -4,6 +4,7 @@ from types import TracebackType
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 from shared.application.ports import transactions
+from shared.infrastructure.periphery import uows
 
 
 class DBTransaction(transactions.Transaction):
@@ -71,3 +72,39 @@ class DBTransactionFactory(transactions.TransactionFactory[Any]):
 
     def __call__(self, _: Any) -> DBTransaction:  # noqa: ANN401
         return DBTransaction(self.__session)
+
+
+class InMemoryUoWTransaction(transactions.Transaction):
+    def __init__(self, uow: uows.InMemoryUoW[Any]) -> None:
+        self.__is_rollbacked = False
+        self.__uow = uow
+
+    async def rollback(self) -> None:
+        self.__is_rollbacked = True
+        self.__uow.rollback()
+
+    async def __aenter__(self) -> Self:
+        self.__uow.begin()
+        return self
+
+    async def __aexit__(
+        self,
+        error_type: Type[BaseException] | None,
+        error: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> bool:
+        if self.__is_rollbacked:
+            return error is None
+
+        if error is None:
+            self.__uow.commit()
+        else:
+            self.__uow.rollback()
+
+        return error is None
+
+
+class InMemoryUoWTransactionFactory(transactions.TransactionFactory[Any]):
+    def __call__(self, uow: Any) -> InMemoryUoWTransaction:  # noqa: ANN401
+        assert isinstance(uow, uows.InMemoryUoW)
+        return InMemoryUoWTransaction(uow)

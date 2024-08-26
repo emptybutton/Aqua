@@ -30,8 +30,7 @@ def user1_record1(user1: entities.User) -> entities.Record:
 
 @fixture
 def user1_record1_day(
-    user1: entities.User,
-    user1_record1: entities.Record
+    user1: entities.User, user1_record1: entities.Record
 ) -> entities.Day:
     day = entities.Day.empty_of(user1, date_=datetime.now(UTC).date())
     day.add(user1_record1)
@@ -44,5 +43,5 @@ def record1() -> entities.Record:
     return entities.Record(
         user_id=uuid4(),
         drunk_water=vos.Water(milliliters=10_000),
-        _recording_time=datetime(2006, 1, 1, tzinfo=UTC)
+        _recording_time=datetime(2006, 1, 1, tzinfo=UTC),
     )
