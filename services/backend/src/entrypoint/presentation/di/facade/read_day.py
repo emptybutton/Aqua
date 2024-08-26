@@ -36,9 +36,7 @@ class OutputData:
 
 
 Output: TypeAlias = (
-    OutputData
-    | Literal["not_working"]
-    | Literal["not_authenticated"]
+    OutputData | Literal["not_working"] | Literal["not_authenticated"]
 )
 
 
@@ -84,7 +82,6 @@ async def perform(session_id: UUID, date_: date) -> Output:
             is_result_pinned=result.aqua_result.is_result_pinned,
             records=records,
         )
-
 
     return OutputData(
         user_id=result.auth_result.user_id,

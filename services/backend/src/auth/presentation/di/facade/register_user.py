@@ -27,11 +27,7 @@ EmptyUsernameError: TypeAlias = vos.Username.EmptyError
 
 WeekPasswordError: TypeAlias = vos.Password.WeekError
 
-Error: TypeAlias = (
-    register_user.Error
-    | EmptyUsernameError
-    | WeekPasswordError
-)
+Error: TypeAlias = register_user.Error | EmptyUsernameError | WeekPasswordError
 
 
 async def perform(

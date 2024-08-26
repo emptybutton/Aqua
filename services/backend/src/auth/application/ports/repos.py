@@ -10,9 +10,7 @@ class Users(ABC):
     async def add(self, user: entities.User) -> None: ...
 
     @abstractmethod
-    async def find_with_id(
-        self, user_id: UUID
-    ) -> entities.User | None: ...
+    async def find_with_id(self, user_id: UUID) -> entities.User | None: ...
 
     @abstractmethod
     async def find_with_name(

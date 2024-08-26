@@ -14,9 +14,7 @@ class OutputData:
 
 
 Output: TypeAlias = (
-    OutputData
-    | Literal["not_working"]
-    | Literal["not_authenticated"]
+    OutputData | Literal["not_working"] | Literal["not_authenticated"]
 )
 
 
@@ -53,7 +51,6 @@ async def perform(
     )
     if aqua_result == "aqua_is_not_working":
         await aqua_logger.log_aqua_is_not_working(aqua)
-
 
     auth_result = await auth.read_user(
         user_id,

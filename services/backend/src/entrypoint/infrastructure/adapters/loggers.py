@@ -44,7 +44,6 @@ class AuthFacadeDevLogger(loggers.AuthLogger[clients.AuthFacade]):
         )
 
 
-
 class AquaFacadeProdLogger(loggers.AquaLogger[clients.AquaFacade]):
     async def log_aqua_is_not_working(self, aqua: clients.AquaFacade) -> None:
         for error in aqua.errors:

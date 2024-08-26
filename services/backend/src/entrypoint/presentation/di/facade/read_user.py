@@ -44,9 +44,7 @@ class OutputData:
 
 
 Output: TypeAlias = (
-    OutputData
-    | Literal["not_working"]
-    | Literal["not_authenticated"]
+    OutputData | Literal["not_working"] | Literal["not_authenticated"]
 )
 
 

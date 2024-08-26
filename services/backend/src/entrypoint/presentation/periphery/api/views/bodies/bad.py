@@ -13,7 +13,7 @@ _Detail: TypeAlias = tuple[_DetailPart, ...]
 
 def _detail_with(type_: str, message: str = str()) -> _Detail:
     main_part = _DetailPart(msg=message, type=type_)
-    return (main_part, )
+    return (main_part,)
 
 
 class BackendIsNotWorkingView(BaseModel):

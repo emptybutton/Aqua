@@ -92,7 +92,5 @@ class Auth(Generic[_TransactionT_contra], ABC):
         *,
         transaction: _TransactionT_contra,
     ) -> (
-        ReadUserOutput
-        | Literal["auth_is_not_working"]
-        | Literal["no_user"]
+        ReadUserOutput | Literal["auth_is_not_working"] | Literal["no_user"]
     ): ...

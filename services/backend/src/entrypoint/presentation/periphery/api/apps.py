@@ -12,6 +12,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     yield
     await close.perform()
 
+
 description = (
     "Aqua is an open source application for tracking your water balance,"
     " published on [github](https://github.com/emptybutton/Aqua)."
@@ -30,6 +31,6 @@ app = FastAPI(
         "name": "Apache 2.0",
         "url": "https://github.com/emptybutton/Aqua/blob/main/LICENSE",
     },
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 app.include_router(router)

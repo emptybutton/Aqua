@@ -126,9 +126,7 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         *,
         transaction: _TransactionT_contra,
     ) -> (
-        ReadDayOutput
-        | Literal["no_user"]
-        | Literal["aqua_is_not_working"]
+        ReadDayOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...
 
     @abstractmethod
@@ -138,7 +136,5 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         *,
         transaction: _TransactionT_contra,
     ) -> (
-        ReadUserOutput
-        | Literal["no_user"]
-        | Literal["aqua_is_not_working"]
+        ReadUserOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...

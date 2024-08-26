@@ -71,10 +71,10 @@ def to_doc(*views: View[BaseModel]) -> _Doc:
         body_types_by_status_code[view.status_code].append(view.body_type)
 
     return {
-        status_code: {"model": (
-            body_types[0]
-            if len(body_types) == 1
-            else Union[*body_types]
-        )}
+        status_code: {
+            "model": (
+                body_types[0] if len(body_types) == 1 else Union[*body_types]
+            )
+        }
         for status_code, body_types in body_types_by_status_code.items()
     }

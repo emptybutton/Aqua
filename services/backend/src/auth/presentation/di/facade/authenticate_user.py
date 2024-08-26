@@ -25,9 +25,7 @@ ExpiredSessionError: TypeAlias = (
 )
 
 Error: TypeAlias = (
-    authenticate_user.Error
-    | NoSessionError
-    | ExpiredSessionError
+    authenticate_user.Error | NoSessionError | ExpiredSessionError
 )
 
 

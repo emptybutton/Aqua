@@ -37,9 +37,7 @@ class OutputData:
 
 
 Output: TypeAlias = (
-    OutputData
-    | Literal["not_working"]
-    | Literal["not_authenticated"]
+    OutputData | Literal["not_working"] | Literal["not_authenticated"]
 )
 
 
@@ -68,10 +66,12 @@ async def perform(
     if isinstance(result.aqua_result, ports.clients.aqua.WriteWaterOutput):
         target = result.aqua_result.target_water_balance_milliliters
         water_balance = result.aqua_result.water_balance_milliliters
-        previous_records = tuple(map(
-            _record_data_of,
-            result.aqua_result.previous_records,
-        ))
+        previous_records = tuple(
+            map(
+                _record_data_of,
+                result.aqua_result.previous_records,
+            )
+        )
         other = OtherData(
             target_water_balance_milliliters=target,
             water_balance_milliliters=water_balance,
@@ -91,7 +91,7 @@ async def perform(
 
 
 def _record_data_of(
-    data: ports.clients.aqua.WriteWaterOutput.RecordData
+    data: ports.clients.aqua.WriteWaterOutput.RecordData,
 ) -> RecordData:
     return RecordData(
         record_id=data.record_id,

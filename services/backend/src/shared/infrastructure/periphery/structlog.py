@@ -9,7 +9,7 @@ dev_logger = structlog.wrap_logger(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.TimeStamper(fmt="%H:%M:%S.%f", utc=False),
         structlog.dev.ConsoleRenderer(),
-    ]
+    ],
 )
 
 prod_logger = structlog.wrap_logger(
@@ -19,5 +19,5 @@ prod_logger = structlog.wrap_logger(
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.dict_tracebacks,
         structlog.processors.JSONRenderer(),
-    ]
+    ],
 )

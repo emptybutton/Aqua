@@ -91,10 +91,12 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             return "aqua_is_not_working"
 
         target = result.target_water_balance_milliliters
-        previous_records = tuple(map(
-            self.__write_water_record_data_of,
-            result.previous_records,
-        ))
+        previous_records = tuple(
+            map(
+                self.__write_water_record_data_of,
+                result.previous_records,
+            )
+        )
 
         return clients.aqua.WriteWaterOutput(
             user_id=result.user_id,
@@ -158,7 +160,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             result_code=result.result_code,
             real_result_code=result.real_result_code,
             is_result_pinned=result.is_result_pinned,
-            records=records
+            records=records,
         )
 
     async def read_user(
@@ -202,7 +204,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             result_code=result.result_code,
             real_result_code=result.real_result_code,
             is_result_pinned=result.is_result_pinned,
-            records=records
+            records=records,
         )
 
 

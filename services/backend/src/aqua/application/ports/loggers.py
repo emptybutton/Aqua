@@ -30,4 +30,3 @@ class Logger(ABC):
 
     @abstractmethod
     async def log_new_record(self, record: entities.Record) -> None: ...
-

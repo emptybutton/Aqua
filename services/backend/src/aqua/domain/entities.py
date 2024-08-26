@@ -16,9 +16,7 @@ class Record:
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     drunk_water: Water
-    _recording_time: datetime = field(
-        default_factory=lambda: datetime.now(UTC)
-    )
+    _recording_time: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def recording_time(self) -> datetime:

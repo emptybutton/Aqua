@@ -67,11 +67,7 @@ def test_user_id_on_creation_for_user() -> None:
     user_id = uuid4()
     username = vos.Username(text="username")
     password_hash = vos.PasswordHash(text="password_hash")
-    user = entities.User(
-        id=user_id,
-        name=username,
-        password_hash=password_hash
-    )
+    user = entities.User(id=user_id, name=username, password_hash=password_hash)
 
     session = entities.Session.for_(user, start_time=start_time)
 
@@ -83,17 +79,11 @@ def test_lifetime_on_creation_for_user() -> None:
     user_id = uuid4()
     username = vos.Username(text="username")
     password_hash = vos.PasswordHash(text="password_hash")
-    user = entities.User(
-        id=user_id,
-        name=username,
-        password_hash=password_hash
-    )
+    user = entities.User(id=user_id, name=username, password_hash=password_hash)
     expected_lifetime = vos.SessionLifetime(
-        _start_time=start_time,
-        _end_time=datetime(2000, 3, 1, tzinfo=UTC)
+        _start_time=start_time, _end_time=datetime(2000, 3, 1, tzinfo=UTC)
     )
 
     session = entities.Session.for_(user, start_time=start_time)
 
     assert session.lifetime == expected_lifetime
-

@@ -23,12 +23,9 @@ class DBUsers(repos.Users):
 
         await self.__session.execute(stmt)
 
-    async def find_with_id(
-        self, user_id: UUID
-    ) -> entities.User | None:
+    async def find_with_id(self, user_id: UUID) -> entities.User | None:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.AuthUser.name,
                 tables.AuthUser.password_hash,
             )
@@ -52,8 +49,7 @@ class DBUsers(repos.Users):
         self, username: vos.Username
     ) -> entities.User | None:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.AuthUser.id,
                 tables.AuthUser.password_hash,
             )
@@ -74,11 +70,9 @@ class DBUsers(repos.Users):
         )
 
     async def contains_with_name(self, username: vos.Username) -> bool:
-        query = (
-            self.__builder
-            .select(exists(1).where(tables.AuthUser.name == username.text))
-            .build()
-        )
+        query = self.__builder.select(
+            exists(1).where(tables.AuthUser.name == username.text)
+        ).build()
 
         return bool(await self.__session.scalar(query))
 
@@ -90,8 +84,7 @@ class DBSessions(repos.Sessions):
 
     async def add(self, session: entities.Session) -> None:
         await self.__session.execute(
-            insert(tables.Session)
-            .values(
+            insert(tables.Session).values(
                 id=session.id,
                 user_id=session.user_id,
                 start_time=session.lifetime.start_time,
@@ -101,8 +94,7 @@ class DBSessions(repos.Sessions):
 
     async def find_with_id(self, session_id: UUID) -> entities.Session | None:
         query = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.Session.user_id,
                 tables.Session.start_time,
                 tables.Session.expiration_date,

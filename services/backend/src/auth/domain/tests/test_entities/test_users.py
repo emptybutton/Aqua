@@ -34,4 +34,3 @@ def test_authorization_with_invalid_password_hash() -> None:
 
     with raises(entities.User.IncorrectPasswordHashForAuthorizationError):
         user.authorize(password_hash=invalid_password_hash)
-

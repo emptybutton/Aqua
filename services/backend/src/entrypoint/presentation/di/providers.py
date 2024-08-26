@@ -22,18 +22,18 @@ class LogerProvider(Provider):
     component = "loggers"
 
     @provide(scope=Scope.APP)
-    def get_aqua_logger(self) -> ports.loggers.AquaLogger[
-        adapters.clients.AquaFacade
-    ]:
+    def get_aqua_logger(
+        self,
+    ) -> ports.loggers.AquaLogger[adapters.clients.AquaFacade]:
         if Env.for_dev:
             return adapters.loggers.AquaFacadeDevLogger()
 
         return adapters.loggers.AquaFacadeProdLogger()
 
     @provide(scope=Scope.APP)
-    def get_auth_logger(self) -> ports.loggers.AuthLogger[
-        adapters.clients.AuthFacade
-    ]:
+    def get_auth_logger(
+        self,
+    ) -> ports.loggers.AuthLogger[adapters.clients.AuthFacade]:
         if Env.for_dev:
             return adapters.loggers.AuthFacadeDevLogger()
 
