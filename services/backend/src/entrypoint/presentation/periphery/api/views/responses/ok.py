@@ -5,8 +5,7 @@ from entrypoint.presentation.periphery.api.views.responses.common import View
 
 
 registered_user_view = View(
-    bodies.ok.RegisteredUserView,
-    status.HTTP_201_CREATED,
+    bodies.ok.RegisteredUserView, status.HTTP_201_CREATED
 )
 
 user_view = View(bodies.ok.UserView)

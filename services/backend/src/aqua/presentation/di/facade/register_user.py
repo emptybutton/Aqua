@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application import ports
 from aqua.application.cases import register_user
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from aqua.infrastructure.adapters import repos
 from aqua.presentation.di.containers import adapter_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory

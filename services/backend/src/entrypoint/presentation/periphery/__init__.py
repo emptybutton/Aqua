@@ -1,3 +1,1 @@
-from entrypoint.presentation.periphery import (
-    api as api,
-)
+from entrypoint.presentation.periphery import api as api

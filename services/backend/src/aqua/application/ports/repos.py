@@ -22,10 +22,7 @@ class Records(ABC):
 
     @abstractmethod
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]: ...
 
 
@@ -35,10 +32,7 @@ class Days(ABC):
 
     @abstractmethod
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> entities.Day | None: ...
 
     @abstractmethod

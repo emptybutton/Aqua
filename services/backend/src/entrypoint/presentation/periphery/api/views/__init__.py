@@ -1,5 +1,3 @@
-from entrypoint.presentation.periphery.api.views import (
-    bodies as bodies,
-    cookies as cookies,
-    responses as responses,
-)
+from entrypoint.presentation.periphery.api.views import bodies as bodies
+from entrypoint.presentation.periphery.api.views import cookies as cookies
+from entrypoint.presentation.periphery.api.views import responses as responses

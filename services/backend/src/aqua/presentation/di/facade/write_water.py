@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import TypeAlias
 from uuid import UUID
 
@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application import ports
 from aqua.application.cases import write_water
-from aqua.domain import value_objects as vos, entities
-from aqua.presentation.di.containers import adapter_container
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from aqua.infrastructure.adapters import repos
+from aqua.presentation.di.containers import adapter_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
 
@@ -41,10 +42,7 @@ Error: TypeAlias = write_water.Error | IncorrectWaterAmountError
 
 
 async def perform(
-    user_id: UUID,
-    milliliters: int | None,
-    *,
-    session: AsyncSession,
+    user_id: UUID, milliliters: int | None, *, session: AsyncSession
 ) -> Output:
     async with adapter_container(context={AsyncSession: session}) as container:
         result = await write_water.perform(

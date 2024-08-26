@@ -1,3 +1,1 @@
-from shared.presentation import (
-    di as di,
-)
+from shared.presentation import di as di

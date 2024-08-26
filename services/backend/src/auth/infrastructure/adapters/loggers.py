@@ -29,29 +29,18 @@ class _Mapper:
 
 class StructlogDevLogger(loggers.Logger):
     async def log_registration(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         await dev_logger.ainfo(
-            logs.registration_log,
-            user=user,
-            session=session,
+            logs.registration_log, user=user, session=session
         )
 
     async def log_login(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         await dev_logger.ainfo(logs.login_log, user=user, session=session)
 
-    async def log_session_extension(
-        self,
-        session: entities.Session,
-    ) -> None:
+    async def log_session_extension(self, session: entities.Session) -> None:
         await dev_logger.ainfo(logs.login_log, session=session)
 
 
@@ -59,10 +48,7 @@ class StructlogProdLogger(loggers.Logger):
     __mapper = _Mapper()
 
     async def log_registration(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         await prod_logger.ainfo(
             logs.registration_log,
@@ -71,10 +57,7 @@ class StructlogProdLogger(loggers.Logger):
         )
 
     async def log_login(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         await prod_logger.ainfo(
             logs.login_log,
@@ -82,13 +65,9 @@ class StructlogProdLogger(loggers.Logger):
             **self.__mapper.to_dict(session),
         )
 
-    async def log_session_extension(
-        self,
-        session: entities.Session,
-    ) -> None:
+    async def log_session_extension(self, session: entities.Session) -> None:
         await prod_logger.ainfo(
-            logs.login_log,
-            **self.__mapper.to_dict(session),
+            logs.login_log, **self.__mapper.to_dict(session)
         )
 
 
@@ -137,26 +116,17 @@ class InMemoryStorageLogger(loggers.Logger):
         )
 
     async def log_registration(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         log = InMemoryStorageLogger.RegistrationLog(user=user, session=session)
         self.__registration_logs.append(log)
 
     async def log_login(
-        self,
-        *,
-        user: entities.User,
-        session: entities.Session,
+        self, *, user: entities.User, session: entities.Session
     ) -> None:
         log = InMemoryStorageLogger.LoginLog(user=user, session=session)
         self.__login_logs.append(log)
 
-    async def log_session_extension(
-        self,
-        session: entities.Session,
-    ) -> None:
+    async def log_session_extension(self, session: entities.Session) -> None:
         log = InMemoryStorageLogger.SessionExtensionLog(session=session)
         self.__session_extension_logs.append(log)

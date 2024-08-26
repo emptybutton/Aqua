@@ -1,6 +1,6 @@
 from typing import AsyncIterable
 
-from dishka import Provider, provide, Scope
+from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from entrypoint.application import ports

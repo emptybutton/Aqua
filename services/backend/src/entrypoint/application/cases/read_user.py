@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeVar, TypeAlias, Literal
+from typing import Literal, TypeAlias, TypeVar
 from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
@@ -33,8 +33,7 @@ async def perform(
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
     authenticate_result = await auth.authenticate_user(
-        session_id,
-        transaction=transaction,
+        session_id, transaction=transaction
     )
 
     if authenticate_result == "auth_is_not_working":
@@ -45,17 +44,11 @@ async def perform(
 
     user_id = authenticate_result.user_id
 
-    aqua_result = await aqua.read_user(
-        user_id,
-        transaction=transaction,
-    )
+    aqua_result = await aqua.read_user(user_id, transaction=transaction)
     if aqua_result == "aqua_is_not_working":
         await aqua_logger.log_aqua_is_not_working(aqua)
 
-    auth_result = await auth.read_user(
-        user_id,
-        transaction=transaction,
-    )
+    auth_result = await auth.read_user(user_id, transaction=transaction)
     if auth_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
 

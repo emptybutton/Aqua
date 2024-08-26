@@ -2,8 +2,9 @@ from uuid import UUID, uuid4
 
 from pytest import mark, raises
 
-from aqua.domain import entities, value_objects as vos
 from aqua.application.cases import register_user
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from aqua.infrastructure import adapters
 from shared.infrastructure.adapters.transactions import (
     InMemoryUoWTransactionFactory,
@@ -572,16 +573,14 @@ async def test_result_on_registred_user_registration() -> None:
 
 @mark.asyncio
 async def test_storage_on_registred_user_registration() -> None:
-    users = adapters.repos.InMemoryUsers(
-        [
-            entities.User(
-                id=UUID(int=1),
-                weight=vos.Weight(kilograms=70),
-                glass=vos.Glass(capacity=vos.Water(milliliters=500)),
-                _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
-            )
-        ]
-    )
+    users = adapters.repos.InMemoryUsers([
+        entities.User(
+            id=UUID(int=1),
+            weight=vos.Weight(kilograms=70),
+            glass=vos.Glass(capacity=vos.Water(milliliters=500)),
+            _target=vos.WaterBalance(water=vos.Water(milliliters=5000)),
+        )
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 

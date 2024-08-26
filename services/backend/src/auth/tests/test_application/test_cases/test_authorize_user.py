@@ -11,13 +11,13 @@ from shared.infrastructure.adapters.transactions import (
     InMemoryUoWTransactionFactory,
 )
 
+
 Case: TypeAlias = Callable[[str, str], Awaitable[authorize_user.Output]]
 
 
 @fixture
 def users(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> adapters.repos.InMemoryUsers:
     return adapters.repos.InMemoryUsers([user1, user2])
 
@@ -71,8 +71,7 @@ async def test_user_storage_with_invalid_username(
 
 @mark.asyncio
 async def test_session_storage_with_invalid_username(
-    case: Case,
-    sessions: adapters.repos.InMemorySessions,
+    case: Case, sessions: adapters.repos.InMemorySessions
 ) -> None:
     with raises(authorize_user.NoUserError):
         await case("", "Ab345678")
@@ -82,8 +81,7 @@ async def test_session_storage_with_invalid_username(
 
 @mark.asyncio
 async def test_logger_with_invalid_username(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     with raises(authorize_user.NoUserError):
         await case("", "Ab345678")
@@ -106,8 +104,7 @@ async def test_user_storage_with_invalid_password(
 
 @mark.asyncio
 async def test_session_storage_with_invalid_password(
-    case: Case,
-    sessions: adapters.repos.InMemorySessions,
+    case: Case, sessions: adapters.repos.InMemorySessions
 ) -> None:
     with raises(authorize_user.IncorrectPasswordError):
         await case("usernameX", "ab345678")
@@ -117,8 +114,7 @@ async def test_session_storage_with_invalid_password(
 
 @mark.asyncio
 async def test_logger_with_invalid_password(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     with raises(authorize_user.IncorrectPasswordError):
         await case("usernameX", "ab345678")
@@ -141,8 +137,7 @@ async def test_user_storage_with_inappropriate_username(
 
 @mark.asyncio
 async def test_session_storage_with_inappropriate_username(
-    case: Case,
-    sessions: adapters.repos.InMemorySessions,
+    case: Case, sessions: adapters.repos.InMemorySessions
 ) -> None:
     with raises(authorize_user.NoUserError):
         await case("usernameX", "Ab345678")
@@ -152,8 +147,7 @@ async def test_session_storage_with_inappropriate_username(
 
 @mark.asyncio
 async def test_logger_with_inappropriate_username(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     with raises(authorize_user.IncorrectPasswordError):
         await case("usernameX", "ab345678")
@@ -176,8 +170,7 @@ async def test_user_storage_with_inappropriate_password(
 
 @mark.asyncio
 async def test_session_storage_with_inappropriate_password(
-    case: Case,
-    sessions: adapters.repos.InMemorySessions,
+    case: Case, sessions: adapters.repos.InMemorySessions
 ) -> None:
     with raises(authorize_user.IncorrectPasswordError):
         await case("username1", "Ab345678")
@@ -187,8 +180,7 @@ async def test_session_storage_with_inappropriate_password(
 
 @mark.asyncio
 async def test_logger_with_inappropriate_password(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     with raises(authorize_user.IncorrectPasswordError):
         await case("username1", "Ab345678")
@@ -197,10 +189,7 @@ async def test_logger_with_inappropriate_password(
 
 
 @mark.asyncio
-async def test_result_user(
-    case: Case,
-    user1: entities.User,
-) -> None:
+async def test_result_user(case: Case, user1: entities.User) -> None:
     result = await case("username1", "pAssword1")
 
     assert result.user == user1
@@ -213,7 +202,7 @@ async def test_result_session(case: Case) -> None:
     assert result.session.user_id == result.user.id
     assert result.session.lifetime.start_time == IsNow(tz=UTC)
     assert result.session.lifetime.end_time == IsDatetime(
-        approx=datetime.now(UTC) + timedelta(days=60),
+        approx=datetime.now(UTC) + timedelta(days=60)
     )
 
 
@@ -231,8 +220,7 @@ async def test_user_storage(
 
 @mark.asyncio
 async def test_session_storage(
-    case: Case,
-    sessions: adapters.repos.InMemorySessions,
+    case: Case, sessions: adapters.repos.InMemorySessions
 ) -> None:
     result = await case("username1", "pAssword1")
 
@@ -241,8 +229,7 @@ async def test_session_storage(
 
 @mark.asyncio
 async def test_logger_log_size(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     await case("username1", "pAssword1")
 
@@ -253,8 +240,7 @@ async def test_logger_log_size(
 
 @mark.asyncio
 async def test_logger_log_values(
-    case: Case,
-    logger: adapters.loggers.InMemoryStorageLogger,
+    case: Case, logger: adapters.loggers.InMemoryStorageLogger
 ) -> None:
     result = await case("username1", "pAssword1")
 

@@ -40,7 +40,4 @@ async def perform(session_id: UUID, *, session: AsyncSession) -> Output:
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    return Output(
-        user_id=result.user_id,
-        session_id=result.id,
-    )
+    return Output(user_id=result.user_id, session_id=result.id)

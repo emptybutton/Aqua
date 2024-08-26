@@ -1,3 +1,1 @@
-from shared.presentation.di import (
-    providers as providers,
-)
+from shared.presentation.di import providers as providers

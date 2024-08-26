@@ -1,3 +1,1 @@
-from entrypoint.infrastructure.periphery import (
-    logs as logs,
-)
+from entrypoint.infrastructure.periphery import logs as logs

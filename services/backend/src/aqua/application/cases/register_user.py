@@ -1,8 +1,9 @@
 from typing import TypeVar
 from uuid import UUID
 
-from aqua.domain import entities, value_objects as vos
-from aqua.application.ports import repos, loggers
+from aqua.application.ports import loggers, repos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from shared.application.ports.transactions import TransactionFactory
 
 
@@ -43,10 +44,7 @@ async def perform(
             return user
 
         user = entities.User(
-            id=user_id,
-            glass=glass,
-            weight=weight,
-            _target=target,
+            id=user_id, glass=glass, weight=weight, _target=target
         )
 
         await users.add(user)

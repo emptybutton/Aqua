@@ -1,11 +1,12 @@
 from copy import copy
 from uuid import UUID
 
-from sqlalchemy import insert, exists, update
+from sqlalchemy import exists, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.ports import repos
-from auth.domain import entities, value_objects as vos
+from auth.domain import entities
+from auth.domain import value_objects as vos
 from shared.infrastructure.periphery import uows
 from shared.infrastructure.periphery.db import tables
 from shared.infrastructure.periphery.db.stmt_builders import STMTBuilder
@@ -28,8 +29,7 @@ class DBUsers(repos.Users):
     async def find_with_id(self, user_id: UUID) -> entities.User | None:
         query = (
             self.__builder.select(
-                tables.AuthUser.name,
-                tables.AuthUser.password_hash,
+                tables.AuthUser.name, tables.AuthUser.password_hash
             )
             .build()
             .where(tables.AuthUser.id == user_id)
@@ -52,8 +52,7 @@ class DBUsers(repos.Users):
     ) -> entities.User | None:
         query = (
             self.__builder.select(
-                tables.AuthUser.id,
-                tables.AuthUser.password_hash,
+                tables.AuthUser.id, tables.AuthUser.password_hash
             )
             .build()
             .where(tables.AuthUser.name == username.text)
@@ -118,9 +117,7 @@ class DBSessions(repos.Sessions):
         )
 
         return entities.Session(
-            id=session_id,
-            user_id=raw_session.user_id,
-            lifetime=lifetime,
+            id=session_id, user_id=raw_session.user_id, lifetime=lifetime
         )
 
     async def update(self, session: entities.Session) -> None:
@@ -155,10 +152,7 @@ class InMemoryUsers(repos.Users, uows.InMemoryUoW[entities.User]):
 
         return None
 
-    async def contains_with_name(
-        self,
-        username: vos.Username,
-    ) -> bool:
+    async def contains_with_name(self, username: vos.Username) -> bool:
         return any(user.name == username for user in self._storage)
 
 

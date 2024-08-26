@@ -1,3 +1,1 @@
-from shared.infrastructure.adapters import (
-    transactions as transactions,
-)
+from shared.infrastructure.adapters import transactions as transactions

@@ -1,3 +1,1 @@
-from shared.application.ports import (
-    transactions as transactions,
-)
+from shared.application.ports import transactions as transactions

@@ -14,15 +14,10 @@ class Output:
     username: str
 
 
-async def perform(
-    user_id: UUID,
-    *,
-    session: AsyncSession,
-) -> Output | None:
+async def perform(user_id: UUID, *, session: AsyncSession) -> Output | None:
     async with async_container(context={AsyncSession: session}) as container:
         user = await read_user.perform(
-            user_id,
-            users=await container.get(repos.DBUsers, "repos"),
+            user_id, users=await container.get(repos.DBUsers, "repos")
         )
 
     if user is None:

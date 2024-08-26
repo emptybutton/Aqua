@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Literal, TypeAlias
 from uuid import UUID
 

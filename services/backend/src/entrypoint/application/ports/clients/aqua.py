@@ -1,16 +1,14 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, date
-from typing import TypeVar, Generic, Literal
+from datetime import date, datetime
+from typing import Generic, Literal, TypeVar
 from uuid import UUID
 
 from shared.application.ports.transactions import Transaction
 
 
 _TransactionT_contra = TypeVar(
-    "_TransactionT_contra",
-    bound=Transaction,
-    contravariant=True,
+    "_TransactionT_contra", bound=Transaction, contravariant=True
 )
 
 
@@ -120,21 +118,14 @@ class Aqua(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def read_day(
-        self,
-        user_id: UUID,
-        date_: date,
-        *,
-        transaction: _TransactionT_contra,
+        self, user_id: UUID, date_: date, *, transaction: _TransactionT_contra
     ) -> (
         ReadDayOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...
 
     @abstractmethod
     async def read_user(
-        self,
-        user_id: UUID,
-        *,
-        transaction: _TransactionT_contra,
+        self, user_id: UUID, *, transaction: _TransactionT_contra
     ) -> (
         ReadUserOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...

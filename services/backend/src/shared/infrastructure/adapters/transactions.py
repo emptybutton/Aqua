@@ -1,5 +1,5 @@
-from typing import Type, Self, Any
 from types import TracebackType
+from typing import Any, Self, Type
 
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 

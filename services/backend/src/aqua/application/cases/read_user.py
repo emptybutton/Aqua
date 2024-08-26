@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import UUID
 
+from aqua.application.ports import loggers, repos
 from aqua.domain import entities
-from aqua.application.ports import repos, loggers
 
 
 @dataclass(kw_only=True, frozen=True)

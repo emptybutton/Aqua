@@ -18,8 +18,7 @@ def _detail_with(type_: str, message: str = str()) -> _Detail:
 
 class BackendIsNotWorkingView(BaseModel):
     detail: _Detail = _detail_with(
-        type_="BackendIsNotWorkingError",
-        message="need to try after some time",
+        type_="BackendIsNotWorkingError", message="need to try after some time"
     )
 
 
@@ -52,7 +51,7 @@ class IncorrectPasswordView(BaseModel):
 
 class NotUTCRefreshTokenExpirationDateView(BaseModel):
     detail: _Detail = _detail_with(
-        type_="NotUTCRefreshTokenExpirationDateError",
+        type_="NotUTCRefreshTokenExpirationDateError"
     )
 
 

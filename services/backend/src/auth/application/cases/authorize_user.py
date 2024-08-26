@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import TypeVar
 
-from auth.domain import entities, value_objects as vos
-from auth.application.ports import repos, serializers, loggers
+from auth.application.ports import loggers, repos, serializers
+from auth.domain import entities
+from auth.domain import value_objects as vos
 from shared.application.ports.transactions import TransactionFactory
 
 
@@ -32,8 +33,7 @@ async def perform(
     users: _UsersT,
     sessions: _SessionsT,
     password_serializer: serializers.AsymmetricSerializer[
-        vos.Password,
-        vos.PasswordHash,
+        vos.Password, vos.PasswordHash
     ],
     user_transaction_for: TransactionFactory[_UsersT],
     session_transaction_for: TransactionFactory[_SessionsT],

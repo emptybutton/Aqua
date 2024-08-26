@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from pytest import raises
 
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 
 
 def test_creation_with_not_utc_time() -> None:
@@ -11,9 +12,7 @@ def test_creation_with_not_utc_time() -> None:
 
     with raises(entities.Record.NotUTCRecordingTimeError):
         entities.Record(
-            user_id=uuid4(),
-            drunk_water=water,
-            _recording_time=datetime.now(),
+            user_id=uuid4(), drunk_water=water, _recording_time=datetime.now()
         )
 
 

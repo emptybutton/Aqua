@@ -1,4 +1,4 @@
-from typing import Self, Any
+from typing import Any, Self
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,10 +24,7 @@ class STMTBuilder:
 
 class SelectBuilder:
     def __init__(
-        self,
-        stmt: Select[tuple[Any, ...]],
-        *,
-        is_in_trasaction: bool,
+        self, stmt: Select[tuple[Any, ...]], *, is_in_trasaction: bool
     ) -> None:
         self.__stmt = stmt
         self.__is_in_trasaction = is_in_trasaction

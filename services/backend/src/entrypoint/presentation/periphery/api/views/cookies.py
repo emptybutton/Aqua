@@ -8,11 +8,7 @@ class SessionCookie:
         self.__response = response
 
     def set(self, session_id: UUID) -> None:
-        self.__response.set_cookie(
-            "session_id",
-            str(session_id),
-            httponly=True,
-        )
+        self.__response.set_cookie("session_id", str(session_id), httponly=True)
 
     def delete(self) -> None:
         self.__response.delete_cookie("session_id", httponly=True)

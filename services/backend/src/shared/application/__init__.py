@@ -1,3 +1,1 @@
-from shared.application import (
-    ports as ports,
-)
+from shared.application import ports as ports

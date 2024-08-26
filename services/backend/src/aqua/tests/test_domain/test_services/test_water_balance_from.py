@@ -1,6 +1,7 @@
 from uuid import uuid4
 
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 
 
 def test_water_balance_of_zero_records() -> None:

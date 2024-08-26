@@ -1,4 +1,2 @@
-from aqua.application import (
-    cases as cases,
-    ports as ports,
-)
+from aqua.application import cases as cases
+from aqua.application import ports as ports

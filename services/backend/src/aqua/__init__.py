@@ -1,6 +1,4 @@
-from aqua import (
-    application as application,
-    domain as domain,
-    infrastructure as infrastructure,
-    presentation as presentation,
-)
+from aqua import application as application
+from aqua import domain as domain
+from aqua import infrastructure as infrastructure
+from aqua import presentation as presentation

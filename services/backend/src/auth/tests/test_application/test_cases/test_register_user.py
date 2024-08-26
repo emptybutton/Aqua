@@ -1,10 +1,11 @@
 from datetime import UTC, datetime, timedelta
 
-from dirty_equals import IsNow, IsDatetime
+from dirty_equals import IsDatetime, IsNow
 from pytest import mark, raises
 
-from auth.domain import entities, value_objects as vos
 from auth.application.cases import register_user
+from auth.domain import entities
+from auth.domain import value_objects as vos
 from auth.infrastructure import adapters
 from shared.infrastructure.adapters.transactions import (
     InMemoryUoWTransactionFactory,
@@ -13,8 +14,7 @@ from shared.infrastructure.adapters.transactions import (
 
 @mark.asyncio
 async def test_storages_with_invalid_name(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -39,8 +39,7 @@ async def test_storages_with_invalid_name(
 
 @mark.asyncio
 async def test_storages_with_invalid_password(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -65,8 +64,7 @@ async def test_storages_with_invalid_password(
 
 @mark.asyncio
 async def test_loggers_with_invalid_name(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -91,8 +89,7 @@ async def test_loggers_with_invalid_name(
 
 @mark.asyncio
 async def test_loggers_with_invalid_password(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -116,10 +113,7 @@ async def test_loggers_with_invalid_password(
 
 
 @mark.asyncio
-async def test_result_user(
-    user1: entities.User,
-    user2: entities.User,
-) -> None:
+async def test_result_user(user1: entities.User, user2: entities.User) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
     transaction_factory = InMemoryUoWTransactionFactory()
@@ -143,8 +137,7 @@ async def test_result_user(
 
 @mark.asyncio
 async def test_result_session(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -172,8 +165,7 @@ async def test_result_session(
 
 @mark.asyncio
 async def test_logger_log_values(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -198,8 +190,7 @@ async def test_logger_log_values(
 
 @mark.asyncio
 async def test_logger_log_size(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -225,8 +216,7 @@ async def test_logger_log_size(
 
 @mark.asyncio
 async def test_user_storage_values(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -250,8 +240,7 @@ async def test_user_storage_values(
 
 @mark.asyncio
 async def test_session_storage_values(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -275,8 +264,7 @@ async def test_session_storage_values(
 
 @mark.asyncio
 async def test_logger_log_size_on_registred_user_registration(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -303,8 +291,7 @@ async def test_logger_log_size_on_registred_user_registration(
 
 @mark.asyncio
 async def test_user_storage_size_on_registred_user_registration(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()
@@ -329,8 +316,7 @@ async def test_user_storage_size_on_registred_user_registration(
 
 @mark.asyncio
 async def test_session_storage_size_on_registred_user_registration(
-    user1: entities.User,
-    user2: entities.User,
+    user1: entities.User, user2: entities.User
 ) -> None:
     users = adapters.repos.InMemoryUsers([user1, user2])
     sessions = adapters.repos.InMemorySessions()

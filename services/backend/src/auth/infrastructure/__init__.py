@@ -1,4 +1,2 @@
-from auth.infrastructure import (
-    adapters as adapters,
-    periphery as periphery,
-)
+from auth.infrastructure import adapters as adapters
+from auth.infrastructure import periphery as periphery

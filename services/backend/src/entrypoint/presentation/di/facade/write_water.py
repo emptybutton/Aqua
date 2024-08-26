@@ -1,5 +1,5 @@
-from datetime import datetime, date
 from dataclasses import dataclass
+from datetime import date, datetime
 from typing import Literal, TypeAlias
 from uuid import UUID
 
@@ -41,10 +41,7 @@ Output: TypeAlias = (
 )
 
 
-async def perform(
-    session_id: UUID,
-    milliliters: int | None,
-) -> Output:
+async def perform(session_id: UUID, milliliters: int | None) -> Output:
     async with async_container() as container:
         result = await write_water.perform(
             session_id,
@@ -67,10 +64,7 @@ async def perform(
         target = result.aqua_result.target_water_balance_milliliters
         water_balance = result.aqua_result.water_balance_milliliters
         previous_records = tuple(
-            map(
-                _record_data_of,
-                result.aqua_result.previous_records,
-            )
+            map(_record_data_of, result.aqua_result.previous_records)
         )
         other = OtherData(
             target_water_balance_milliliters=target,

@@ -1,7 +1,8 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 
 
 def test_day_correct_result_without_water_balance() -> None:
@@ -178,8 +179,7 @@ def test_is_result_pinned_with_water_balance_setting() -> None:
 def test_add_record() -> None:
     user_id = uuid4()
     record = entities.Record(
-        user_id=user_id,
-        drunk_water=vos.Water(milliliters=5050),
+        user_id=user_id, drunk_water=vos.Water(milliliters=5050)
     )
     day = entities.Day(
         user_id=user_id,

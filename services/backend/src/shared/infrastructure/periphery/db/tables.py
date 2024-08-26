@@ -1,11 +1,8 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, DateTime
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -37,8 +34,7 @@ class AquaUser(Base):
     __tablename__ = "aqua_users"
 
     id: Mapped[UUID] = mapped_column(
-        ForeignKey("auth_users.id"),
-        primary_key=True,
+        ForeignKey("auth_users.id"), primary_key=True
     )
     water_balance: Mapped[int]
     glass: Mapped[int]

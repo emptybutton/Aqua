@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from dirty_equals import IsNow
 from pytest import raises
@@ -85,11 +85,9 @@ def test_extend() -> None:
 
 def test_extend_with_ray_lifetime() -> None:
     time_point = datetime(2025, 7, 10, tzinfo=UTC)
-    lifetime = vos.SessionLifetime(
-        _end_time=datetime(2000, 1, 1, tzinfo=UTC),
-    )
+    lifetime = vos.SessionLifetime(_end_time=datetime(2000, 1, 1, tzinfo=UTC))
     expected_extended_lifetime = vos.SessionLifetime(
-        _end_time=datetime(2025, 9, 8, tzinfo=UTC),
+        _end_time=datetime(2025, 9, 8, tzinfo=UTC)
     )
 
     extended_lifetime = lifetime.extend(time_point=time_point)

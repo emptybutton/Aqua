@@ -1,8 +1,8 @@
 from typing import TypeVar
 from uuid import UUID
 
-from auth.domain import entities
 from auth.application import ports
+from auth.domain import entities
 from shared.application.ports.transactions import TransactionFactory
 
 

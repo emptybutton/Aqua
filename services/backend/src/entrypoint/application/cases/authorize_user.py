@@ -1,4 +1,4 @@
-from typing import TypeVar, Literal, TypeAlias
+from typing import Literal, TypeAlias, TypeVar
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -25,9 +25,7 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
     auth_result = await auth.authorize_user(
-        name,
-        password,
-        transaction=transaction,
+        name, password, transaction=transaction
     )
 
     if auth_result == "auth_is_not_working":

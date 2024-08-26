@@ -12,6 +12,5 @@ async_container = make_async_container(
 )
 
 sync_container = make_container(
-    entrypoint_providers.LogerProvider(),
-    entrypoint_providers.ClientProvider(),
+    entrypoint_providers.LogerProvider(), entrypoint_providers.ClientProvider()
 )

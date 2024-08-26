@@ -1,15 +1,13 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TypeVar, Generic, Literal
+from typing import Generic, Literal, TypeVar
 from uuid import UUID
 
 from shared.application.ports.transactions import Transaction
 
 
 _TransactionT_contra = TypeVar(
-    "_TransactionT_contra",
-    bound=Transaction,
-    contravariant=True,
+    "_TransactionT_contra", bound=Transaction, contravariant=True
 )
 
 
@@ -45,11 +43,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def register_user(
-        self,
-        name: str,
-        password: str,
-        *,
-        transaction: _TransactionT_contra,
+        self, name: str, password: str, *, transaction: _TransactionT_contra
     ) -> (
         RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -60,10 +54,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def authenticate_user(
-        self,
-        session_id: UUID,
-        *,
-        transaction: _TransactionT_contra,
+        self, session_id: UUID, *, transaction: _TransactionT_contra
     ) -> (
         AuthenticateUserOutput
         | Literal["auth_is_not_working"]
@@ -73,11 +64,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def authorize_user(
-        self,
-        name: str,
-        password: str,
-        *,
-        transaction: _TransactionT_contra,
+        self, name: str, password: str, *, transaction: _TransactionT_contra
     ) -> (
         AuthorizeUserOutput
         | Literal["auth_is_not_working"]
@@ -87,10 +74,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def read_user(
-        self,
-        user_id: UUID,
-        *,
-        transaction: _TransactionT_contra,
+        self, user_id: UUID, *, transaction: _TransactionT_contra
     ) -> (
         ReadUserOutput | Literal["auth_is_not_working"] | Literal["no_user"]
     ): ...

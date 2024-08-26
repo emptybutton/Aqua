@@ -1,16 +1,12 @@
 from collections import defaultdict
-from typing import Mapping, TypeVar, Callable, Generic, Any, TypeAlias, Union
+from typing import Any, Callable, Generic, Mapping, TypeAlias, TypeVar, Union
 
 from fastapi import BackgroundTasks, status
 from fastapi.responses import Response
 from pydantic import BaseModel
 
 
-_BaseModelT_co = TypeVar(
-    "_BaseModelT_co",
-    bound=BaseModel,
-    covariant=True,
-)
+_BaseModelT_co = TypeVar("_BaseModelT_co", bound=BaseModel, covariant=True)
 
 _Doc: TypeAlias = dict[int | str, dict[str, Any]]
 

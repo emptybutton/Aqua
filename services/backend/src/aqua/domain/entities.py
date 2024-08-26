@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
-from datetime import datetime, UTC, date
+from datetime import UTC, date, datetime
 from functools import reduce
-from uuid import UUID, uuid4
 from operator import add
+from uuid import UUID, uuid4
 
-from aqua.domain.value_objects import Water, WaterBalance, Glass, Weight
+from aqua.domain.value_objects import Glass, Water, WaterBalance, Weight
 
 
 @dataclass(kw_only=True)
@@ -106,9 +106,7 @@ class User:
             water = self.glass.capacity
 
         new_record = Record(
-            user_id=self.id,
-            drunk_water=water,
-            _recording_time=current_time,
+            user_id=self.id, drunk_water=water, _recording_time=current_time
         )
 
         if not current_day:
@@ -128,6 +126,8 @@ class User:
 
 @dataclass(kw_only=True)
 class Day:
+    class Error(Exception): ...
+
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     date_: date = field(default_factory=lambda: datetime.now(UTC).date())
@@ -174,9 +174,18 @@ class Day:
         if not self._is_result_pinned:
             self._result = self.correct_result
 
+    class AddingError(Error): ...
+
+    class OtherUserRecordForAddingError(Error): ...
+
+    class OtherDayRecordForAddingError(Error): ...
+
     def add(self, record: Record) -> None:
-        assert self.user_id == record.user_id
-        assert self.date_ == record.recording_time.date()
+        if self.user_id != record.user_id:
+            raise Day.OtherUserRecordForAddingError
+
+        if self.date_ != record.recording_time.date():
+            raise Day.OtherDayRecordForAddingError
 
         water = self.water_balance.water + record.drunk_water
         self.water_balance = WaterBalance(water=water)

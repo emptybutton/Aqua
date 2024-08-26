@@ -1,4 +1,4 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 from uuid import UUID
 
@@ -12,9 +12,7 @@ class AquaLogger(ABC, Generic[_ClientT]):
 
     @abstractmethod
     async def log_no_user_from_other_parts(
-        self,
-        aqua: _ClientT,
-        user_id: UUID,
+        self, aqua: _ClientT, user_id: UUID
     ) -> None: ...
 
 
@@ -24,7 +22,5 @@ class AuthLogger(ABC, Generic[_ClientT]):
 
     @abstractmethod
     async def log_no_user_from_other_parts(
-        self,
-        aqua: _ClientT,
-        user_id: UUID,
+        self, aqua: _ClientT, user_id: UUID
     ) -> None: ...

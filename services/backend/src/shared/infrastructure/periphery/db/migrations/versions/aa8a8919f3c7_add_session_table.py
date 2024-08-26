@@ -8,8 +8,8 @@ Create Date: 2024-08-17 18:25:12.653844
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
 # revision identifiers, used by Alembic.
@@ -28,10 +28,7 @@ def upgrade() -> None:
             "expiration_date", sa.DateTime(timezone=True), nullable=False
         ),
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["auth_users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["auth_users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###

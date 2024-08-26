@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeVar, TypeAlias, Literal
+from typing import Literal, TypeAlias, TypeVar
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -44,9 +44,7 @@ async def perform(
 ) -> Output:
     async with transaction:
         auth_result = await auth.register_user(
-            name,
-            password,
-            transaction=transaction,
+            name, password, transaction=transaction
         )
 
         if not isinstance(auth_result, clients.auth.RegisterUserOutput):

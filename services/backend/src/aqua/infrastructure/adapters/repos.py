@@ -1,13 +1,14 @@
-from datetime import date
 from copy import copy
+from datetime import date
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import insert, exists, func, update
+from sqlalchemy import exists, func, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.ports import repos
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from shared.infrastructure.periphery import uows
 from shared.infrastructure.periphery.db import tables
 from shared.infrastructure.periphery.db.stmt_builders import STMTBuilder
@@ -67,10 +68,7 @@ class DBUsers(repos.Users):
         )
 
         return entities.User(
-            id=raw_user.id,
-            weight=weight,
-            glass=glass,
-            _target=target,
+            id=raw_user.id, weight=weight, glass=glass, _target=target
         )
 
     async def contains_with_id(self, user_id: UUID) -> bool:
@@ -98,10 +96,7 @@ class DBRecords(repos.Records):
         )
 
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]:
         query = (
             self.__builder.select(
@@ -151,10 +146,7 @@ class DBDays(repos.Days):
         )
 
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> entities.Day | None:
         query = (
             self.__builder.select(
@@ -201,14 +193,10 @@ class DBDays(repos.Days):
         date_: date,
     ) -> entities.Day:
         target = vos.WaterBalance(
-            water=vos.Water(
-                milliliters=raw_data.target_water_balance,
-            )
+            water=vos.Water(milliliters=raw_data.target_water_balance)
         )
         water_balance = vos.WaterBalance(
-            water=vos.Water(
-                milliliters=raw_data.real_water_balance,
-            )
+            water=vos.Water(milliliters=raw_data.real_water_balance)
         )
         result = vos.WaterBalance.Status(raw_data.result)
         is_result_pinned = raw_data.is_result_pinned
@@ -247,10 +235,7 @@ class InMemoryRecords(repos.Records, uows.InMemoryUoW[entities.Record]):
         self._storage.append(copy(record))
 
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]:
         found_records = list()
 
@@ -267,10 +252,7 @@ class InMemoryDays(repos.Days, uows.InMemoryUoW[entities.Day]):
         self._storage.append(copy(day))
 
     async def find_from(
-        self,
-        date_: date,
-        *,
-        user_id: UUID,
+        self, date_: date, *, user_id: UUID
     ) -> entities.Day | None:
         for day in self._storage:
             if day.date_ == date_ and day.user_id == user_id:

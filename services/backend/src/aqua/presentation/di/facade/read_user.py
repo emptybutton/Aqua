@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from datetime import datetime, date
-from uuid import UUID
+from datetime import date, datetime
 from typing import TypeAlias
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,11 +37,7 @@ Error: TypeAlias = read_user.Error
 NoUserError: TypeAlias = read_user.NoUserError
 
 
-async def perform(
-    user_id: UUID,
-    *,
-    session: AsyncSession,
-) -> Output | None:
+async def perform(user_id: UUID, *, session: AsyncSession) -> Output | None:
     async with adapter_container(context={AsyncSession: session}) as container:
         result = await read_user.perform(
             user_id,

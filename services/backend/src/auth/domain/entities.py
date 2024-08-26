@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from uuid import uuid4, UUID
+from datetime import UTC, datetime
+from uuid import UUID, uuid4
 
-from auth.domain.value_objects import Username, PasswordHash, SessionLifetime
+from auth.domain.value_objects import PasswordHash, SessionLifetime, Username
 
 
 @dataclass(kw_only=True)
@@ -65,10 +65,7 @@ class Session:
 
     @classmethod
     def for_(
-        cls,
-        user: User,
-        *,
-        start_time: datetime | None = None,
+        cls, user: User, *, start_time: datetime | None = None
     ) -> "Session":
         if start_time is None:
             start_time = datetime.now(UTC)

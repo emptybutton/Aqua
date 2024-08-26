@@ -1,9 +1,10 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from pytest import fixture
 
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 
 
 @fixture
@@ -23,8 +24,7 @@ def user1_empty_day(user1: entities.User) -> entities.Day:
 @fixture
 def user1_record1(user1: entities.User) -> entities.Record:
     return entities.Record(
-        user_id=user1.id,
-        drunk_water=vos.Water(milliliters=700),
+        user_id=user1.id, drunk_water=vos.Water(milliliters=700)
     )
 
 

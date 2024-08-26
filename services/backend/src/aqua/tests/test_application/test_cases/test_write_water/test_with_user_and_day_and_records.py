@@ -4,7 +4,8 @@ from dirty_equals import IsNow
 from pytest import mark
 
 from aqua.application.cases import write_water
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from aqua.infrastructure import adapters
 from shared.infrastructure.adapters.transactions import (
     InMemoryUoWTransactionFactory,
@@ -45,7 +46,7 @@ async def test_result(
     assert result.day.date_ == datetime.now(UTC).date()
     assert result.day.target == user1.target
     assert result.day.water_balance == vos.WaterBalance(
-        water=vos.Water(milliliters=1000),
+        water=vos.Water(milliliters=1000)
     )
     assert result.day.result is vos.WaterBalance.Status.not_enough_water
     assert not result.day.is_result_pinned

@@ -1,10 +1,11 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import UUID
 
-from pytest import mark, raises, fixture
+from pytest import fixture, mark, raises
 
 from aqua.application.cases import read_day
-from aqua.domain import entities, value_objects as vos
+from aqua.domain import entities
+from aqua.domain import value_objects as vos
 from aqua.infrastructure import adapters
 
 
@@ -49,12 +50,7 @@ async def test_with_user(user1: entities.User) -> None:
     expected_day_water_balance = vos.WaterBalance(water=expected_day_water)
 
     result = await read_day.perform(
-        user1.id,
-        date_,
-        users=users,
-        records=records,
-        days=days,
-        logger=logger,
+        user1.id, date_, users=users, records=records, days=days, logger=logger
     )
 
     assert result.user == user1
@@ -70,10 +66,7 @@ async def test_with_user(user1: entities.User) -> None:
 async def test_with_day(user1: entities.User) -> None:
     date_ = datetime(2006, 1, 1, tzinfo=UTC).date()
     day1 = entities.Day(
-        id=UUID(int=500),
-        user_id=user1.id,
-        target=user1.target,
-        date_=date_,
+        id=UUID(int=500), user_id=user1.id, target=user1.target, date_=date_
     )
 
     users = adapters.repos.InMemoryUsers([user1])
@@ -82,12 +75,7 @@ async def test_with_day(user1: entities.User) -> None:
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await read_day.perform(
-        user1.id,
-        date_,
-        users=users,
-        records=records,
-        days=days,
-        logger=logger,
+        user1.id, date_, users=users, records=records, days=days, logger=logger
     )
 
     assert result.user == user1

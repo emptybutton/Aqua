@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from contextlib import AbstractAsyncContextManager
-from typing import Self, TypeVar, Generic
+from typing import Generic, Self, TypeVar
 
 
 class Transaction(AbstractAsyncContextManager["Transaction"]):
@@ -13,9 +13,7 @@ class Transaction(AbstractAsyncContextManager["Transaction"]):
 
 _RepoT = TypeVar("_RepoT")
 _TransactionT_co = TypeVar(
-    "_TransactionT_co",
-    bound=Transaction,
-    covariant=True,
+    "_TransactionT_co", bound=Transaction, covariant=True
 )
 
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import TypeVar, Literal, TypeAlias
+from typing import Literal, TypeAlias, TypeVar
 from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
@@ -34,8 +34,7 @@ async def perform(
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
     auth_result = await auth.authenticate_user(
-        session_id,
-        transaction=transaction,
+        session_id, transaction=transaction
     )
 
     if auth_result == "auth_is_not_working":
@@ -45,9 +44,7 @@ async def perform(
         return "not_authenticated"
 
     aqua_result = await aqua.read_day(
-        auth_result.user_id,
-        date_,
-        transaction=transaction,
+        auth_result.user_id, date_, transaction=transaction
     )
 
     if aqua_result == "aqua_is_not_working":
@@ -55,8 +52,7 @@ async def perform(
 
     if aqua_result == "no_user":
         await aqua_logger.log_no_user_from_other_parts(
-            aqua,
-            auth_result.user_id,
+            aqua, auth_result.user_id
         )
 
     output_aqua_result: clients.aqua.ReadDayOutput | None = None
@@ -64,7 +60,4 @@ async def perform(
     if isinstance(aqua_result, clients.aqua.ReadDayOutput):
         output_aqua_result = aqua_result
 
-    return OutputData(
-        auth_result=auth_result,
-        aqua_result=output_aqua_result,
-    )
+    return OutputData(auth_result=auth_result, aqua_result=output_aqua_result)

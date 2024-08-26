@@ -1,8 +1,9 @@
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
 
 from pytest import fixture
 
-from auth.domain import entities, value_objects as vos
+from auth.domain import entities
+from auth.domain import value_objects as vos
 
 
 @fixture

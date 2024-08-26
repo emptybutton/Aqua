@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application import ports
 from auth.application.cases import authorize_user
-from auth.infrastructure.adapters import serializers, repos
+from auth.infrastructure.adapters import repos, serializers
 from auth.presentation.di.containers import async_container
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
@@ -25,12 +25,7 @@ NoUserError: TypeAlias = authorize_user.NoUserError
 IncorrectPasswordError: TypeAlias = authorize_user.IncorrectPasswordError
 
 
-async def perform(
-    name: str,
-    password: str,
-    *,
-    session: AsyncSession,
-) -> Output:
+async def perform(name: str, password: str, *, session: AsyncSession) -> Output:
     async with async_container(context={AsyncSession: session}) as container:
         result = await authorize_user.perform(
             name,

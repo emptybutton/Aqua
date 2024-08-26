@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
 from functools import cached_property
 from string import digits
 from typing import ClassVar
@@ -108,9 +108,7 @@ class SessionLifetime:
         return not self.start_time <= time_point <= self.end_time
 
     def extend(
-        self,
-        *,
-        time_point: datetime | None = None,
+        self, *, time_point: datetime | None = None
     ) -> "SessionLifetime":
         if time_point is None:
             time_point = datetime.now(UTC)
@@ -118,8 +116,7 @@ class SessionLifetime:
         extended_end_time = time_point + SessionLifetime.__chunk
 
         return SessionLifetime(
-            _start_time=self._start_time,
-            _end_time=extended_end_time,
+            _start_time=self._start_time, _end_time=extended_end_time
         )
 
     def __post_init__(self) -> None:
@@ -140,3 +137,6 @@ class SessionLifetime:
         is_end_time_correct = self.end_time == other.end_time
 
         return is_start_time_correct and is_end_time_correct
+
+    def __hash__(self) -> int:
+        return hash(self._start_time) + hash(self.end_time)

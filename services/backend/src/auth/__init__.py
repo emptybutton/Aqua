@@ -1,7 +1,5 @@
-from auth import (
-    application as application,
-    domain as domain,
-    infrastructure as infrastructure,
-    presentation as presentation,
-    tests as tests,
-)
+from auth import application as application
+from auth import domain as domain
+from auth import infrastructure as infrastructure
+from auth import presentation as presentation
+from auth import tests as tests

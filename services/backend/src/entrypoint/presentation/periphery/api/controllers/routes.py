@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from entrypoint.presentation.di import facade
 from entrypoint.presentation.periphery.api.views import (
     bodies,
-    responses,
     cookies,
+    responses,
 )
 
 

@@ -18,10 +18,7 @@ class Users(ABC):
     ) -> entities.User | None: ...
 
     @abstractmethod
-    async def contains_with_name(
-        self,
-        username: vos.Username,
-    ) -> bool: ...
+    async def contains_with_name(self, username: vos.Username) -> bool: ...
 
 
 class Sessions(ABC):

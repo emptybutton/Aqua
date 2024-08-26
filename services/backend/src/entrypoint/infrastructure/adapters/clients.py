@@ -78,9 +78,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.write_water.perform(
-                user_id,
-                milliliters,
-                session=transaction.session,
+                user_id, milliliters, session=transaction.session
             )
         except aqua.write_water.NoUserError:
             return "no_user"
@@ -92,10 +90,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
 
         target = result.target_water_balance_milliliters
         previous_records = tuple(
-            map(
-                self.__write_water_record_data_of,
-                result.previous_records,
-            )
+            map(self.__write_water_record_data_of, result.previous_records)
         )
 
         return clients.aqua.WriteWaterOutput(
@@ -111,8 +106,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     def __write_water_record_data_of(
-        self,
-        data: aqua.write_water.RecordData,
+        self, data: aqua.write_water.RecordData
     ) -> clients.aqua.WriteWaterOutput.RecordData:
         return clients.aqua.WriteWaterOutput.RecordData(
             record_id=data.record_id,
@@ -121,11 +115,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def read_day(
-        self,
-        user_id: UUID,
-        date_: date,
-        *,
-        transaction: DBTransaction,
+        self, user_id: UUID, date_: date, *, transaction: DBTransaction
     ) -> (
         clients.aqua.ReadDayOutput
         | Literal["aqua_is_not_working"]
@@ -133,9 +123,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.read_day.perform(
-                user_id,
-                date_,
-                session=transaction.session,
+                user_id, date_, session=transaction.session
             )
         except aqua.read_day.NoUserError:
             return "no_user"
@@ -164,10 +152,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def read_user(
-        self,
-        user_id: UUID,
-        *,
-        transaction: DBTransaction,
+        self, user_id: UUID, *, transaction: DBTransaction
     ) -> (
         clients.aqua.ReadUserOutput
         | Literal["aqua_is_not_working"]
@@ -175,8 +160,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.read_user.perform(
-                user_id,
-                session=transaction.session,
+                user_id, session=transaction.session
             )
         except Exception as error:
             self.__errors.append(error)
@@ -220,11 +204,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         await auth.close.perform()
 
     async def register_user(
-        self,
-        name: str,
-        password: str,
-        *,
-        transaction: DBTransaction,
+        self, name: str, password: str, *, transaction: DBTransaction
     ) -> (
         clients.auth.RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -234,9 +214,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.register_user.perform(
-                name,
-                password,
-                session=transaction.session,
+                name, password, session=transaction.session
             )
         except auth.register_user.UserIsAlreadyRegisteredError:
             return "user_is_already_registered"
@@ -252,10 +230,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         )
 
     async def authenticate_user(
-        self,
-        session_id: UUID,
-        *,
-        transaction: DBTransaction,
+        self, session_id: UUID, *, transaction: DBTransaction
     ) -> (
         clients.auth.AuthenticateUserOutput
         | Literal["auth_is_not_working"]
@@ -264,8 +239,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.authenticate_user.perform(
-                session_id,
-                session=transaction.session,
+                session_id, session=transaction.session
             )
         except auth.authenticate_user.NoSessionError:
             return "no_session"
@@ -276,16 +250,11 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "auth_is_not_working"
 
         return clients.auth.AuthenticateUserOutput(
-            user_id=result.user_id,
-            session_id=result.session_id,
+            user_id=result.user_id, session_id=result.session_id
         )
 
     async def authorize_user(
-        self,
-        name: str,
-        password: str,
-        *,
-        transaction: DBTransaction,
+        self, name: str, password: str, *, transaction: DBTransaction
     ) -> (
         clients.auth.AuthorizeUserOutput
         | Literal["auth_is_not_working"]
@@ -294,9 +263,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.authorize_user.perform(
-                name,
-                password,
-                session=transaction.session,
+                name, password, session=transaction.session
             )
         except auth.authorize_user.NoUserError:
             return "no_user"
@@ -313,10 +280,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         )
 
     async def read_user(
-        self,
-        user_id: UUID,
-        *,
-        transaction: DBTransaction,
+        self, user_id: UUID, *, transaction: DBTransaction
     ) -> (
         clients.auth.ReadUserOutput
         | Literal["auth_is_not_working"]
@@ -333,6 +297,5 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "no_user"
 
         return clients.auth.ReadUserOutput(
-            user_id=result.user_id,
-            username=result.username,
+            user_id=result.user_id, username=result.username
         )

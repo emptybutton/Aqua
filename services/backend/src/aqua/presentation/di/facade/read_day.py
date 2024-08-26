@@ -36,10 +36,7 @@ NoUserError: TypeAlias = read_day.NoUserError
 
 
 async def perform(
-    user_id: UUID,
-    date_: date,
-    *,
-    session: AsyncSession,
+    user_id: UUID, date_: date, *, session: AsyncSession
 ) -> Output:
     async with adapter_container(context={AsyncSession: session}) as container:
         result = await read_day.perform(

@@ -38,6 +38,7 @@ no_namespace_packages = true
 
 [tool.ruff]
 src = ["src"]
+preview = true
 line-length = 80
 indent-width = 4
 
@@ -45,14 +46,17 @@ indent-width = 4
 select = [
     "ANN", "F", "W", "E", "B", "C90", "N", "UP", "YTT", "ASYNC", "PL", "RUF",
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
-    "PERF", "INP"
+    "PERF", "INP", "I", "S", "FAST", "TID", "TCH", "INT"
 ]
-ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018"]
+ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["PLC0414"]
 "*/cases/*" = ["PLR0911", "PLR0913"]
-"*/adapters/*" = ["ARG002"]
+"*/adapters/*" = ["ARG002", "S101"]
 "*/domain/*" = ["PLR2004"]
 "src/entrypoint/presentation/periphery/api/controllers/routes.py" = ["PLR0911"]
-"*/tests/*" = ["PLR2004"]
+"*/tests/*" = ["PLR2004", "S101"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2

@@ -1,9 +1,10 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from pytest import raises
 
-from auth.domain import entities, value_objects as vos
+from auth.domain import entities
+from auth.domain import value_objects as vos
 
 
 def test_user_id_on_creation() -> None:
@@ -53,7 +54,7 @@ def test_lifetime_on_authentication_with_timepoint_with_ray_lifetime() -> None:
     time_point = datetime(2000, 1, 5, tzinfo=UTC)
     lifetime = vos.SessionLifetime(_end_time=datetime(2025, 2, 5, tzinfo=UTC))
     expected_lifetime = vos.SessionLifetime(
-        _end_time=datetime(2000, 3, 5, tzinfo=UTC),
+        _end_time=datetime(2000, 3, 5, tzinfo=UTC)
     )
     session = entities.Session(user_id=uuid4(), lifetime=lifetime)
 

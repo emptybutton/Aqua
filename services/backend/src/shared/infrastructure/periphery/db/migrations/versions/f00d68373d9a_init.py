@@ -8,8 +8,8 @@ Create Date: 2024-06-16 14:35:43.352607
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
 # revision identifiers, used by Alembic.
@@ -34,10 +34,7 @@ def upgrade() -> None:
         sa.Column("water_balance", sa.Integer(), nullable=False),
         sa.Column("glass", sa.Integer(), nullable=True),
         sa.Column("weight", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["id"],
-            ["auth_users.id"],
-        ),
+        sa.ForeignKeyConstraint(["id"], ["auth_users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -48,10 +45,7 @@ def upgrade() -> None:
         sa.Column("date_", sa.Date(), nullable=False),
         sa.Column("result", sa.Integer(), nullable=False),
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["aqua_users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["aqua_users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -60,10 +54,7 @@ def upgrade() -> None:
         sa.Column("recording_time", sa.DateTime(), nullable=False),
         sa.Column("user_id", sa.Uuid(), nullable=False),
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["aqua_users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["aqua_users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###

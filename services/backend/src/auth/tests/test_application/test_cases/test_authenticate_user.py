@@ -48,12 +48,12 @@ async def test_logger_without_sessions() -> None:
 
 @mark.asyncio
 async def test_logger_with_not_suitable_sessions(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -70,12 +70,12 @@ async def test_logger_with_not_suitable_sessions(
 
 @mark.asyncio
 async def test_storage_with_not_suitable_sessions(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -92,12 +92,12 @@ async def test_storage_with_not_suitable_sessions(
 
 @mark.asyncio
 async def test_storage_with_expired_session(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -114,12 +114,12 @@ async def test_storage_with_expired_session(
 
 @mark.asyncio
 async def test_logger_log_values(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -135,12 +135,12 @@ async def test_logger_log_values(
 
 @mark.asyncio
 async def test_logger_log_size(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -158,12 +158,12 @@ async def test_logger_log_size(
 
 @mark.asyncio
 async def test_storage(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
@@ -179,12 +179,12 @@ async def test_storage(
 
 @mark.asyncio
 async def test_result(
-    expired_session: entities.Session,
-    not_expired_session: entities.Session,
+    expired_session: entities.Session, not_expired_session: entities.Session
 ) -> None:
-    sessions = adapters.repos.InMemorySessions(
-        [expired_session, not_expired_session]
-    )
+    sessions = adapters.repos.InMemorySessions([
+        expired_session,
+        not_expired_session,
+    ])
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
     assert not_expired_session.lifetime.start_time is not None

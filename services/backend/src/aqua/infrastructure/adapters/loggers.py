@@ -1,6 +1,6 @@
 from copy import copy
-from typing import Any
 from functools import singledispatchmethod
+from typing import Any
 
 from aqua.application.ports import loggers
 from aqua.domain import entities
@@ -51,8 +51,7 @@ class _Mapper:
 
 class StructlogDevLogger(loggers.Logger):
     async def log_registered_user_registration(
-        self,
-        user: entities.User,
+        self, user: entities.User
     ) -> None:
         log = logs.registered_user_registration_log
         await dev_logger.awarning(log, user=user)
@@ -80,48 +79,38 @@ class StructlogProdLogger(loggers.Logger):
     __mapper = _Mapper()
 
     async def log_registered_user_registration(
-        self,
-        user: entities.User,
+        self, user: entities.User
     ) -> None:
         await prod_logger.awarning(
-            logs.registered_user_registration_log,
-            **self.__mapper.to_dict(user),
+            logs.registered_user_registration_log, **self.__mapper.to_dict(user)
         )
 
     async def log_record_without_day(self, record: entities.Record) -> None:
         await prod_logger.awarning(
-            logs.record_without_day_log,
-            **self.__mapper.to_dict(record),
+            logs.record_without_day_log, **self.__mapper.to_dict(record)
         )
 
     async def log_day_without_records(self, day: entities.Day) -> None:
         await prod_logger.awarning(
-            logs.day_without_records_log,
-            **self.__mapper.to_dict(day),
+            logs.day_without_records_log, **self.__mapper.to_dict(day)
         )
 
     async def log_new_day(self, day: entities.Day) -> None:
-        await prod_logger.ainfo(
-            logs.new_day_log,
-            **self.__mapper.to_dict(day),
-        )
+        await prod_logger.ainfo(logs.new_day_log, **self.__mapper.to_dict(day))
 
     async def log_new_day_state(self, day: entities.Day) -> None:
         await prod_logger.ainfo(
-            logs.new_day_state_log,
-            **self.__mapper.to_dict(day),
+            logs.new_day_state_log, **self.__mapper.to_dict(day)
         )
 
     async def log_new_record(self, record: entities.Record) -> None:
         await prod_logger.ainfo(
-            logs.new_record_log,
-            **self.__mapper.to_dict(record),
+            logs.new_record_log, **self.__mapper.to_dict(record)
         )
 
     async def log_registered_user(self, user: entities.User) -> None:
         await prod_logger.ainfo(
-            logs.registered_user_log,
-            **self.__mapper.to_dict(user),
+            logs.registered_user_log, **self.__mapper.to_dict(user)
         )
 
 
@@ -179,15 +168,11 @@ class InMemoryStorageLogger(loggers.Logger):
         self.__registered_users.append(user)
 
     async def log_registered_user_registration(
-        self,
-        user: entities.User,
+        self, user: entities.User
     ) -> None:
         self.__before_registered_users.append(user)
 
-    async def log_record_without_day(
-        self,
-        record: entities.Record,
-    ) -> None:
+    async def log_record_without_day(self, record: entities.Record) -> None:
         self.__records_without_day.append(record)
 
     async def log_day_without_records(self, day: entities.Day) -> None:

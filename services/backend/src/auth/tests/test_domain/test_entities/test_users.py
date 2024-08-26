@@ -3,7 +3,8 @@ from uuid import UUID
 
 from pytest import raises
 
-from auth.domain import entities, value_objects as vos
+from auth.domain import entities
+from auth.domain import value_objects as vos
 
 
 def test_equality() -> None:
@@ -52,14 +53,11 @@ def test_session_on_register() -> None:
     username = vos.Username(text="username")
     password_hash = vos.PasswordHash(text="password_hash")
     lifetime = vos.SessionLifetime(
-        _start_time=current_time,
-        _end_time=datetime(2000, 3, 1, tzinfo=UTC),
+        _start_time=current_time, _end_time=datetime(2000, 3, 1, tzinfo=UTC)
     )
 
     user, session = entities.User.register(
-        username,
-        password_hash,
-        current_time=current_time,
+        username, password_hash, current_time=current_time
     )
 
     assert session.user_id == user.id

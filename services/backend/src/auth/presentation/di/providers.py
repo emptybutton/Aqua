@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from dishka import Provider, provide, Scope, FromComponent
+from dishka import FromComponent, Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application import ports
@@ -13,15 +13,13 @@ class RepoProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_a(
-        self,
-        session: Annotated[AsyncSession, FromComponent("periphery")],
+        self, session: Annotated[AsyncSession, FromComponent("periphery")]
     ) -> adapters.repos.DBUsers:
         return adapters.repos.DBUsers(session)
 
     @provide(scope=Scope.REQUEST)
     def get_b(
-        self,
-        session: Annotated[AsyncSession, FromComponent("periphery")],
+        self, session: Annotated[AsyncSession, FromComponent("periphery")]
     ) -> adapters.repos.DBSessions:
         return adapters.repos.DBSessions(session)
 
