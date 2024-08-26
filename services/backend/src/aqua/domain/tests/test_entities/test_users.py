@@ -1,4 +1,4 @@
-from datetime import UTC
+from datetime import datetime, UTC
 
 from dirty_equals import IsNow
 from pytest import raises
@@ -16,7 +16,7 @@ def test_user_writing_without_water() -> None:
     glass = vos.Glass(capacity=vos.Water(milliliters=200))
     user = entities.User(weight=weight, glass=glass)
 
-    record = user.write_water()
+    record, day = user.write_water(current_time=datetime.now(UTC))
 
     assert record.user_id == user.id
     assert record.drunk_water == user.glass.capacity
@@ -29,7 +29,7 @@ def test_user_writing_with_water() -> None:
     glass = vos.Glass(capacity=vos.Water(milliliters=200))
     user = entities.User(weight=weight, glass=glass)
 
-    record = user.write_water(water)
+    record, day = user.write_water(water, current_time=datetime.now(UTC))
 
     assert record.user_id == user.id
     assert record.drunk_water == water

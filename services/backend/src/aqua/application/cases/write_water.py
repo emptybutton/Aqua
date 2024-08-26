@@ -45,34 +45,33 @@ async def perform(
     async with user_transaction_for(users):
         user = await users.find_with_id(user_id)
 
-        if user is None:
+        if not user:
             raise NoUserError
-
-        new_record = user.write_water(water)
 
         async with record_transaction_for(records), day_transaction_for(days):
             found_day = await days.find_from(today, user_id=user.id)
             found_records = await records.find_from(today, user_id=user.id)
 
+            if found_day and not found_records:
+                await logger.log_day_without_records(found_day)
+            elif not found_day and found_records:
+                for record in found_records:
+                    await logger.log_record_without_day(record)
+
+            new_record, day = user.write_water(
+                water,
+                day_prevous_records=found_records,
+                current_day=found_day,
+                current_time=datetime.now(UTC),
+            )
+
             await records.add(new_record)
             await logger.log_new_record(new_record)
 
             if found_day:
-                if not found_records:
-                    await logger.log_day_without_records(found_day)
-
-                day = found_day
-                day.add(new_record)
                 await days.update(day)
                 await logger.log_new_day_state(day)
             else:
-                day = entities.Day.empty_of(user, date_=today)
-
-                for record in found_records:
-                    await logger.log_record_without_day(record)
-                    day.add(record)
-
-                day.add(new_record)
                 await days.add(day)
                 await logger.log_new_day(day)
 

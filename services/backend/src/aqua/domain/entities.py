@@ -75,11 +75,49 @@ class User:
         if self.target is None:
             self.target = self.suitable_water_balance
 
-    def write_water(self, water: Water | None = None) -> Record:
-        if water is None:
+    class WritingError(Error): ...
+
+    class NotUTCCurrentTimeForWritingError(WritingError): ...
+
+    class NotCurrentDayRecordForWritingError(WritingError): ...
+
+    class NotCurerntDayForWritingError(WritingError): ...
+
+    def write_water(
+        self,
+        water: Water | None = None,
+        *,
+        day_prevous_records: tuple[Record, ...] = tuple(),
+        current_day: "Day | None" = None,
+        current_time: datetime,
+    ) -> tuple[Record, "Day"]:
+        if current_time.tzinfo is not UTC:
+            raise User.NotUTCCurrentTimeForWritingError
+
+        for record in day_prevous_records:
+            if record.recording_time.date() != current_time.date():
+                raise User.NotCurrentDayRecordForWritingError
+
+        if not water:
             water = self.glass.capacity
 
-        return Record(drunk_water=water, user_id=self.id)
+        new_record = Record(
+            user_id=self.id,
+            drunk_water=water,
+            _recording_time=current_time,
+        )
+
+        if not current_day:
+            current_day = Day.empty_of(self, date_=current_time.date())
+
+            for record in day_prevous_records:
+                current_day.add(record)
+        elif current_day.date_ != current_time.date():
+            raise User.NotCurerntDayForWritingError
+
+        current_day.add(new_record)
+
+        return new_record, current_day
 
 
 @dataclass(kw_only=True)

@@ -22,7 +22,10 @@ def user1_empty_day(user1: entities.User) -> entities.Day:
 
 @fixture
 def user1_record1(user1: entities.User) -> entities.Record:
-    return user1.write_water(vos.Water(milliliters=700))
+    return entities.Record(
+        user_id=user1.id,
+        drunk_water=vos.Water(milliliters=700),
+    )
 
 
 @fixture
