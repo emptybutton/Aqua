@@ -3,4 +3,5 @@ from auth import (
     domain as domain,
     infrastructure as infrastructure,
     presentation as presentation,
+    tests as tests,
 )
