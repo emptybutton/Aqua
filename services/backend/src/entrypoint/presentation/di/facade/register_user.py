@@ -47,13 +47,13 @@ async def perform(
             glass_milliliters,
             weight_kilograms,
             transaction=await container.get(DBTransaction, "transactions"),
-            aqua=await container.get(clients.AquaFacade, "clients"),
-            auth=await container.get(clients.AuthFacade, "clients"),
+            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
+            auth=await container.get(clients.auth.AuthFacade, "clients"),
             aqua_logger=await container.get(
-                ports.loggers.AquaLogger[clients.AquaFacade], "loggers"
+                ports.loggers.AquaLogger[clients.aqua.AquaFacade], "loggers"
             ),
             auth_logger=await container.get(
-                ports.loggers.AuthLogger[clients.AuthFacade], "loggers"
+                ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )
 

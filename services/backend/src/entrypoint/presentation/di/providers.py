@@ -24,7 +24,7 @@ class LogerProvider(Provider):
     @provide(scope=Scope.APP)
     def get_aqua_logger(
         self,
-    ) -> ports.loggers.AquaLogger[adapters.clients.AquaFacade]:
+    ) -> ports.loggers.AquaLogger[adapters.clients.aqua.AquaFacade]:
         if Env.for_dev:
             return adapters.loggers.AquaFacadeDevLogger()
 
@@ -33,7 +33,7 @@ class LogerProvider(Provider):
     @provide(scope=Scope.APP)
     def get_auth_logger(
         self,
-    ) -> ports.loggers.AuthLogger[adapters.clients.AuthFacade]:
+    ) -> ports.loggers.AuthLogger[adapters.clients.auth.AuthFacade]:
         if Env.for_dev:
             return adapters.loggers.AuthFacadeDevLogger()
 
@@ -44,9 +44,9 @@ class ClientProvider(Provider):
     component = "clients"
 
     @provide(scope=Scope.REQUEST)
-    def get_aqua(self) -> adapters.clients.AquaFacade:
-        return adapters.clients.AquaFacade()
+    def get_aqua(self) -> adapters.clients.aqua.AquaFacade:
+        return adapters.clients.aqua.AquaFacade()
 
     @provide(scope=Scope.REQUEST)
-    def get_auth(self) -> adapters.clients.AuthFacade:
-        return adapters.clients.AuthFacade()
+    def get_auth(self) -> adapters.clients.auth.AuthFacade:
+        return adapters.clients.auth.AuthFacade()

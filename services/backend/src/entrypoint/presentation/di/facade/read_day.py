@@ -46,13 +46,13 @@ async def perform(session_id: UUID, date_: date) -> Output:
             session_id,
             date_,
             transaction=await container.get(DBTransaction),
-            auth=await container.get(clients.AuthFacade, "clients"),
-            aqua=await container.get(clients.AquaFacade, "clients"),
+            auth=await container.get(clients.auth.AuthFacade, "clients"),
+            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
             auth_logger=await container.get(
-                ports.loggers.AuthLogger[clients.AuthFacade], "loggers"
+                ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
             aqua_logger=await container.get(
-                ports.loggers.AquaLogger[clients.AquaFacade], "loggers"
+                ports.loggers.AquaLogger[clients.aqua.AquaFacade], "loggers"
             ),
         )
 

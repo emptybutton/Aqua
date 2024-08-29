@@ -6,8 +6,8 @@ from entrypoint.presentation.di import containers
 async def perform() -> None:
     async with containers.async_container() as container:
         await close.perform(
-            auth=await container.get(clients.AuthFacade, "clients"),
-            aqua=await container.get(clients.AquaFacade, "clients"),
+            auth=await container.get(clients.auth.AuthFacade, "clients"),
+            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
         )
 
     await containers.async_container.close()
