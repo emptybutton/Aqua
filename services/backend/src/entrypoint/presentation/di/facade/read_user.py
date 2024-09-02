@@ -52,7 +52,7 @@ async def perform(session_id: UUID) -> Output:
     async with async_container() as container:
         result = await read_user.perform(
             session_id,
-            transaction=await container.get(DBTransaction),
+            transaction=await container.get(DBTransaction, "transactions"),
             auth=await container.get(clients.auth.AuthFacade, "clients"),
             aqua=await container.get(clients.aqua.AquaFacade, "clients"),
             auth_logger=await container.get(

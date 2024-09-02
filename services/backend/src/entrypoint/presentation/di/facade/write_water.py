@@ -46,7 +46,7 @@ async def perform(session_id: UUID, milliliters: int | None) -> Output:
         result = await write_water.perform(
             session_id,
             milliliters,
-            transaction=await container.get(DBTransaction),
+            transaction=await container.get(DBTransaction, "transactions"),
             auth=await container.get(clients.auth.AuthFacade, "clients"),
             aqua=await container.get(clients.aqua.AquaFacade, "clients"),
             auth_logger=await container.get(

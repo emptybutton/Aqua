@@ -45,7 +45,7 @@ async def perform(session_id: UUID, date_: date) -> Output:
         result = await read_day.perform(
             session_id,
             date_,
-            transaction=await container.get(DBTransaction),
+            transaction=await container.get(DBTransaction, "transactions"),
             auth=await container.get(clients.auth.AuthFacade, "clients"),
             aqua=await container.get(clients.aqua.AquaFacade, "clients"),
             auth_logger=await container.get(
