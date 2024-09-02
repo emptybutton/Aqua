@@ -43,7 +43,7 @@ class DBUsers(repos.Users):
 
         return entities.User(
             id=user_id,
-            name=raw_user.name,
+            name=vos.Username(text=raw_user.name),
             password_hash=vos.PasswordHash(text=raw_user.password_hash),
         )
 
