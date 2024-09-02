@@ -33,14 +33,6 @@ class WeekPasswordView(BaseModel):
     )
 
 
-class InvalidJWTView(BaseModel):
-    detail: _Detail = _detail_with(type_="InvalidJWTError")
-
-
-class ExpiredJWTView(BaseModel):
-    detail: _Detail = _detail_with(type_="ExpiredJWTError")
-
-
 class NoUserView(BaseModel):
     detail: _Detail = _detail_with(type_="NoUserError")
 
@@ -49,14 +41,8 @@ class IncorrectPasswordView(BaseModel):
     detail: _Detail = _detail_with(type_="IncorrectPasswordError")
 
 
-class NotUTCRefreshTokenExpirationDateView(BaseModel):
-    detail: _Detail = _detail_with(
-        type_="NotUTCRefreshTokenExpirationDateError"
-    )
-
-
-class ExpiredRefreshTokenView(BaseModel):
-    detail: _Detail = _detail_with(type_="ExpiredRefreshTokenError")
+class NotAuthenticatedView(BaseModel):
+    detail: _Detail = _detail_with(type_="NotAuthenticatedError")
 
 
 class IncorrectWaterAmountView(BaseModel):

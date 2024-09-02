@@ -55,7 +55,7 @@ ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301"]
 "*/cases/*" = ["PLR0911", "PLR0913"]
 "*/adapters/*" = ["ARG002", "S101"]
 "*/domain/*" = ["PLR2004"]
-"src/entrypoint/presentation/periphery/api/controllers/routes.py" = ["PLR0911"]
+"src/entrypoint/presentation/periphery/api/controllers/routes/*" = ["PLR0911"]
 "*/tests/*" = ["PLR2004", "S101"]
 
 [tool.ruff.lint.isort]

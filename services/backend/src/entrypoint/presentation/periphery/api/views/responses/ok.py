@@ -8,6 +8,8 @@ registered_user_view = View(
     bodies.ok.RegisteredUserView, status.HTTP_201_CREATED
 )
 
+authorized_user_view = View(bodies.ok.AuthorizedUserView)
+
 user_view = View(bodies.ok.UserView)
 
 day_view = View(bodies.ok.DayView)

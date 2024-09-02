@@ -4,7 +4,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from entrypoint.presentation.di.facade import close
-from entrypoint.presentation.periphery.api.controllers.routes import router
+from entrypoint.presentation.periphery.api.controllers.routers import router
 
 
 @asynccontextmanager

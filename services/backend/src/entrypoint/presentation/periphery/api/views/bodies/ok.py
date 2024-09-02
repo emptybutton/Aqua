@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -19,37 +20,54 @@ class RecordView(BaseModel):
 
 
 class NewRecordView(BaseModel):
+    class Data(BaseModel):
+        target_water_balance_milliliters: int
+        water_balance_milliliters: int
+        result_code: int
+        real_result_code: int
+        is_result_pinned: bool
+        date_: date
+        previous_records: tuple[RecordView, ...]
+        new_record: RecordView
+
     user_id: UUID
-    record_id: UUID
-    drunk_water_milliliters: int
-    recording_time: datetime
-    target_water_balance_milliliters: int
-    water_balance_milliliters: int
-    result_code: int
-    real_result_code: int
-    is_result_pinned: bool
+    data: Data | Literal["incorrect_water_amount"] | None
 
 
 class UserView(BaseModel):
+    class FirstPart(BaseModel):
+        username: str
+
+    class SecondPart(BaseModel):
+        glass_milliliters: int
+        weight_kilograms: int | None
+        target_water_balance_milliliters: int
+        date_: date
+        water_balance_milliliters: int
+        result_code: int
+        real_result_code: int
+        is_result_pinned: bool
+        records: tuple[RecordView, ...]
+
     user_id: UUID
-    username: str | None
-    glass_milliliters: int | None
-    weight_kilograms: int | None
-    target_water_balance_milliliters: int | None
-    water_balance_milliliters: int | None
-    date_: date | None
-    result_code: int | None
-    real_result_code: int | None
-    is_result_pinned: bool | None
-    records: tuple[RecordView, ...]
+    first_part: FirstPart | None
+    second_part: SecondPart | None
 
 
 class DayView(BaseModel):
+    class Data(BaseModel):
+        target_water_balance_milliliters: int
+        date_: date
+        water_balance_milliliters: int
+        result_code: int
+        real_result_code: int
+        is_result_pinned: bool
+        records: tuple[RecordView, ...]
+
     user_id: UUID
-    target_water_balance_milliliters: int | None
-    water_balance_milliliters: int | None
-    date_: date | None
-    result_code: int | None
-    real_result_code: int | None
-    is_result_pinned: bool | None
-    records: tuple[RecordView, ...]
+    data: Data | None
+
+
+class AuthorizedUserView(BaseModel):
+    user_id: UUID
+    username: str

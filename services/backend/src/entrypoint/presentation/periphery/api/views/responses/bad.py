@@ -12,10 +12,6 @@ week_password_view = View(
     bodies.bad.WeekPasswordView, status.HTTP_400_BAD_REQUEST
 )
 
-invalid_jwt_view = View(bodies.bad.InvalidJWTView, status.HTTP_401_UNAUTHORIZED)
-
-expired_jwt_view = View(bodies.bad.ExpiredJWTView, status.HTTP_401_UNAUTHORIZED)
-
 no_user_view = View(bodies.bad.NoUserView, status.HTTP_404_NOT_FOUND)
 
 no_current_user_view = View(bodies.bad.NoUserView, status.HTTP_401_UNAUTHORIZED)
@@ -24,13 +20,9 @@ incorrect_password_view = View(
     bodies.bad.IncorrectPasswordView, status.HTTP_401_UNAUTHORIZED
 )
 
-not_utc_refresh_token_expiration_date_view = View(
-    bodies.bad.NotUTCRefreshTokenExpirationDateView,
+not_authenticated_view = View(
+    bodies.bad.NotAuthenticatedView,
     status.HTTP_401_UNAUTHORIZED,
-)
-
-expired_refresh_token_view = View(
-    bodies.bad.ExpiredRefreshTokenView, status.HTTP_404_NOT_FOUND
 )
 
 incorrect_water_amount_view = View(

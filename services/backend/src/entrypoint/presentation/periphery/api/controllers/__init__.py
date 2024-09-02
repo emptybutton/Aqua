@@ -1,4 +1,5 @@
-from entrypoint.presentation.periphery.api.controllers import routes as routes
 from entrypoint.presentation.periphery.api.controllers import (
-    security as security,
+    cookies as cookies,
 )
+from entrypoint.presentation.periphery.api.controllers import routes as routes
+from entrypoint.presentation.periphery.api.controllers import tags as tags
