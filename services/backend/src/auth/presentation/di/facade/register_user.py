@@ -19,6 +19,10 @@ class Output:
     session_id: UUID
 
 
+UserIsAlreadyRegisteredError: TypeAlias = (
+    register_user.UserIsAlreadyRegisteredError
+)
+
 EmptyUsernameError: TypeAlias = vos.Username.EmptyError
 
 WeekPasswordError: TypeAlias = vos.Password.WeekError

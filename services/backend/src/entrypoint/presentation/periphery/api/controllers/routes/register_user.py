@@ -25,6 +25,7 @@ class RegisterUserRequestModel(BaseModel):
         views.responses.bad.incorrect_weight_amount_view,
         views.responses.bad.no_weight_for_water_balance_view,
         views.responses.bad.extreme_weight_for_water_balance_view,
+        views.responses.bad.user_is_already_registered_view,
         views.responses.bad.empty_username_view,
         views.responses.bad.week_password_view,
         views.responses.ok.registered_user_view,
@@ -57,6 +58,9 @@ async def register_user(request_model: RegisterUserRequestModel) -> Response:
             views.responses.bad.no_weight_for_water_balance_view
         )
         return water_balance_view.to_response()
+
+    if result == "user_is_already_registered":
+        return views.responses.bad.user_is_already_registered_view.to_response()
 
     if result == "empty_username":
         return views.responses.bad.empty_username_view.to_response()

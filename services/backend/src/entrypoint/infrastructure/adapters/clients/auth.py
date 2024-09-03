@@ -22,6 +22,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ) -> (
         clients.auth.RegisterUserOutput
         | Literal["auth_is_not_working"]
+        | Literal["user_is_already_registered"]
         | Literal["empty_username"]
         | Literal["week_password"]
     ):
@@ -29,6 +30,8 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             result = await auth.register_user.perform(
                 name, password, session=transaction.session
             )
+        except auth.register_user.UserIsAlreadyRegisteredError:
+            return "user_is_already_registered"
         except auth.register_user.EmptyUsernameError:
             return "empty_username"
         except auth.register_user.WeekPasswordError:

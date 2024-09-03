@@ -78,3 +78,7 @@ class ExtremeWeightForWaterBalanceView(BaseModel):
 
 class EmptyUsernameView(BaseModel):
     detail: _Detail = _detail_with(type_="EmptyUsernameError")
+
+
+class UserIsAlreadyRegisteredView(BaseModel):
+    detail: _Detail = _detail_with(type_="UserIsAlreadyRegisteredError")
