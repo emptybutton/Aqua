@@ -41,7 +41,7 @@ class StructlogDevLogger(loggers.Logger):
         await dev_logger.ainfo(logs.login_log, user=user, session=session)
 
     async def log_session_extension(self, session: entities.Session) -> None:
-        await dev_logger.ainfo(logs.login_log, session=session)
+        await dev_logger.ainfo(logs.session_extension_log, session=session)
 
 
 class StructlogProdLogger(loggers.Logger):
@@ -67,7 +67,7 @@ class StructlogProdLogger(loggers.Logger):
 
     async def log_session_extension(self, session: entities.Session) -> None:
         await prod_logger.ainfo(
-            logs.login_log, **self.__mapper.to_dict(session)
+            logs.session_extension_log, **self.__mapper.to_dict(session)
         )
 
 
