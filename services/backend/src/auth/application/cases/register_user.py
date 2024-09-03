@@ -16,9 +16,6 @@ class Output:
 class Error(Exception): ...
 
 
-class UserIsAlreadyRegisteredError(Error): ...
-
-
 _UsersT = TypeVar("_UsersT", bound=repos.Users)
 _SessionsT = TypeVar("_SessionsT", bound=repos.Sessions)
 
@@ -41,9 +38,6 @@ async def perform(
     password_hash = password_serializer.serialized(password)
 
     async with user_transaction_for(users):
-        if await users.contains_with_name(username):
-            raise UserIsAlreadyRegisteredError
-
         user, session = entities.User.register(username, password_hash)
         await users.add(user)
 

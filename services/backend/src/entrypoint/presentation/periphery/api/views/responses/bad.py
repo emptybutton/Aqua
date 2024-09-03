@@ -44,7 +44,3 @@ extreme_weight_for_water_balance_view = View(
 empty_username_view = View(
     bodies.bad.EmptyUsernameView, status.HTTP_400_BAD_REQUEST
 )
-
-user_is_already_registered_view = View(
-    bodies.bad.UserIsAlreadyRegisteredView, status.HTTP_409_CONFLICT
-)

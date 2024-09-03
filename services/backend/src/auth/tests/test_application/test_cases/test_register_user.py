@@ -121,7 +121,7 @@ async def test_result_user(user1: entities.User, user2: entities.User) -> None:
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -131,7 +131,7 @@ async def test_result_user(user1: entities.User, user2: entities.User) -> None:
         logger=logger,
     )
 
-    assert result.user.name.text == "usernameX"
+    assert result.user.name.text == "username1"
     assert result.user.password_hash.text == "Ab345678_hash"
 
 
@@ -146,7 +146,7 @@ async def test_result_session(
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -174,7 +174,7 @@ async def test_logger_log_values(
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -199,7 +199,7 @@ async def test_logger_log_size(
     logger = adapters.loggers.InMemoryStorageLogger()
 
     await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -225,7 +225,7 @@ async def test_user_storage_values(
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -249,7 +249,7 @@ async def test_session_storage_values(
     logger = adapters.loggers.InMemoryStorageLogger()
 
     result = await register_user.perform(
-        "usernameX",
+        "username1",
         "Ab345678",
         users=users,
         sessions=sessions,
@@ -260,80 +260,3 @@ async def test_session_storage_values(
     )
 
     assert tuple(sessions) == (result.session,)
-
-
-@mark.asyncio
-async def test_logger_log_size_on_registred_user_registration(
-    user1: entities.User, user2: entities.User
-) -> None:
-    users = adapters.repos.InMemoryUsers([user1, user2])
-    sessions = adapters.repos.InMemorySessions()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
-    logger = adapters.loggers.InMemoryStorageLogger()
-
-    with raises(register_user.UserIsAlreadyRegisteredError):
-        await register_user.perform(
-            "username1",
-            "Ab345678",
-            users=users,
-            sessions=sessions,
-            user_transaction_for=transaction_factory,
-            session_transaction_for=transaction_factory,
-            password_serializer=password_serializer,
-            logger=logger,
-        )
-
-    assert len(logger.registration_logs) == 0
-    assert len(logger.login_logs) == 0
-    assert len(logger.session_extension_logs) == 0
-
-
-@mark.asyncio
-async def test_user_storage_size_on_registred_user_registration(
-    user1: entities.User, user2: entities.User
-) -> None:
-    users = adapters.repos.InMemoryUsers([user1, user2])
-    sessions = adapters.repos.InMemorySessions()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
-    logger = adapters.loggers.InMemoryStorageLogger()
-
-    with raises(register_user.UserIsAlreadyRegisteredError):
-        await register_user.perform(
-            "username1",
-            "Ab345678",
-            users=users,
-            sessions=sessions,
-            user_transaction_for=transaction_factory,
-            session_transaction_for=transaction_factory,
-            password_serializer=password_serializer,
-            logger=logger,
-        )
-
-    assert len(users) == 2
-
-
-@mark.asyncio
-async def test_session_storage_size_on_registred_user_registration(
-    user1: entities.User, user2: entities.User
-) -> None:
-    users = adapters.repos.InMemoryUsers([user1, user2])
-    sessions = adapters.repos.InMemorySessions()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
-    logger = adapters.loggers.InMemoryStorageLogger()
-
-    with raises(register_user.UserIsAlreadyRegisteredError):
-        await register_user.perform(
-            "username1",
-            "Ab345678",
-            users=users,
-            sessions=sessions,
-            user_transaction_for=transaction_factory,
-            session_transaction_for=transaction_factory,
-            password_serializer=password_serializer,
-            logger=logger,
-        )
-
-    assert len(sessions) == 0

@@ -47,7 +47,6 @@ class Auth(Generic[_TransactionT_contra], ABC):
     ) -> (
         RegisterUserOutput
         | Literal["auth_is_not_working"]
-        | Literal["user_is_already_registered"]
         | Literal["empty_username"]
         | Literal["week_password"]
     ): ...

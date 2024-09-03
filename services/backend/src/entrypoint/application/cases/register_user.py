@@ -18,7 +18,6 @@ Output: TypeAlias = (
     | Literal["incorrect_weight_amount"]
     | Literal["no_weight_for_water_balance"]
     | Literal["extreme_weight_for_water_balance"]
-    | Literal["user_is_already_registered"]
     | Literal["empty_username"]
     | Literal["week_password"]
 )
