@@ -29,6 +29,7 @@ async def perform(
     *,
     users: _UsersT,
     sessions: _SessionsT,
+    previous_usernames: repos.PreviousUsernames,
     user_transaction_for: TransactionFactory[_UsersT],
     session_transaction_for: TransactionFactory[_SessionsT],
     password_serializer: serializers.AsymmetricSerializer[
@@ -39,6 +40,9 @@ async def perform(
     username = vos.Username(text=name_text)
     password = vos.Password(text=password_text)
     password_hash = password_serializer.serialized(password)
+
+    if await previous_usernames.contains_with_username(username):
+        raise UserIsAlreadyRegisteredError
 
     async with user_transaction_for(users):
         if await users.contains_with_name(username):

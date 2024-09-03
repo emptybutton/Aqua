@@ -9,3 +9,5 @@ no_user_in_aqua_from_other_parts_log = (
 no_user_in_auth_from_other_parts_log = (
     "auth does not have a user that is in other modules"
 )
+
+user_without_session_log = "user exists without session"

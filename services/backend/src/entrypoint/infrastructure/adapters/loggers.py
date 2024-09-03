@@ -39,6 +39,15 @@ class AuthFacadeDevLogger(loggers.AuthLogger[clients.auth.AuthFacade]):
             logs.no_user_in_auth_from_other_parts_log, user_id=user_id
         )
 
+    async def log_user_without_session(
+        self, auth: clients.auth.AuthFacade, user_id: UUID, session_id: UUID
+    ) -> None:
+        await dev_logger.awarning(
+            logs.user_without_session_log,
+            user_id=user_id,
+            session_id=session_id,
+        )
+
 
 class AquaFacadeProdLogger(loggers.AquaLogger[clients.aqua.AquaFacade]):
     async def log_aqua_is_not_working(
@@ -71,4 +80,13 @@ class AuthFacadeProdLogger(loggers.AuthLogger[clients.auth.AuthFacade]):
     ) -> None:
         await prod_logger.awarning(
             logs.no_user_in_auth_from_other_parts_log, user_id=user_id
+        )
+
+    async def log_user_without_session(
+        self, auth: clients.auth.AuthFacade, user_id: UUID, session_id: UUID
+    ) -> None:
+        await prod_logger.awarning(
+            logs.user_without_session_log,
+            user_id=user_id,
+            session_id=session_id,
         )

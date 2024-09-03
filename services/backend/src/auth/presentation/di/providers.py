@@ -23,6 +23,12 @@ class RepoProvider(Provider):
     ) -> adapters.repos.DBSessions:
         return adapters.repos.DBSessions(session)
 
+    @provide(scope=Scope.REQUEST)
+    def get_c(
+        self, session: Annotated[AsyncSession, FromComponent("periphery")]
+    ) -> adapters.repos.DBPreviousUsernames:
+        return adapters.repos.DBPreviousUsernames(session)
+
 
 class SerializerProvider(Provider):
     component = "serializers"

@@ -37,6 +37,13 @@ class AuthorizeUserOutput:
     session_id: UUID
 
 
+@dataclass(kw_only=True, frozen=True)
+class RenameUserOutput:
+    user_id: UUID
+    new_username: str
+    previous_username: str
+
+
 class Auth(Generic[_TransactionT_contra], ABC):
     @abstractmethod
     async def close(self) -> None: ...
@@ -77,4 +84,19 @@ class Auth(Generic[_TransactionT_contra], ABC):
         self, user_id: UUID, *, transaction: _TransactionT_contra
     ) -> (
         ReadUserOutput | Literal["auth_is_not_working"] | Literal["no_user"]
+    ): ...
+
+    @abstractmethod
+    async def rename_user(
+        self,
+        user_id: UUID,
+        new_username: str,
+        *,
+        transaction: _TransactionT_contra,
+    ) -> (
+        RenameUserOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+        | Literal["new_username_taken"]
+        | Literal["empty_new_username"]
     ): ...

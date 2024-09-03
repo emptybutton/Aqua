@@ -11,5 +11,8 @@ from entrypoint.presentation.periphery.api.controllers.routes import (
     register_user as register_user,
 )
 from entrypoint.presentation.periphery.api.controllers.routes import (
+    rename_user as rename_user,
+)
+from entrypoint.presentation.periphery.api.controllers.routes import (
     write_water as write_water,
 )

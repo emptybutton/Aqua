@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Literal
+from typing import ClassVar, Literal, TypeAlias
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -71,3 +71,19 @@ class DayView(BaseModel):
 class AuthorizedUserView(BaseModel):
     user_id: UUID
     username: str
+
+
+class RenamedUserView(BaseModel):
+    class OkData(BaseModel):
+        new_username: str
+        previous_username: str
+
+    Data: ClassVar[TypeAlias] = (
+        OkData
+        | None
+        | Literal["new_username_taken"]
+        | Literal["empty_new_username"]
+    )
+
+    user_id: UUID
+    data: Data

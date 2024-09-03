@@ -15,3 +15,5 @@ user_view = View(bodies.ok.UserView)
 day_view = View(bodies.ok.DayView)
 
 new_record_view = View(bodies.ok.NewRecordView, status.HTTP_201_CREATED)
+
+renamed_user_view = View(bodies.ok.RenamedUserView)

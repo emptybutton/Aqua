@@ -39,6 +39,9 @@ async def perform(
             password,
             users=await container.get(repos.DBUsers, "repos"),
             sessions=await container.get(repos.DBSessions, "repos"),
+            previous_usernames=await container.get(
+                repos.DBPreviousUsernames, "repos"
+            ),
             user_transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),

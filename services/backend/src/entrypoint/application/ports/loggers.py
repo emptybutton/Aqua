@@ -22,5 +22,10 @@ class AuthLogger(ABC, Generic[_ClientT]):
 
     @abstractmethod
     async def log_no_user_from_other_parts(
-        self, aqua: _ClientT, user_id: UUID
+        self, auth: _ClientT, user_id: UUID
+    ) -> None: ...
+
+    @abstractmethod
+    async def log_user_without_session(
+        self, auth: _ClientT, user_id: UUID, session_id: UUID
     ) -> None: ...

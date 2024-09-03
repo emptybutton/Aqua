@@ -22,6 +22,13 @@ class AuthUser(Base):
         return f"db.AuthUser(id={self.id!r}, name={self.name!r})"
 
 
+class PreviousUsername(Base):
+    __tablename__ = "auth_previous_usernames"
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("auth_users.id"))
+    username: Mapped[str]
+
+
 class Session(Base):
     __tablename__ = "sessions"
 

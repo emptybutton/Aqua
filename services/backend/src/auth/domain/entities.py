@@ -6,6 +6,13 @@ from auth.domain.value_objects import PasswordHash, SessionLifetime, Username
 
 
 @dataclass(kw_only=True)
+class PreviousUsername:
+    id: UUID = field(default_factory=uuid4)
+    user_id: UUID
+    username: Username
+
+
+@dataclass(kw_only=True)
 class User:
     class Error(Exception): ...
 
@@ -27,6 +34,14 @@ class User:
             raise User.IncorrectPasswordHashForAuthorizationError
 
         return Session.for_(self, start_time=current_time)
+
+    def rename(self, *, new_username: Username) -> PreviousUsername:
+        previous_username = PreviousUsername(
+            username=self.name, user_id=self.id
+        )
+        self.name = new_username
+
+        return previous_username
 
     @classmethod
     def register(

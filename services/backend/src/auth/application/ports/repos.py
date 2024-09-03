@@ -20,6 +20,9 @@ class Users(ABC):
     @abstractmethod
     async def contains_with_name(self, username: vos.Username) -> bool: ...
 
+    @abstractmethod
+    async def update(self, user: entities.User) -> None: ...
+
 
 class Sessions(ABC):
     @abstractmethod
@@ -32,3 +35,13 @@ class Sessions(ABC):
 
     @abstractmethod
     async def update(self, session: entities.Session) -> None: ...
+
+
+class PreviousUsernames(ABC):
+    @abstractmethod
+    async def add(
+        self, previous_username: entities.PreviousUsername
+    ) -> None: ...
+
+    @abstractmethod
+    async def contains_with_username(self, username: vos.Username) -> bool: ...

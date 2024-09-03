@@ -21,6 +21,7 @@ async def test_storages_with_invalid_name(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(vos.Username.EmptyError):
         await register_user.perform(
@@ -32,6 +33,7 @@ async def test_storages_with_invalid_name(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert tuple(users) == (user1, user2)
@@ -46,6 +48,7 @@ async def test_storages_with_invalid_password(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(vos.Password.WeekError):
         await register_user.perform(
@@ -57,6 +60,7 @@ async def test_storages_with_invalid_password(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert tuple(users) == (user1, user2)
@@ -71,6 +75,7 @@ async def test_loggers_with_invalid_name(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(vos.Username.EmptyError):
         await register_user.perform(
@@ -82,6 +87,7 @@ async def test_loggers_with_invalid_name(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert logger.is_empty
@@ -96,6 +102,7 @@ async def test_loggers_with_invalid_password(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(vos.Password.WeekError):
         await register_user.perform(
@@ -107,6 +114,7 @@ async def test_loggers_with_invalid_password(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert logger.is_empty
@@ -119,6 +127,7 @@ async def test_result_user(user1: entities.User, user2: entities.User) -> None:
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
         "usernameX",
@@ -129,6 +138,7 @@ async def test_result_user(user1: entities.User, user2: entities.User) -> None:
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert result.user.name.text == "usernameX"
@@ -144,6 +154,7 @@ async def test_result_session(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
         "usernameX",
@@ -154,6 +165,7 @@ async def test_result_session(
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert result.session.user_id == result.user.id
@@ -172,6 +184,7 @@ async def test_logger_log_values(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
         "usernameX",
@@ -182,6 +195,7 @@ async def test_logger_log_values(
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert logger.registration_logs[0].user == result.user
@@ -197,6 +211,7 @@ async def test_logger_log_size(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     await register_user.perform(
         "usernameX",
@@ -207,6 +222,7 @@ async def test_logger_log_size(
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert len(logger.registration_logs) == 1
@@ -223,6 +239,7 @@ async def test_user_storage_values(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
         "usernameX",
@@ -233,6 +250,7 @@ async def test_user_storage_values(
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert tuple(users) == (user1, user2, result.user)
@@ -247,6 +265,7 @@ async def test_session_storage_values(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
         "usernameX",
@@ -257,6 +276,7 @@ async def test_session_storage_values(
         session_transaction_for=transaction_factory,
         password_serializer=password_serializer,
         logger=logger,
+        previous_usernames=previous_usernames,
     )
 
     assert tuple(sessions) == (result.session,)
@@ -271,6 +291,7 @@ async def test_logger_log_size_on_registred_user_registration(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
@@ -282,6 +303,7 @@ async def test_logger_log_size_on_registred_user_registration(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert len(logger.registration_logs) == 0
@@ -298,6 +320,7 @@ async def test_user_storage_size_on_registred_user_registration(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
@@ -309,6 +332,7 @@ async def test_user_storage_size_on_registred_user_registration(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert len(users) == 2
@@ -323,6 +347,7 @@ async def test_session_storage_size_on_registred_user_registration(
     transaction_factory = InMemoryUoWTransactionFactory()
     password_serializer = adapters.serializers.ConcatenatingPasswordHasher()
     logger = adapters.loggers.InMemoryStorageLogger()
+    previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
@@ -334,6 +359,7 @@ async def test_session_storage_size_on_registred_user_registration(
             session_transaction_for=transaction_factory,
             password_serializer=password_serializer,
             logger=logger,
+            previous_usernames=previous_usernames,
         )
 
     assert len(sessions) == 0

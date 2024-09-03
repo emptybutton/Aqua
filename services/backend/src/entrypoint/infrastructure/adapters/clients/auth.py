@@ -113,3 +113,38 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         return clients.auth.ReadUserOutput(
             user_id=result.user_id, username=result.username
         )
+
+    async def rename_user(
+        self,
+        user_id: UUID,
+        new_username: str,
+        *,
+        transaction: DBTransaction,
+    ) -> (
+        clients.auth.RenameUserOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+        | Literal["new_username_taken"]
+        | Literal["empty_new_username"]
+    ):
+        try:
+            result = await auth.rename_user.perform(
+                user_id,
+                new_username,
+                session=transaction.session,
+            )
+        except auth.rename_user.NoUserError:
+            return "no_user"
+        except auth.rename_user.NewUsernameTakenError:
+            return "new_username_taken"
+        except auth.rename_user.EmptyUsernameError:
+            return "empty_new_username"
+        except Exception as error:
+            self.__errors.append(error)
+            return "auth_is_not_working"
+
+        return clients.auth.RenameUserOutput(
+            user_id=result.user_id,
+            new_username=result.new_username,
+            previous_username=result.previous_username,
+        )

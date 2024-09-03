@@ -77,6 +77,16 @@ class DBUsers(repos.Users):
 
         return bool(await self.__session.scalar(query))
 
+    async def update(self, user: entities.User) -> None:
+        await self.__session.execute(
+            update(tables.AuthUser)
+            .where(tables.AuthUser.id == user.id)
+            .values(
+                name=user.name.text,
+                password_hash=user.password_hash.text,
+            )
+        )
+
 
 class DBSessions(repos.Sessions):
     def __init__(self, session: AsyncSession) -> None:
@@ -132,6 +142,28 @@ class DBSessions(repos.Sessions):
         )
 
 
+class DBPreviousUsernames(repos.PreviousUsernames):
+    def __init__(self, session: AsyncSession) -> None:
+        self.__session = session
+        self.__builder = STMTBuilder.of(session)
+
+    async def add(self, previous_username: entities.PreviousUsername) -> None:
+        await self.__session.execute(
+            insert(tables.PreviousUsername).values(
+                id=previous_username.id,
+                user_id=previous_username.user_id,
+                username=previous_username.username.text,
+            )
+        )
+
+    async def contains_with_username(self, username: vos.Username) -> bool:
+        query = self.__builder.select(
+            exists(1).where(tables.PreviousUsername.username == username.text)
+        ).build()
+
+        return bool(await self.__session.scalar(query))
+
+
 class InMemoryUsers(repos.Users, uows.InMemoryUoW[entities.User]):
     async def add(self, user: entities.User) -> None:
         self._storage.append(copy(user))
@@ -155,6 +187,13 @@ class InMemoryUsers(repos.Users, uows.InMemoryUoW[entities.User]):
     async def contains_with_name(self, username: vos.Username) -> bool:
         return any(user.name == username for user in self._storage)
 
+    async def update(self, user: entities.User) -> None:
+        for stored_user in tuple(self._storage):
+            if user.id == stored_user.id:
+                self._storage.remove(stored_user)
+                self._storage.append(copy(user))
+                break
+
 
 class InMemorySessions(repos.Sessions, uows.InMemoryUoW[entities.Session]):
     async def add(self, session: entities.Session) -> None:
@@ -173,3 +212,18 @@ class InMemorySessions(repos.Sessions, uows.InMemoryUoW[entities.Session]):
                 self._storage.remove(stored_session)
                 self._storage.append(copy(session))
                 break
+
+
+class InMemoryPreviousUsernames(
+    repos.PreviousUsernames,
+    uows.InMemoryUoW[entities.PreviousUsername],
+):
+    async def add(self, previous_username: entities.PreviousUsername) -> None:
+        self._storage.append(copy(previous_username))
+
+    async def contains_with_username(self, username: vos.Username) -> bool:
+        for previous_username in self._storage:
+            if previous_username.username == username:
+                return True
+
+        return False
