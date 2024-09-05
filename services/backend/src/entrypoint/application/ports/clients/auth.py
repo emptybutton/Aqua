@@ -44,6 +44,13 @@ class RenameUserOutput:
     previous_username: str
 
 
+@dataclass(kw_only=True, frozen=True)
+class ChangePasswordOutput:
+    user_id: UUID
+    username: str
+    session_id: UUID
+
+
 class Auth(Generic[_TransactionT_contra], ABC):
     @abstractmethod
     async def close(self) -> None: ...
@@ -67,6 +74,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
         | Literal["auth_is_not_working"]
         | Literal["no_session"]
         | Literal["expired_session"]
+        | Literal["cancelled_session"]
     ): ...
 
     @abstractmethod
@@ -99,4 +107,19 @@ class Auth(Generic[_TransactionT_contra], ABC):
         | Literal["no_user"]
         | Literal["new_username_taken"]
         | Literal["empty_new_username"]
+    ): ...
+
+    @abstractmethod
+    async def change_password(
+        self,
+        session_id: UUID,
+        user_id: UUID,
+        new_password: str,
+        *,
+        transaction: _TransactionT_contra,
+    ) -> (
+        ChangePasswordOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+        | Literal["week_password"]
     ): ...

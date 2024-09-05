@@ -59,6 +59,25 @@ class User:
 
         return previous_username
 
+    class PasswordChangeError(Error): ...
+
+    class OtherUserSessionForPasswordChangeError(PasswordChangeError): ...
+
+    def change_password(
+        self,
+        *,
+        new_password_hash: PasswordHash,
+        other_sessions: tuple["Session", ...],
+    ) -> None:
+        for other_session in other_sessions:
+            if other_session.user_id != self.id:
+                raise User.OtherUserSessionForPasswordChangeError
+
+        self.password_hash = new_password_hash
+
+        for other_session in other_sessions:
+            other_session.cancel()
+
     @classmethod
     def register(
         cls,
@@ -80,10 +99,16 @@ class Session:
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     lifetime: SessionLifetime
+    cancelled: bool = False
+
+    def cancel(self) -> None:
+        self.cancelled = True
 
     class AuthenticationError(Error): ...
 
     class ExpiredLifetimeForAuthenticationError(AuthenticationError): ...
+
+    class CancelledForAuthenticationError(AuthenticationError): ...
 
     def authenticate(self, *, time_point: datetime | None = None) -> None:
         if time_point is None:
@@ -91,6 +116,9 @@ class Session:
 
         if self.lifetime.expired(time_point=time_point):
             raise Session.ExpiredLifetimeForAuthenticationError
+
+        if self.cancelled:
+            raise Session.CancelledForAuthenticationError
 
         self.lifetime = self.lifetime.extend(time_point=time_point)
 

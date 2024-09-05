@@ -1,7 +1,7 @@
 from copy import copy
 from uuid import UUID
 
-from sqlalchemy import exists, insert, update
+from sqlalchemy import bindparam, exists, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.ports import repos
@@ -100,6 +100,7 @@ class DBSessions(repos.Sessions):
                 user_id=session.user_id,
                 start_time=session.lifetime.start_time,
                 expiration_date=session.lifetime.end_time,
+                cancelled=session.cancelled,
             )
         )
 
@@ -109,6 +110,7 @@ class DBSessions(repos.Sessions):
                 tables.Session.user_id,
                 tables.Session.start_time,
                 tables.Session.expiration_date,
+                tables.Session.cancelled,
             )
             .build()
             .where(tables.Session.id == session_id)
@@ -127,7 +129,42 @@ class DBSessions(repos.Sessions):
         )
 
         return entities.Session(
-            id=session_id, user_id=raw_session.user_id, lifetime=lifetime
+            id=session_id,
+            user_id=raw_session.user_id,
+            lifetime=lifetime,
+            cancelled=raw_session.cancelled or False,
+        )
+
+    async def find_other_with_user_id(
+        self, *, current_session_id: UUID, user_id: UUID
+    ) -> tuple[entities.Session, ...]:
+        stmt = (
+            self.__builder.select(
+                tables.Session.id,
+                tables.Session.start_time,
+                tables.Session.expiration_date,
+            )
+            .build()
+            .where(
+                (tables.Session.id != current_session_id)
+                & (tables.Session.user_id == user_id)
+            )
+        )
+
+        results = await self.__session.execute(stmt)
+        raw_sessions = results.all()
+
+        return tuple(
+            entities.Session(
+                id=raw_session.id,
+                user_id=user_id,
+                lifetime=vos.SessionLifetime(
+                    _start_time=raw_session.start_time,
+                    _end_time=raw_session.expiration_date,
+                ),
+                cancelled=raw_session.cancelled or False,
+            )
+            for raw_session in raw_sessions
         )
 
     async def update(self, session: entities.Session) -> None:
@@ -138,8 +175,34 @@ class DBSessions(repos.Sessions):
                 user_id=session.user_id,
                 start_time=session.lifetime.start_time,
                 expiration_date=session.lifetime.end_time,
+                cancelled=session.cancelled,
             )
         )
+
+    async def update_all(self, sessions: tuple[entities.Session, ...]) -> None:
+        stmt = (
+            update(tables.Session)
+            .where(tables.Session.id == bindparam("session_id"))
+            .values(
+                user_id=bindparam("user_id"),
+                start_time=bindparam("start_time"),
+                expiration_date=bindparam("end_time"),
+                cancelled=bindparam("cancelled"),
+            )
+        )
+
+        mapped_sessions = [
+            {
+                "session_id": session.id,
+                "user_id": session.user_id,
+                "start_time": session.lifetime.start_time,
+                "end_time": session.lifetime.end_time,
+                "cancelled": session.cancelled,
+            }
+            for session in sessions
+        ]
+
+        await self.__session.execute(stmt, mapped_sessions)
 
 
 class DBPreviousUsernames(repos.PreviousUsernames):
@@ -236,12 +299,25 @@ class InMemorySessions(repos.Sessions, uows.InMemoryUoW[entities.Session]):
 
         return None
 
+    async def find_other_with_user_id(
+        self, *, current_session_id: UUID, user_id: UUID
+    ) -> tuple[entities.Session, ...]:
+        return tuple(
+            session
+            for session in self._storage
+            if session.user_id == user_id and session.id != current_session_id
+        )
+
     async def update(self, session: entities.Session) -> None:
-        for stored_session in self._storage:
+        for stored_session in tuple(self._storage):
             if session.id == stored_session.id:
                 self._storage.remove(stored_session)
                 self._storage.append(copy(session))
                 break
+
+    async def update_all(self, sessions: tuple[entities.Session, ...]) -> None:
+        for session in sessions:
+            await self.update(session)
 
 
 class InMemoryPreviousUsernames(

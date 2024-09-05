@@ -24,8 +24,15 @@ ExpiredSessionError: TypeAlias = (
     entities.Session.ExpiredLifetimeForAuthenticationError
 )
 
+CancelledSessionError: TypeAlias = (
+    entities.Session.CancelledForAuthenticationError
+)
+
 Error: TypeAlias = (
-    authenticate_user.Error | NoSessionError | ExpiredSessionError
+    authenticate_user.Error
+    | NoSessionError
+    | ExpiredSessionError
+    | CancelledSessionError
 )
 
 

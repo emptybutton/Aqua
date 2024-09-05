@@ -18,6 +18,14 @@ class Logger(ABC):
     ) -> None: ...
 
     @abstractmethod
+    async def log_password_change(
+        self,
+        *,
+        user: entities.User,
+        other_sessions: tuple[entities.Session, ...],
+    ) -> None: ...
+
+    @abstractmethod
     async def log_login(
         self, *, user: entities.User, session: entities.Session
     ) -> None: ...

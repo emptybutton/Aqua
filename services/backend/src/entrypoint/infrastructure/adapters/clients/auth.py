@@ -50,6 +50,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         | Literal["auth_is_not_working"]
         | Literal["no_session"]
         | Literal["expired_session"]
+        | Literal["cancelled_session"]
     ):
         try:
             result = await auth.authenticate_user.perform(
@@ -59,6 +60,8 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "no_session"
         except auth.authenticate_user.ExpiredSessionError:
             return "expired_session"
+        except auth.authenticate_user.CancelledSessionError:
+            return "cancelled_session"
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"
@@ -147,4 +150,38 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             user_id=result.user_id,
             new_username=result.new_username,
             previous_username=result.previous_username,
+        )
+
+    async def change_password(
+        self,
+        session_id: UUID,
+        user_id: UUID,
+        new_password: str,
+        *,
+        transaction: DBTransaction,
+    ) -> (
+        clients.auth.ChangePasswordOutput
+        | Literal["auth_is_not_working"]
+        | Literal["no_user"]
+        | Literal["week_password"]
+    ):
+        try:
+            result = await auth.change_password.perform(
+                session_id,
+                user_id,
+                new_password,
+                session=transaction.session,
+            )
+        except auth.change_password.NoUserError:
+            return "no_user"
+        except auth.change_password.WeekPasswordError:
+            return "week_password"
+        except Exception as error:
+            self.__errors.append(error)
+            return "auth_is_not_working"
+
+        return clients.auth.ChangePasswordOutput(
+            user_id=result.user_id,
+            username=result.username,
+            session_id=result.session_id,
         )

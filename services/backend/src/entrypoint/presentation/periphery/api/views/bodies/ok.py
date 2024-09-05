@@ -87,3 +87,13 @@ class RenamedUserView(BaseModel):
 
     user_id: UUID
     data: Data
+
+
+class UserWithChangedPasswordView(BaseModel):
+    Error: ClassVar[TypeAlias] = (
+        Literal["unexpected_error"] | Literal["week_password_error"] | None
+    )
+
+    user_id: UUID
+    username: str | None
+    error: Error

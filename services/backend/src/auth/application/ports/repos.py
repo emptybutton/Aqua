@@ -34,7 +34,17 @@ class Sessions(ABC):
     ) -> entities.Session | None: ...
 
     @abstractmethod
+    async def find_other_with_user_id(
+        self, *, current_session_id: UUID, user_id: UUID
+    ) -> tuple[entities.Session, ...]: ...
+
+    @abstractmethod
     async def update(self, session: entities.Session) -> None: ...
+
+    @abstractmethod
+    async def update_all(
+        self, sessions: tuple[entities.Session, ...]
+    ) -> None: ...
 
 
 class PreviousUsernames(ABC):

@@ -24,6 +24,7 @@ class _Mapper:
             session_user_id=session.user_id,
             session_start_time=session.lifetime.start_time,
             session_end_time=session.lifetime.end_time,
+            session_cancelled=session.cancelled,
         )
 
     @to_dict.register
@@ -64,6 +65,18 @@ class StructlogDevLogger(loggers.Logger):
             previous_username=previous_username,
         )
 
+    async def log_password_change(
+        self,
+        *,
+        user: entities.User,
+        other_sessions: tuple[entities.Session, ...],
+    ) -> None:
+        await dev_logger.ainfo(
+            logs.password_change_log,
+            user=user,
+            other_sessions=other_sessions,
+        )
+
 
 class StructlogProdLogger(loggers.Logger):
     __mapper = _Mapper()
@@ -97,13 +110,25 @@ class StructlogProdLogger(loggers.Logger):
         user: entities.User,
         previous_username: entities.PreviousUsername,
     ) -> None:
-        await dev_logger.ainfo(
+        await prod_logger.ainfo(
             logs.renaming_log,
             user_id=user.id,
             new_username=user.name,
             previous_username=previous_username.username,
             previous_username_id=previous_username.id,
             username_change_time=previous_username.change_time,
+        )
+
+    async def log_password_change(
+        self,
+        *,
+        user: entities.User,
+        other_sessions: tuple[entities.Session, ...],
+    ) -> None:
+        await prod_logger.ainfo(
+            logs.password_change_log,
+            *self.__mapper.to_dict(user),
+            other_sessions=tuple(map(self.__mapper.to_dict, other_sessions)),
         )
 
 
@@ -127,16 +152,23 @@ class InMemoryStorageLogger(loggers.Logger):
         user: entities.User
         previous_username: entities.PreviousUsername
 
+    @dataclass(kw_only=True, frozen=True)
+    class PasswordChangeLog:
+        user: entities.User
+        other_sessions: tuple[entities.Session, ...]
+
     __registration_logs: list[RegistrationLog]
     __login_logs: list[LoginLog]
     __session_extension_logs: list[SessionExtensionLog]
     __renaming_logs: list[RenamingLog]
+    __password_change_logs: list[PasswordChangeLog]
 
     def __init__(self) -> None:
         self.__registration_logs = list()
         self.__login_logs = list()
         self.__session_extension_logs = list()
         self.__renaming_logs = list()
+        self.__password_change_logs = list()
 
     @property
     def registration_logs(self) -> list[RegistrationLog]:
@@ -155,12 +187,17 @@ class InMemoryStorageLogger(loggers.Logger):
         return list(self.__renaming_logs)
 
     @property
+    def password_change_logs(self) -> list[PasswordChangeLog]:
+        return list(self.__password_change_logs)
+
+    @property
     def is_empty(self) -> bool:
         return (
             not self.__registration_logs
             and not self.__login_logs
             and not self.__session_extension_logs
             and not self.__renaming_logs
+            and not self.__password_change_logs
         )
 
     async def log_registration(
@@ -190,3 +227,14 @@ class InMemoryStorageLogger(loggers.Logger):
             previous_username=previous_username,
         )
         self.__renaming_logs.append(log)
+
+    async def log_password_change(
+        self,
+        *,
+        user: entities.User,
+        other_sessions: tuple[entities.Session, ...],
+    ) -> None:
+        log = InMemoryStorageLogger.PasswordChangeLog(
+            user=user, other_sessions=other_sessions,
+        )
+        self.__password_change_logs.append(log)
