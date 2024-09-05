@@ -10,6 +10,14 @@ class Logger(ABC):
     ) -> None: ...
 
     @abstractmethod
+    async def log_renaming(
+        self,
+        *,
+        user: entities.User,
+        previous_username: entities.PreviousUsername,
+    ) -> None: ...
+
+    @abstractmethod
     async def log_login(
         self, *, user: entities.User, session: entities.Session
     ) -> None: ...

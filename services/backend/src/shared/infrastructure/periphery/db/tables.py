@@ -27,6 +27,9 @@ class PreviousUsername(Base):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("auth_users.id"))
     username: Mapped[str]
+    change_time: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
 
 
 class Session(Base):

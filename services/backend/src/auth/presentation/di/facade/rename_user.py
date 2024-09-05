@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.application import ports
 from auth.application.cases import rename_user
 from auth.domain import value_objects as vos
 from auth.infrastructure.adapters import repos
@@ -47,6 +48,7 @@ async def perform(
             previous_username_transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),
+            logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
     return Output(

@@ -44,4 +44,9 @@ class PreviousUsernames(ABC):
     ) -> None: ...
 
     @abstractmethod
+    async def find_with_username(
+        self, username: vos.Username
+    ) -> entities.PreviousUsername | None: ...
+
+    @abstractmethod
     async def contains_with_username(self, username: vos.Username) -> bool: ...

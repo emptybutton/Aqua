@@ -153,6 +153,7 @@ class DBPreviousUsernames(repos.PreviousUsernames):
                 id=previous_username.id,
                 user_id=previous_username.user_id,
                 username=previous_username.username.text,
+                change_time=previous_username.change_time,
             )
         )
 
@@ -162,6 +163,36 @@ class DBPreviousUsernames(repos.PreviousUsernames):
         ).build()
 
         return bool(await self.__session.scalar(query))
+
+    async def find_with_username(
+        self, username: vos.Username
+    ) -> entities.PreviousUsername | None:
+        stmt = (
+            self.__builder
+            .select(
+                tables.PreviousUsername.id,
+                tables.PreviousUsername.user_id,
+                tables.PreviousUsername.change_time,
+            )
+            .build()
+            .where(
+                tables.PreviousUsername.username == username.text,
+            )
+            .limit(1)
+        )
+
+        results = await self.__session.execute(stmt)
+        result = results.first()
+
+        if result is None:
+            return None
+
+        return entities.PreviousUsername(
+            id=result.id,
+            user_id=result.user_id,
+            username=username,
+            change_time=result.change_time,
+        )
 
 
 class InMemoryUsers(repos.Users, uows.InMemoryUoW[entities.User]):
@@ -227,3 +258,12 @@ class InMemoryPreviousUsernames(
                 return True
 
         return False
+
+    async def find_with_username(
+        self, username: vos.Username
+    ) -> entities.PreviousUsername | None:
+        for previous_username in self._storage:
+            if previous_username.username == username:
+                return previous_username
+
+        return None

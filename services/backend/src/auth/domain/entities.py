@@ -10,6 +10,15 @@ class PreviousUsername:
     id: UUID = field(default_factory=uuid4)
     user_id: UUID
     username: Username
+    change_time: datetime | None
+
+    class Error(Exception): ...
+
+    class NotUTCChangeTimeError(Error): ...
+
+    def __post_init__(self) -> None:
+        if self.change_time is not None and self.change_time.tzinfo is not UTC:
+            raise PreviousUsername.NotUTCChangeTimeError
 
 
 @dataclass(kw_only=True)
@@ -35,9 +44,14 @@ class User:
 
         return Session.for_(self, start_time=current_time)
 
-    def rename(self, *, new_username: Username) -> PreviousUsername:
+    def change_name(
+        self,
+        *,
+        new_username: Username,
+        current_time: datetime | None,
+    ) -> PreviousUsername:
         previous_username = PreviousUsername(
-            username=self.name, user_id=self.id
+            username=self.name, user_id=self.id, change_time=current_time,
         )
         self.name = new_username
 
