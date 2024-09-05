@@ -51,7 +51,9 @@ class User:
         current_time: datetime | None,
     ) -> PreviousUsername:
         previous_username = PreviousUsername(
-            username=self.name, user_id=self.id, change_time=current_time,
+            username=self.name,
+            user_id=self.id,
+            change_time=current_time,
         )
         self.name = new_username
 

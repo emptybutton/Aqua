@@ -168,8 +168,7 @@ class DBPreviousUsernames(repos.PreviousUsernames):
         self, username: vos.Username
     ) -> entities.PreviousUsername | None:
         stmt = (
-            self.__builder
-            .select(
+            self.__builder.select(
                 tables.PreviousUsername.id,
                 tables.PreviousUsername.user_id,
                 tables.PreviousUsername.change_time,

@@ -30,11 +30,7 @@ class OutputData:
     other_data: OtherData
 
 
-Output: TypeAlias = (
-    OutputData
-    | Literal["error"]
-    | Literal["not_authenticated"]
-)
+Output: TypeAlias = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
 async def perform(session_id: UUID, new_username: str) -> Output:

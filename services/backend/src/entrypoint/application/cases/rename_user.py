@@ -20,11 +20,7 @@ class OutputData:
     renaming_output: _RenamingOutput
 
 
-Output: TypeAlias = (
-    OutputData
-    | Literal["error"]
-    | Literal["not_authenticated"]
-)
+Output: TypeAlias = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
 _TransactionT = TypeVar("_TransactionT", bound=Transaction)
