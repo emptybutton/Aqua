@@ -1,7 +1,7 @@
 from copy import copy
 from uuid import UUID
 
-from sqlalchemy import bindparam, exists, insert, update
+from sqlalchemy import exists, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.application.ports import repos
@@ -143,6 +143,7 @@ class DBSessions(repos.Sessions):
                 tables.Session.id,
                 tables.Session.start_time,
                 tables.Session.expiration_date,
+                tables.Session.cancelled,
             )
             .build()
             .where(
@@ -180,29 +181,24 @@ class DBSessions(repos.Sessions):
         )
 
     async def update_all(self, sessions: tuple[entities.Session, ...]) -> None:
-        stmt = (
-            update(tables.Session)
-            .where(tables.Session.id == bindparam("session_id"))
-            .values(
-                user_id=bindparam("user_id"),
-                start_time=bindparam("start_time"),
-                expiration_date=bindparam("end_time"),
-                cancelled=bindparam("cancelled"),
-            )
-        )
+        stmt = update(tables.Session)
 
         mapped_sessions = [
-            {
-                "session_id": session.id,
-                "user_id": session.user_id,
-                "start_time": session.lifetime.start_time,
-                "end_time": session.lifetime.end_time,
-                "cancelled": session.cancelled,
-            }
+            dict(
+                id=session.id,
+                user_id=session.user_id,
+                start_time=session.lifetime.start_time,
+                expiration_date=session.lifetime.end_time,
+                cancelled=session.cancelled,
+            )
             for session in sessions
         ]
 
-        await self.__session.execute(stmt, mapped_sessions)
+        options = dict(synchronize_session=None)
+
+        await self.__session.execute(
+            stmt, mapped_sessions, execution_options=options,
+        )
 
 
 class DBPreviousUsernames(repos.PreviousUsernames):
