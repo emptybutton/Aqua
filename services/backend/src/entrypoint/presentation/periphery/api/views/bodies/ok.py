@@ -91,9 +91,31 @@ class RenamedUserView(BaseModel):
 
 class UserWithChangedPasswordView(BaseModel):
     Error: ClassVar[TypeAlias] = (
-        Literal["unexpected_error"] | Literal["week_password_error"] | None
+        None | Literal["unexpected_error"] | Literal["week_password_error"]
     )
 
     user_id: UUID
     username: str | None
+    error: Error
+
+
+class CancelledRecordView(BaseModel):
+    Error: ClassVar[TypeAlias] = (
+        None | Literal["unexpected_error"] | Literal["no_record"]
+    )
+
+    class OkData(BaseModel):
+        target_water_balance_milliliters: int
+        date_: date
+        water_balance_milliliters: int
+        result_code: int
+        real_result_code: int
+        is_result_pinned: bool
+        cancelled_record: RecordView
+        day_records: tuple[RecordView, ...]
+
+    Data: ClassVar[TypeAlias] = OkData | None
+
+    user_id: UUID
+    data: Data
     error: Error

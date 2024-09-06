@@ -21,9 +21,17 @@ class Records(ABC):
     async def add(self, record: entities.Record) -> None: ...
 
     @abstractmethod
-    async def find_from(
+    async def find_not_accidental_with_id(
+        self, record_id: UUID
+    ) -> entities.Record | None: ...
+
+    @abstractmethod
+    async def find_not_accidental_from(
         self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]: ...
+
+    @abstractmethod
+    async def update(self, record: entities.Record) -> None: ...
 
 
 class Days(ABC):

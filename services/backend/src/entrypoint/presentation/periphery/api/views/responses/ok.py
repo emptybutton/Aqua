@@ -19,3 +19,5 @@ new_record_view = View(bodies.ok.NewRecordView, status.HTTP_201_CREATED)
 renamed_user_view = View(bodies.ok.RenamedUserView)
 
 user_with_changed_password_view = View(bodies.ok.UserWithChangedPasswordView)
+
+cancelled_record_view = View(bodies.ok.CancelledRecordView)

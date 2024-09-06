@@ -92,10 +92,11 @@ class DBRecords(repos.Records):
                 drunk_water=record.drunk_water.milliliters,
                 recording_time=record.recording_time,
                 user_id=record.user_id,
+                is_accidental=record.is_accidental,
             )
         )
 
-    async def find_from(
+    async def find_not_accidental_from(
         self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]:
         query = (
@@ -103,17 +104,71 @@ class DBRecords(repos.Records):
                 tables.Record.id,
                 tables.Record.drunk_water,
                 tables.Record.recording_time,
+                tables.Record.is_accidental,
             )
             .build()
             .where(
                 (tables.Record.user_id == user_id)
                 & (func.date(tables.Record.recording_time) == date_)
+                & (
+                    ~tables.Record.is_accidental
+                    | tables.Record.is_accidental.is_(None)
+                )
             )
         )
 
         results = await self.__session.execute(query)
 
         return tuple(self.__record_of(data, user_id) for data in results.all())
+
+    async def find_not_accidental_with_id(
+        self, record_id: UUID
+    ) -> entities.Record | None:
+        stmt = (
+            self.__builder.select(
+                tables.Record.id,
+                tables.Record.user_id,
+                tables.Record.drunk_water,
+                tables.Record.recording_time,
+                tables.Record.is_accidental,
+            )
+            .build()
+            .where(
+                (tables.Record.id == record_id)
+                & (
+                    ~tables.Record.is_accidental
+                    | tables.Record.is_accidental.is_(None)
+                )
+            )
+        )
+
+        results = await self.__session.execute(stmt)
+        raw_record = results.first()
+
+        if raw_record is None:
+            return None
+
+        return entities.Record(
+            id=raw_record.id,
+            user_id=raw_record.user_id,
+            drunk_water=vos.Water(milliliters=raw_record.drunk_water),
+            _recording_time=raw_record.recording_time,
+            is_accidental=raw_record.is_accidental or False,
+        )
+
+    async def update(self, record: entities.Record) -> None:
+        stmt = (
+            update(tables.Record)
+            .where(tables.Record.id == record.id)
+            .values(
+                user_id=record.user_id,
+                drunk_water=record.drunk_water.milliliters,
+                recording_time=record.recording_time,
+                is_accidental=record.is_accidental,
+            )
+        )
+
+        await self.__session.execute(stmt)
 
     def __record_of(
         self,
@@ -125,6 +180,7 @@ class DBRecords(repos.Records):
             user_id=user_id,
             drunk_water=vos.Water(milliliters=record_data.drunk_water),
             _recording_time=record_data.recording_time,
+            is_accidental=record_data.is_accidental or False,
         )
 
 
@@ -234,17 +290,37 @@ class InMemoryRecords(repos.Records, uows.InMemoryUoW[entities.Record]):
     async def add(self, record: entities.Record) -> None:
         self._storage.append(copy(record))
 
-    async def find_from(
+    async def find_not_accidental_from(
         self, date_: date, *, user_id: UUID
     ) -> tuple[entities.Record, ...]:
         found_records = list()
 
         for record in self._storage:
             recording_date = record.recording_time.date()
-            if record.user_id == user_id and recording_date == date_:
+            if (
+                record.user_id == user_id
+                and recording_date == date_
+                and not record.is_accidental
+            ):
                 found_records.append(copy(record))
 
         return tuple(found_records)
+
+    async def find_not_accidental_with_id(
+        self, record_id: UUID
+    ) -> entities.Record | None:
+        for record in self._storage:
+            if record.id == record_id and not record.is_accidental:
+                return copy(record)
+
+        return None
+
+    async def update(self, record: entities.Record) -> None:
+        for stored_record in tuple(self._storage):
+            if record.id == stored_record.id:
+                self._storage.remove(stored_record)
+                self._storage.append(copy(record))
+                break
 
 
 class InMemoryDays(repos.Days, uows.InMemoryUoW[entities.Day]):

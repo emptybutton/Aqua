@@ -2,6 +2,9 @@ from entrypoint.presentation.periphery.api.controllers.routes import (
     authorize_user as authorize_user,
 )
 from entrypoint.presentation.periphery.api.controllers.routes import (
+    cancel_record as cancel_record,
+)
+from entrypoint.presentation.periphery.api.controllers.routes import (
     change_password as change_password,
 )
 from entrypoint.presentation.periphery.api.controllers.routes import (

@@ -34,7 +34,9 @@ async def perform(
         raise NoUserError()
 
     day = await days.find_from(date_, user_id=user.id)
-    found_records = await records.find_from(date_, user_id=user.id)
+    found_records = await records.find_not_accidental_from(
+        date_, user_id=user.id
+    )
 
     if day is None and len(found_records) != 0:
         for record in found_records:

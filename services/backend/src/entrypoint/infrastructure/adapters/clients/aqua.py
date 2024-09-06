@@ -189,3 +189,54 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             is_result_pinned=result.is_result_pinned,
             records=records,
         )
+
+    async def cancel_record(
+        self,
+        user_id: UUID,
+        record_id: UUID,
+        *,
+        transaction: DBTransaction
+    ) -> (
+        clients.aqua.CancelRecordOutput
+        | Literal["aqua_is_not_working"]
+        | Literal["no_record"]
+    ):
+        try:
+            result = await aqua.cancel_record.perform(
+                user_id, record_id, session=transaction.session
+            )
+        except Exception as error:
+            self.__errors.append(error)
+            return "aqua_is_not_working"
+
+        if result == "no_record":
+            return "no_record"
+
+        day_records = tuple(
+            clients.aqua.CancelRecordOutput.RecordData(
+                record_id=record.record_id,
+                drunk_water_milliliters=record.drunk_water_milliliters,
+                recording_time=record.recording_time,
+            )
+            for record in result.day_records
+        )
+
+        drunk_water = result.cancelled_record.drunk_water_milliliters
+        cancelled_record = clients.aqua.CancelRecordOutput.RecordData(
+            record_id=result.cancelled_record.record_id,
+            drunk_water_milliliters=drunk_water,
+            recording_time=result.cancelled_record.recording_time,
+        )
+
+        target = result.target_water_balance_milliliters
+        return clients.aqua.CancelRecordOutput(
+            user_id=result.user_id,
+            date_=result.date_,
+            target_water_balance_milliliters=target,
+            water_balance_milliliters=result.water_balance_milliliters,
+            result_code=result.result_code,
+            real_result_code=result.real_result_code,
+            is_result_pinned=result.is_result_pinned,
+            day_records=day_records,
+            cancelled_record=cancelled_record
+        )

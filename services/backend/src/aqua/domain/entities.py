@@ -17,6 +17,7 @@ class Record:
     user_id: UUID
     drunk_water: Water
     _recording_time: datetime = field(default_factory=lambda: datetime.now(UTC))
+    is_accidental: bool = False
 
     @property
     def recording_time(self) -> datetime:
@@ -113,13 +114,13 @@ class User:
             current_day = Day.empty_of(self, date_=current_time.date())
 
             for record in day_prevous_records:
-                current_day.add(record)
+                current_day.take_into_consideration(record)
         elif current_day.user_id != self.id:
             raise User.OtherUserDayForWritingError
         elif current_day.date_ != current_time.date():
             raise User.NotCurerntDayForWritingError
 
-        current_day.add(new_record)
+        current_day.take_into_consideration(new_record)
 
         return new_record, current_day
 
@@ -174,20 +175,46 @@ class Day:
         if not self._is_result_pinned:
             self._result = self.correct_result
 
-    class AddingError(Error): ...
+    class ConsiderationError(Error): ...
 
-    class OtherUserRecordForAddingError(Error): ...
+    class OtherUserRecordForConsiderationError(ConsiderationError): ...
 
-    class OtherDayRecordForAddingError(Error): ...
+    class OtherDayRecordForConsiderationError(ConsiderationError): ...
 
-    def add(self, record: Record) -> None:
+    class AccidentalRecordForConsiderationError(ConsiderationError): ...
+
+    def take_into_consideration(self, record: Record) -> None:
+        if record.is_accidental:
+            raise Day.AccidentalRecordForConsiderationError
+
         if self.user_id != record.user_id:
-            raise Day.OtherUserRecordForAddingError
+            raise Day.OtherUserRecordForConsiderationError
 
         if self.date_ != record.recording_time.date():
-            raise Day.OtherDayRecordForAddingError
+            raise Day.OtherDayRecordForConsiderationError
 
         water = self.water_balance.water + record.drunk_water
+        self.water_balance = WaterBalance(water=water)
+
+    class IgnoringError(Error): ...
+
+    class OtherUserRecordForIgnoringError(IgnoringError): ...
+
+    class OtherDayRecordForIgnoringError(IgnoringError): ...
+
+    class NotAccidentalRecordForIgnoringError(IgnoringError): ...
+
+    def ignore(self, record: Record) -> None:
+        if not record.is_accidental:
+            raise Day.NotAccidentalRecordForIgnoringError
+
+        if self.user_id != record.user_id:
+            raise Day.OtherUserRecordForIgnoringError
+
+        if self.date_ != record.recording_time.date():
+            raise Day.OtherDayRecordForIgnoringError
+
+        water = self.water_balance.water - record.drunk_water
         self.water_balance = WaterBalance(water=water)
 
     @classmethod
@@ -200,3 +227,17 @@ class Day:
 
         if self._result is None:
             self._result = self.correct_result
+
+
+class RecordCancellationError(Exception): ...
+
+
+class AccidentalRecordForRecordCancellationError(RecordCancellationError): ...
+
+
+def cancel_record(*, record: Record, day: Day) -> None:
+    if record.is_accidental:
+        raise AccidentalRecordForRecordCancellationError
+
+    record.is_accidental = True
+    day.ignore(record)

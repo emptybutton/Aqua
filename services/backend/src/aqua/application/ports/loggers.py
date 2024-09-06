@@ -26,3 +26,11 @@ class Logger(ABC):
 
     @abstractmethod
     async def log_new_record(self, record: entities.Record) -> None: ...
+
+    @abstractmethod
+    async def log_record_cancellation(
+        self,
+        *,
+        record: entities.Record,
+        day: entities.Day,
+    ) -> None: ...

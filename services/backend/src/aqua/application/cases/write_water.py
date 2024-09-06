@@ -51,7 +51,9 @@ async def perform(
 
         async with record_transaction_for(records), day_transaction_for(days):
             found_day = await days.find_from(today, user_id=user.id)
-            found_records = await records.find_from(today, user_id=user.id)
+            found_records = await records.find_not_accidental_from(
+                today, user_id=user.id
+            )
 
             if found_day and not found_records:
                 await logger.log_day_without_records(found_day)

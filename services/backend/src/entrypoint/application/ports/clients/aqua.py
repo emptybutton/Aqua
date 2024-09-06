@@ -80,6 +80,25 @@ class ReadUserOutput:
     records: tuple[RecordData, ...]
 
 
+@dataclass(kw_only=True, frozen=True)
+class CancelRecordOutput:
+    @dataclass(kw_only=True, frozen=True)
+    class RecordData:
+        record_id: UUID
+        drunk_water_milliliters: int
+        recording_time: datetime
+
+    user_id: UUID
+    target_water_balance_milliliters: int
+    date_: date
+    water_balance_milliliters: int
+    result_code: int
+    real_result_code: int
+    is_result_pinned: bool
+    day_records: tuple[RecordData, ...]
+    cancelled_record: RecordData
+
+
 class Aqua(Generic[_TransactionT_contra], ABC):
     @abstractmethod
     async def close(self) -> None: ...
@@ -128,4 +147,17 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         self, user_id: UUID, *, transaction: _TransactionT_contra
     ) -> (
         ReadUserOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
+    ): ...
+
+    @abstractmethod
+    async def cancel_record(
+        self,
+        user_id: UUID,
+        record_id: UUID,
+        *,
+        transaction: _TransactionT_contra
+    ) -> (
+        CancelRecordOutput
+        | Literal["aqua_is_not_working"]
+        | Literal["no_record"]
     ): ...

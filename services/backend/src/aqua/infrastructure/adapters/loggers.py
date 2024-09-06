@@ -1,4 +1,5 @@
 from copy import copy
+from dataclasses import dataclass
 from functools import singledispatchmethod
 from typing import Any
 
@@ -33,6 +34,7 @@ class _Mapper:
             record_user_id=record.user_id,
             record_drunk_water_milliliters=record.drunk_water.milliliters,
             recording_time=record.recording_time,
+            is_record_accidental=record.is_accidental,
         )
 
     @to_dict.register
@@ -74,6 +76,18 @@ class StructlogDevLogger(loggers.Logger):
     async def log_registered_user(self, user: entities.User) -> None:
         await dev_logger.ainfo(logs.registered_user_log, user=user)
 
+    async def log_record_cancellation(
+        self,
+        *,
+        record: entities.Record,
+        day: entities.Day,
+    ) -> None:
+        await dev_logger.ainfo(
+            logs.record_cancellation_log,
+            record=record,
+            day=day,
+        )
+
 
 class StructlogProdLogger(loggers.Logger):
     __mapper = _Mapper()
@@ -113,8 +127,27 @@ class StructlogProdLogger(loggers.Logger):
             logs.registered_user_log, **self.__mapper.to_dict(user)
         )
 
+    async def log_record_cancellation(
+        self,
+        *,
+        record: entities.Record,
+        day: entities.Day,
+    ) -> None:
+        await prod_logger.ainfo(
+            logs.record_cancellation_log,
+            **self.__mapper.to_dict(record),
+            **self.__mapper.to_dict(day),
+        )
+
 
 class InMemoryStorageLogger(loggers.Logger):
+    @dataclass(kw_only=True, frozen=True)
+    class RecordCancellationLog:
+        record: entities.Record
+        day: entities.Day
+
+    __record_cancellation_logs: list[RecordCancellationLog]
+
     def __init__(self) -> None:
         self.__registered_users: list[entities.User] = list()
         self.__before_registered_users: list[entities.User] = list()
@@ -123,6 +156,7 @@ class InMemoryStorageLogger(loggers.Logger):
         self.__new_days: list[entities.Day] = list()
         self.__days_with_new_state: list[entities.Day] = list()
         self.__new_records: list[entities.Record] = list()
+        self.__record_cancellation_logs = list()
 
     @property
     def is_empty(self) -> bool:
@@ -134,6 +168,7 @@ class InMemoryStorageLogger(loggers.Logger):
             and len(self.__new_days) == 0
             and len(self.__days_with_new_state) == 0
             and len(self.__new_records) == 0
+            and len(self.__record_cancellation_logs) == 0
         )
 
     @property
@@ -164,6 +199,10 @@ class InMemoryStorageLogger(loggers.Logger):
     def new_records(self) -> tuple[entities.Record, ...]:
         return tuple(map(copy, self.__new_records))
 
+    @property
+    def record_cancellation_logs(self) -> tuple[RecordCancellationLog, ...]:
+        return tuple(map(copy, self.__record_cancellation_logs))
+
     async def log_registered_user(self, user: entities.User) -> None:
         self.__registered_users.append(user)
 
@@ -186,3 +225,14 @@ class InMemoryStorageLogger(loggers.Logger):
 
     async def log_new_record(self, record: entities.Record) -> None:
         self.__new_records.append(record)
+
+    async def log_record_cancellation(
+        self,
+        *,
+        record: entities.Record,
+        day: entities.Day,
+    ) -> None:
+        log = InMemoryStorageLogger.RecordCancellationLog(
+            record=record, day=day
+        )
+        self.__record_cancellation_logs.append(log)

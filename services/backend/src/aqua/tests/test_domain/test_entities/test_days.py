@@ -176,7 +176,7 @@ def test_is_result_pinned_with_water_balance_setting() -> None:
     assert not day.is_result_pinned
 
 
-def test_add_record() -> None:
+def test_take_into_consideration_record() -> None:
     user_id = uuid4()
     record = entities.Record(
         user_id=user_id, drunk_water=vos.Water(milliliters=5050)
@@ -188,7 +188,7 @@ def test_add_record() -> None:
     )
     expected_water_balance = vos.WaterBalance(water=vos.Water(milliliters=5555))
 
-    day.add(record)
+    day.take_into_consideration(record)
 
     assert day.water_balance == expected_water_balance
 

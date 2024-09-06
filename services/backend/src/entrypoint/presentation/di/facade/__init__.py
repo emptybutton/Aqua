@@ -1,4 +1,5 @@
 from entrypoint.presentation.di.facade import authorize_user as authorize_user
+from entrypoint.presentation.di.facade import cancel_record as cancel_record
 from entrypoint.presentation.di.facade import change_password as change_password
 from entrypoint.presentation.di.facade import close as close
 from entrypoint.presentation.di.facade import read_day as read_day

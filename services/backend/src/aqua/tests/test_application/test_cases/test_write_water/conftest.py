@@ -33,7 +33,7 @@ def user1_record1_day(
     user1: entities.User, user1_record1: entities.Record
 ) -> entities.Day:
     day = entities.Day.empty_of(user1, date_=datetime.now(UTC).date())
-    day.add(user1_record1)
+    day.take_into_consideration(user1_record1)
 
     return day
 

@@ -17,6 +17,9 @@ class Water:
     def __add__(self, water: "Water") -> "Water":
         return Water(milliliters=self.milliliters + water.milliliters)
 
+    def __sub__(self, water: "Water") -> "Water":
+        return Water(milliliters=self.milliliters - water.milliliters)
+
 
 @dataclass(kw_only=True, frozen=True)
 class WaterBalance:

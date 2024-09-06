@@ -60,6 +60,7 @@ class Record(Base):
     recording_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
     user: Mapped["AquaUser"] = relationship(back_populates="records")
+    is_accidental: Mapped[bool | None]
 
 
 class Day(Base):
