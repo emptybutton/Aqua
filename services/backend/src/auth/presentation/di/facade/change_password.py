@@ -19,9 +19,7 @@ class Output:
     username: str
 
 
-NoUserError: TypeAlias = (
-    change_password.NoUserError
-)
+NoUserError: TypeAlias = change_password.NoUserError
 
 WeekPasswordError: TypeAlias = vos.Password.WeekError
 

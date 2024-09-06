@@ -235,6 +235,7 @@ class InMemoryStorageLogger(loggers.Logger):
         other_sessions: tuple[entities.Session, ...],
     ) -> None:
         log = InMemoryStorageLogger.PasswordChangeLog(
-            user=user, other_sessions=other_sessions,
+            user=user,
+            other_sessions=other_sessions,
         )
         self.__password_change_logs.append(log)

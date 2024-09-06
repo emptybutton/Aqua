@@ -197,7 +197,9 @@ class DBSessions(repos.Sessions):
         options = dict(synchronize_session=None)
 
         await self.__session.execute(
-            stmt, mapped_sessions, execution_options=options,
+            stmt,
+            mapped_sessions,
+            execution_options=options,
         )
 
 
