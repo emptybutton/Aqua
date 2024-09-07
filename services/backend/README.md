@@ -1,49 +1,55 @@
-## I am from England
-[Give me english text](https://github.com/emptybutton/Aqua/blob/main/backend/README.eng.md).
+# Backend
+Монолитное веб приложение для единственного [фронтенда](https://github.com/emptybutton/Aqua/blob/main/services/frontend) системы
+
+<span></span>
+
+> [English version](https://github.com/emptybutton/Aqua/blob/main/services/backend/README.eng.md) of this README file.
 
 ## Как запустить
 Что бы запустить локально:
 1. склонируйте этот репозиторий
-2. инициализируйте и запустите его внутри `docker`
+2. установите структуру БД
+3. запустите сервис внутри `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend run aqua ash ./scripts/init-and-start.sh
+docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
+docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 ```
 
-> [!TIP]
-> После инициализации, для большей скорости запуска, можете запускать при помощи:
+> [!NOTE]
+> После такого запуска, для большей скорости, можете запускать только при помощи:
 > ```bash
-> docker compose --project-directory ./Aqua/backend up
+> docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 > ```
 
 ## API схема
-<img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/api-view.png?raw=true"/>
+<img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/api-view.png?raw=true"/>
 
 ## Дизайн
 Используемые подходы:
 - Модульный монолит
 - Чистая архитектура
-- DDD
+- Некоторые паттерны DDD
 
 ### Модули
 Система разделена на подсистемы — модули, каждый из которых представляет собой независимое (или почти независимое) приложение со своим внешним интерфейсом в виде фасада.
 
 #### Внутреннее устроиство модулей
 <picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-structure-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-structure-map/light-theme.png?raw=true">
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
 </picture>
 
 <span></sman>
 
 > [!NOTE]
-> В контексте внутреннего разделения модулей на слои, при взаимодействии `A -> B`, как `A`, так и `B`, друг для друга находятся на слое фреймворков (Frameworks), а именно для `A`, `B` будет находиться в фреймворках инфраструктуры (Infrastructure frameworks), а для `B`, `A` будет находиться в фреймворках представления (Presentation frameworks).
+> В контексте внутреннего разделения модулей на слои, при взаимодействии `A -> B`, как `A`, так и `B`, друг для друга находятся на слое переферий (`Periphery`), а именно для `A`, `B` будет находиться в переферии инфраструктуры (`Infrastructure periphery`), а для `B`, `A` будет находиться в переферии представления (`Presentation periphery`).
 
 #### Взаимодействие модулей
 <picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-relationship-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-relationship-map/light-theme.png?raw=true">
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/light-theme.png?raw=true">
 </picture>
 
 <span></sman>
