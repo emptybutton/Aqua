@@ -1,46 +1,51 @@
+# Backend
+Monolithic web application for a single [frontend](https://github.com/emptybutton/Aqua/blob/main/services/frontend) of the system
+
 ## Deployment
 To deploy this application locally:
 1. clone this repository
-2. initialize and run it within `docker`
+2. set the DB structure
+3. run the service inside `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua/backend run aqua ash ./scripts/init-and-start.sh
+docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
+docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 ```
 
-> [!TIP]
-> After initialization, for faster startup speed, you can launch using:
+> [!NOTE]
+> After such a launch, for greater speed, you can launch only using:
 > ```bash
-> docker compose --project-directory ./Aqua/backend up
+> docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 > ```
 
 ## API scheme
-<img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/api-view.png?raw=true"/>
+<img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/api-view.png?raw=true"/>
 
 ## Design
 Used approaches:
 - Modular monolith
 - Clean architecture
-- DDD
+- Some DDD patterns
 
 ### Modules
 The system is divided into subsystems - modules, each of which represents an independent (or almost independent) application with its own external interface in the form of a facade.
 
 #### Internal structure of modules
 <picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-structure-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-structure-map/light-theme.png?raw=true">
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
 </picture>
 
 <span></sman>
 
 > [!NOTE]
-> In the context of the internal division of modules into layers, when interacting `A -> B`, both `A` and `B` for each other are on the framework layer, namely for `A`, `B` will be in the infrastructure frameworks, and for `B`, `A` will be in the presentation frameworks.
+> In the context of internal layering of modules, when `A -> B` interacts, both `A` and `B` are on the `Periphery` layer for each other, namely, for `A`, `B` will be in the `Infrastructure periphery`, and for `B`, `A` will be in the `Presentation periphery`.
 
 #### Interaction of modules
 <picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-relationship-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/backend/assets/module-relationship-map/light-theme.png?raw=true">
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/light-theme.png?raw=true">
 </picture>
 
 <span></sman>
