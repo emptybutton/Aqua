@@ -1,22 +1,26 @@
-<h1><img src="https://github.com/emptybutton/Aqua/blob/main/assets/logo.png?raw=true" width="33" height="33"/> Aqua</h1>
+<h1><img src="https://github.com/emptybutton/Aqua/blob/main/assets/logo.png?raw=true" width="32" height="32"/> Aqua</h1>
 Application for tracking your water balance.
 
 ## Deployment
 To deploy this application locally:
 1. clone this repository
-2. initialize and run it within `docker`
+2. set the DB structure
+3. run all services inside `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua run backend ash ./scripts/init-and-start.sh
+docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
+docker compose -f Aqua/docker-compose.dev.yml up
 ```
 
-> [!TIP]
-> After initialization, for faster startup speed, you can launch using:
+> [!NOTE]
+> After such a launch, for greater speed, you can launch only using:
 > ```bash
-> docker compose --project-directory ./Aqua up
+> docker compose -f Aqua/docker-compose.dev.yml up
 > ```
 
 ## About the repository
-This repository is a monorepository where both the backend and frontend parts of the application are located. <br>
-Each such repository contains information about this part of the application, including information on how to install it separately.
+- this repository is a monorepository where all parts of the system are located
+- each repository contains a service that has its own deployment point and the ability to deploy independently
+- each service has its own `README` file, which includes information about its individual launch
+- all repositories are located in the `services` directory
