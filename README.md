@@ -1,24 +1,31 @@
-<h1><img src="https://github.com/emptybutton/Aqua/blob/main/assets/logo.png?raw=true" width="33" height="33"/> Aqua</h1>
+<h1><img src="https://github.com/emptybutton/Aqua/blob/main/assets/logo.png?raw=true" width="32" height="32"/> Aqua</h1>
 Приложение для отслеживания вашего водного баланса.
 
-[Give me english text](https://github.com/emptybutton/Aqua/blob/main/README.eng.md).
+<span></span>
+
+> [English version](https://github.com/emptybutton/Aqua/blob/main/README.eng.md) of this README file.
 
 ## Как запустить
 Что бы запустить локально:
 1. склонируйте этот репозиторий
-2. инициализируйте и запустите его внутри `docker`
+2. установите структуру БД
+3. запустите все сервисы внутри `docker`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose --project-directory ./Aqua run backend ash ./scripts/init-and-start.sh
+docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
+docker compose -f Aqua/docker-compose.dev.yml up
 ```
 
-> [!TIP]
-> После инициализации, для большей скорости запуска, можете запускать при помощи:
+> [!NOTE]
+> После такого запуска, для большей скорости, можете запускать только при помощи:
 > ```bash
-> docker compose --project-directory ./Aqua up
+> docker compose -f Aqua/docker-compose.dev.yml up
 > ```
 
 ## Про репозиторий
-Этот репозиторий является монорепозиторием, где находятся как бэкэнд так и фронтенд части приложения. <br>
-В каждом таком репозитории есть информация про эту часть приложения, включая информацию как поднять её отдельно.
+- этот репозиторий является монорепозиторием, где находятся все части системы
+- каждый репозиторий содержит сервис, имеющий свою точку деплоя и возможность разворачиватся независимо
+- у каждого сервиса есть свой `README` файл, включающий информацию об его отдельном запуске
+- все репозитории находятся в директории `services`
+  
