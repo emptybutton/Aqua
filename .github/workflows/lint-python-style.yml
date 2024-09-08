@@ -12,8 +12,5 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: install ruff
-        run: pip install ruff
-
       - name: ruff
-        run: python -m ruff check ./services/backend
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua ruff check . --no-cache
