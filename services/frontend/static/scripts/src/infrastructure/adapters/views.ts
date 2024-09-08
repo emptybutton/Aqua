@@ -1,25 +1,24 @@
 import * as views from "../../application/ports/views.js";
 
 export const pageView: views.WindowView = {
-    redrawForAuthorization(): void {
+    redrawToLogin(): void {
         window.location.assign("/sign-in");
+    },
+
+    redrawForMainInteractions(): void {
+        window.location.assign("/");
     },
 }
 
-export class TernaryCSSView<ElementT extends HTMLElement = HTMLElement> implements views.TernaryView {
+export class ValidationCSSView implements views.ValidationView {
     constructor(
-        private _element: ElementT,
-        private _classNameWhenValid: string,
-        private _classNameWhenInvalid: string,
+        private _element: HTMLElement,
+        private _classNameWhenOk: string,
         private _classNameWhenNeutral: string,
     ) {}
 
-    redrawValid(): void {
-        this._element.className = this._classNameWhenValid;
-    }
-
-    redrawInvalid(): void {
-        this._element.className = this._classNameWhenInvalid;
+    redrawOk(): void {
+        this._element.className = this._classNameWhenOk;
     }
 
     redrawNeutral(): void {

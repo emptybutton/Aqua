@@ -1,3 +1,3 @@
 export interface Logger {
-    logBackendIsNotWorking(): void,
+    logBackendIsNotWorking(): Promise<void>,
 }
