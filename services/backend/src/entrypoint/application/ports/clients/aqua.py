@@ -155,7 +155,7 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         user_id: UUID,
         record_id: UUID,
         *,
-        transaction: _TransactionT_contra
+        transaction: _TransactionT_contra,
     ) -> (
         CancelRecordOutput
         | Literal["aqua_is_not_working"]

@@ -191,11 +191,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def cancel_record(
-        self,
-        user_id: UUID,
-        record_id: UUID,
-        *,
-        transaction: DBTransaction
+        self, user_id: UUID, record_id: UUID, *, transaction: DBTransaction
     ) -> (
         clients.aqua.CancelRecordOutput
         | Literal["aqua_is_not_working"]
@@ -238,5 +234,5 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
             real_result_code=result.real_result_code,
             is_result_pinned=result.is_result_pinned,
             day_records=day_records,
-            cancelled_record=cancelled_record
+            cancelled_record=cancelled_record,
         )

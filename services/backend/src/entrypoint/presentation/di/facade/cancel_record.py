@@ -39,9 +39,7 @@ class OutputData:
     data: Data
 
 
-Output: TypeAlias = (
-    OutputData | Literal["error"] | Literal["not_authenticated"]
-)
+Output: TypeAlias = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
 async def perform(session_id: UUID, record_id: UUID) -> Output:
@@ -93,7 +91,7 @@ async def perform(session_id: UUID, record_id: UUID) -> Output:
 
 
 def _record_data_of(
-    other_record_data: ports.clients.aqua.CancelRecordOutput.RecordData
+    other_record_data: ports.clients.aqua.CancelRecordOutput.RecordData,
 ) -> RecordData:
     return RecordData(
         record_id=other_record_data.record_id,

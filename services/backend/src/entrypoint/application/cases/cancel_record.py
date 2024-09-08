@@ -12,9 +12,7 @@ _AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: igno
 
 
 AquaOutput: TypeAlias = (
-    clients.aqua.CancelRecordOutput
-    | Literal["error"]
-    | Literal["no_record"]
+    clients.aqua.CancelRecordOutput | Literal["error"] | Literal["no_record"]
 )
 
 
@@ -24,9 +22,7 @@ class OutputData:
     aqua_output: AquaOutput
 
 
-Output: TypeAlias = (
-    OutputData | Literal["error"] | Literal["not_authenticated"]
-)
+Output: TypeAlias = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
 async def perform(
