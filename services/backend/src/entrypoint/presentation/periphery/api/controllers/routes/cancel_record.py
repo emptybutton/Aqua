@@ -61,7 +61,6 @@ async def cancel_record(
             for record in result.data.day_records
         )
         target = result.data.target_water_balance_milliliters
-        print(views.bodies.ok.CancelledRecordView.OkData)
         data = views.bodies.ok.CancelledRecordView.OkData(
             target_water_balance_milliliters=target,
             water_balance_milliliters=result.data.water_balance_milliliters,
