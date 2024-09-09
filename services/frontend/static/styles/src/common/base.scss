@@ -30,7 +30,7 @@ input, textarea {
   background-color: #e9e9e9;
   border: 0;
   border-radius: 4px;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 input:focus, textarea:focus {
@@ -41,7 +41,7 @@ input:focus, textarea:focus {
 
 input {
   width: 230px;
-  height: 19px;
+  height: 22px;
 }
 
 button {
@@ -50,11 +50,37 @@ button {
   border: solid 1px $activable-primary-color;
   cursor: pointer;
   border-radius: 3px;
-  font-size: 14.5px;
+  font-size: 15px;
+  height: 26px;
 }
 
 button:active {
   background-color: $activable-secondary-color;
   border: solid 1px #545555;
-  color: #5587f6;
+  color: $activable-primary-color;
 }
+
+.center {
+  width: min-content;
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+}
+
+@mixin notification {
+  background-color: $activable-secondary-color;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.neutral-notification {
+  @include notification;
+  background-color: #7daaf8;
+  color: #f5f8fc;
+}
+
+.bad-notification {
+  @include notification;
+  background-color: #fa4956;
+  color: #f9f4f4;
+} 
