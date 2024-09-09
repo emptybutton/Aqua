@@ -18,7 +18,6 @@ export interface LoginNotificationView {
     redrawInvalidUsername(username: _username.AnyUsername): void,
     redrawInvalidPassword(password: _password.Password): void,
     redrawTryAgainLater(): void,
-    redrawHelp(): void,
 }
 
 export interface ValidationView {
