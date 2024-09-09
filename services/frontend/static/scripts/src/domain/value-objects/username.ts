@@ -1,5 +1,5 @@
-import { VOError } from "./error";
-import { maybe } from "./maybe";
+import { VOError } from "./error.js";
+import { maybe } from "./maybe.js";
 
 export class UsernameError extends VOError {}
 

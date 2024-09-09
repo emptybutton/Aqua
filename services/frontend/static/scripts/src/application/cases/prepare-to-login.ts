@@ -4,9 +4,16 @@ import * as _username from "../../domain/value-objects/username.js";
 import * as _password from "../../domain/value-objects/password.js";
 import * as _credentials from "../../domain/value-objects/credentials.js";
 
+export enum Priority { forUsername, forPassword }
+
+export class BaseError extends Error {}
+
+export class InvalidPriorityError extends BaseError {}
+
 export async function prepareToLogin(
     usernameText: string,
     passwordText: string,
+    priority: Priority,
     usernameView: views.ValidationView,
     passwordView: views.ValidationView,
     usernamesOfUnregisteredUsers: repos.Usernames,
@@ -24,30 +31,60 @@ export async function prepareToLogin(
         return;
     }
 
-    let wasNotificationViewRedrawn = false;
+    const validateUsername = () => _validateUsername(
+        username, notificationView, usernameView, usernamesOfUnregisteredUsers
+    )
+    const validatePassword = () => _validatePassword(
+        password, passwordView, notificationView
+    )
 
-    if (username instanceof _username.InvalidUsername) {
+    let ok: boolean;
+
+    if (priority === Priority.forUsername)
+        ok = validateUsername() && validatePassword();
+    else if (priority === Priority.forPassword)
+        ok = validatePassword() && validateUsername();
+    else
+        throw new InvalidPriorityError();
+
+    if (ok) {
+        notificationView.redrawInvisible();
+    }
+}
+
+function _validateUsername(
+    username: _username.AnyUsername,
+    notificationView: views.LoginNotificationView,
+    usernameView: views.ValidationView,
+    usernamesOfUnregisteredUsers: repos.Usernames,
+): boolean {
+     if (username instanceof _username.InvalidUsername) {
         notificationView.redrawInvalidUsername(username);
-        wasNotificationViewRedrawn = true;
         usernameView.redrawNeutral();
+        return false;
     }
     else if (usernamesOfUnregisteredUsers.contains(username)) {
         notificationView.redrawLastTimeThereWasNoUserNamed(username);
-        wasNotificationViewRedrawn = true;
         usernameView.redrawNeutral();
+        return false;
     }
-    else
+    else {
         usernameView.redrawOk();
+        return true;
+    }
+}
 
-    if (password.power instanceof _password.WeakPower) {
+function _validatePassword(
+    password: _password.Password,
+    passwordView: views.ValidationView,
+    notificationView: views.LoginNotificationView,
+): boolean {
+     if (password.power instanceof _password.WeakPower) {
         notificationView.redrawInvalidPassword(password);
-        wasNotificationViewRedrawn = true;
         passwordView.redrawNeutral();
+        return false;
     }
-    else
-        passwordView.redrawOk();
 
-    if (!wasNotificationViewRedrawn) {
-        notificationView.redrawInvisible();
-    }
+    passwordView.redrawOk();
+    return true;
 }

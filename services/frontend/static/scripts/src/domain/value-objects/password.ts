@@ -11,7 +11,7 @@ export class WeakPower extends Power {
 export enum WeaknessReasons {
     tooShort,
     onlySmallLetters,
-    onlyСapitalLetters,
+    onlyCapitalLetters,
     onlyDigits,
     noDigits, 
 }
@@ -44,7 +44,7 @@ function *_weaknessReasonsFor(text: string) {
         yield WeaknessReasons.onlySmallLetters;
 
     if (text.toLocaleUpperCase() === text)
-        yield WeaknessReasons.onlyСapitalLetters;
+        yield WeaknessReasons.onlyCapitalLetters;
 
     if (_hasOnlyDigits(text))
         yield WeaknessReasons.onlyDigits;

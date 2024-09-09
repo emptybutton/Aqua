@@ -50,36 +50,43 @@ export class LoginNotificationLayoutView implements views.LoginNotificationView 
     }
 
     redrawNoUserWithUsername(_: _username.AnyUsername): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Пользователя с таким именем нет";
     }
 
     redrawInvalidCredentials(_: _credentials.Credentials): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Неправильный пароль";
     }
 
     redrawLastTimeThereWasNoUserNamed(_: _username.AnyUsername): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "neutral-notification";
         this._textElement.innerText = "В прошлых попытках пользователя с таким именем не было";
     }
 
     redrawLastTimeThereWasNoUserWithCredentials(_: _credentials.Credentials): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "neutral-notification";
         this._textElement.innerText = "В прошлых попытках такой пароль не подошёл";
     }
 
     redrawInvalidUsername(_: _username.AnyUsername): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Не может быть пользователя с таким именем";
     }
 
     redrawInvalidPassword(_: _password.Password): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Не может быть пользователя с таким паролем";
     }
 
     redrawTryAgainLater(): void {
+        this._notificationElement.style.display = "unset";
         this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Что то пошло не по плану, попробуйте когда нибудь потом!";
     }

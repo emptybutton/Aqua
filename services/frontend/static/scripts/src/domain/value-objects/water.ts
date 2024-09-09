@@ -1,4 +1,4 @@
-import { VOError } from "./error";
+import { VOError } from "./error.js";
 
 export class WaterError extends VOError {}
 

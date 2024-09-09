@@ -1,5 +1,5 @@
-import * as uuid from "../value-objects/uuid";
-import * as water from "../value-objects/water";
+import * as uuid from "../value-objects/uuid.js";
+import * as water from "../value-objects/water.js";
 
 export class Record {
     constructor(
