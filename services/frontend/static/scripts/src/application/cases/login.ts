@@ -39,6 +39,9 @@ export async function login(
         notificationView.redrawTryAgainLater();
     }
     else if (result === "incorrectPassword") {
+        if (usernamesOfUnregisteredUsers.contains(username))
+            usernamesOfUnregisteredUsers.remove(username);
+
         invalidCredentialSet.add(credentials);
         notificationView.redrawInvalidCredentials(credentials);
         usernameView.redrawNeutral();

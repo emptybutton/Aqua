@@ -16,6 +16,10 @@ export class InMemoryUsernames implements repos.Usernames {
     contains(username: _username.Username): boolean {
         return this._usernameTexts.has(username.text);
     }
+
+    remove(username: _username.Username): void {
+        this._usernameTexts.delete(username.text);
+    }
 }
 
 export class InMemoryCredentialSet implements repos.CredentialSet {
