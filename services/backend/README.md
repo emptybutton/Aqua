@@ -1,9 +1,9 @@
 # Backend
-Монолитное веб приложение для единственного [фронтенда](https://github.com/emptybutton/Aqua/blob/main/services/frontend) системы
-
-<span></span>
-
 > [English version](https://github.com/emptybutton/Aqua/blob/main/services/backend/README.eng.md) of this README file.
+___
+
+Монолитное веб приложение для единственного [фронтенда](https://github.com/emptybutton/Aqua/blob/main/services/frontend) системы.
+
 
 ## Как запустить
 Что бы запустить локально:

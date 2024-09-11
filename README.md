@@ -1,9 +1,10 @@
 <h1><img src="https://github.com/emptybutton/Aqua/blob/main/assets/logo.png?raw=true" width="32" height="32"/> Aqua</h1>
-Приложение для отслеживания вашего водного баланса.
-
-<span></span>
 
 > [English version](https://github.com/emptybutton/Aqua/blob/main/README.eng.md) of this README file.
+___
+
+Приложение для отслеживания вашего водного баланса.
+
 
 ## Как запустить
 Что бы запустить локально:
