@@ -1,5 +1,5 @@
-import * as _username from "../../domain/value-objects/username.js";
-import * as _credentials from "../../domain/value-objects/credentials.js";
+import * as _username from "../../domains/access/value-objects/username.js";
+import * as _credentials from "../../domains/access/value-objects/credentials.js";
 
 export interface Usernames {
     add(username: _username.Username): void,

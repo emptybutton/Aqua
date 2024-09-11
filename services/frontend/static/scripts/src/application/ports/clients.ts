@@ -1,13 +1,14 @@
-import * as user from "../../domain/entities/user.js";
-import * as glass from "../../domain/value-objects/glass.js";
-import * as uuid from "../../domain/value-objects/uuid.js";
-import * as waterBalance from "../../domain/value-objects/water-balance.js";
-import * as weight from "../../domain/value-objects/weight.js";
-import * as _credentials from "../../domain/value-objects/credentials.js";
+import * as _id from "../../domains/shared/value-objects/id.js";
+import * as _user from "../../domains/water-recording/entities/user.js";
+import * as _glass from "../../domains/water-recording/value-objects/glass.js";
+import * as _waterBalance from "../../domains/water-recording/value-objects/water-balance.js";
+import * as _weight from "../../domains/water-recording/value-objects/weight.js";
+import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as _account from "../../domains/access/entities/account.js";
 
 export interface Backend {
     login(credentials: _credentials.StrongCredentials): Promise<
-        {userId: uuid.UUID}
+        {userId: _id.ID}
         | "error"
         | "incorrectPassword"
         | "noUser"
@@ -15,11 +16,11 @@ export interface Backend {
 
     register(
         credentials: _credentials.StrongCredentials,
-        targetWaterBalance: waterBalance.WaterBalance | undefined,
-        glass: glass.Glass | undefined,
-        weight: weight.Weight | undefined,
+        targetWaterBalance: _waterBalance.WaterBalance | undefined,
+        glass: _glass.Glass | undefined,
+        weight: _weight.Weight | undefined,
     ): Promise<
-        user.User
+        {user: _user.User, account: _account.Account}
         | "error"
         | "userIsAlreadyRegistered"
         | "noWeightForWaterBalance"

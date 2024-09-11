@@ -1,4 +1,4 @@
-import { VOError } from "./error.js";
+import { VOError } from "../../shared/value-objects/error.js";
 
 export class WeightError extends VOError {}
 

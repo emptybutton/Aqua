@@ -1,5 +1,5 @@
-import { VOError } from "./error.js";
-import { maybe } from "./maybe.js";
+import { VOError } from "../../shared/value-objects/error.js";
+import { maybe } from "../../shared/value-objects/maybe.js";
 
 export class UsernameError extends VOError {}
 

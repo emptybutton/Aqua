@@ -1,8 +1,8 @@
 import * as views from "../ports/views.js";
 import * as repos from "../ports/repos.js";
-import * as _username from "../../domain/value-objects/username.js";
-import * as _password from "../../domain/value-objects/password.js";
-import * as _credentials from "../../domain/value-objects/credentials.js";
+import * as _username from "../../domains/access/value-objects/username.js";
+import * as _password from "../../domains/access/value-objects/password.js";
+import * as _credentials from "../../domains/access/value-objects/credentials.js";
 
 export enum Priority { forUsername, forPassword }
 

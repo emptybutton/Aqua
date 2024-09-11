@@ -1,13 +1,14 @@
 import * as _clients from "../../application/ports/clients.js";
-import * as _user from "../../domain/entities/user.js";
-import * as _glass from "../../domain/value-objects/glass.js";
-import * as _uuid from "../../domain/value-objects/uuid.js";
-import * as _waterBalance from "../../domain/value-objects/water-balance.js";
-import * as _weight from "../../domain/value-objects/weight.js";
-import * as _credentials from "../../domain/value-objects/credentials.js";
-import * as _username from "../../domain/value-objects/username.js";
-import * as _water from "../../domain/value-objects/water.js";
-import { maybe } from "../../domain/value-objects/maybe.js";
+import * as _id from "../../domains/shared/value-objects/id.js";
+import * as _user from "../../domains/water-recording/entities/user.js";
+import * as _glass from "../../domains/water-recording/value-objects/glass.js";
+import * as _waterBalance from "../../domains/water-recording/value-objects/water-balance.js";
+import * as _water from "../../domains/water-recording/value-objects/water.js";
+import * as _weight from "../../domains/water-recording/value-objects/weight.js";
+import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as _account from "../../domains/access/entities/account.js";
+import * as _username from "../../domains/access/value-objects/username.js";
+import { maybe } from "../../domains/shared/value-objects/maybe.js";
 
 const _urls = {
     registrationURL: "/api/0.1v/user/register",
@@ -18,7 +19,7 @@ export const _headers = {'Content-Type': 'application/json'}
 
 export const backendAPI: _clients.Backend = {
     async login(credentials: _credentials.StrongCredentials): Promise<
-        {userId: _uuid.UUID}
+        {userId: _id.ID}
         | "error"
         | "incorrectPassword"
         | "noUser"
@@ -52,7 +53,7 @@ export const backendAPI: _clients.Backend = {
         glass: _glass.Glass | undefined,
         weight: _weight.Weight | undefined,
     ): Promise<
-        _user.User
+        {user: _user.User, account: _account.Account}
         | "error"
         | "userIsAlreadyRegistered"
         | "noWeightForWaterBalance"
@@ -105,12 +106,19 @@ export const backendAPI: _clients.Backend = {
 
         const user = maybe(() => new _user.User(
             userId,
-            new _username.Username(usernameText),
             new _waterBalance.WaterBalance(new _water.Water(targetWaterBalanceMilliliters)),
             new _glass.Glass(new _water.Water(glassMilliliters)),
             weightKilograms === null ? undefined : new _weight.Weight(weightKilograms),
         ));
 
-        return user === undefined ? "error" : user;
+        const account = maybe(() => new _account.Account(
+            userId,
+            new _username.Username(usernameText),
+        ));
+
+        if (user === undefined || account === undefined)
+            return "error"
+
+        return {user: user, account: account};
     }
 }

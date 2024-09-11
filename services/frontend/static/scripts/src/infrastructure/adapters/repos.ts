@@ -1,8 +1,8 @@
-import * as repos from "../../application/ports/repos.js";
-import * as _username from "../../domain/value-objects/username.js";
-import * as _credentials from "../../domain/value-objects/credentials.js";
+import * as _repos from "../../application/ports/repos.js";
+import * as _username from "../../domains/access/value-objects/username.js";
+import * as _credentials from "../../domains/access/value-objects/credentials.js";
 
-export class InMemoryUsernames implements repos.Usernames {
+export class InMemoryUsernames implements _repos.Usernames {
     private _usernameTexts: Set<string>;
 
     constructor(usernames: _username.Username[] = []) {
@@ -22,7 +22,7 @@ export class InMemoryUsernames implements repos.Usernames {
     }
 }
 
-export class InMemoryCredentialSet implements repos.CredentialSet {
+export class InMemoryCredentialSet implements _repos.CredentialSet {
     private _passwordTextsByUsernameText: Record<string, Set<string>>;
 
     constructor(credentialsArray: _credentials.Credentials[] = []) {
