@@ -5,3 +5,4 @@ from auth.presentation.di.facade import close as close
 from auth.presentation.di.facade import read_user as read_user
 from auth.presentation.di.facade import register_user as register_user
 from auth.presentation.di.facade import rename_user as rename_user
+from auth.presentation.di.facade import user_exists as user_exists

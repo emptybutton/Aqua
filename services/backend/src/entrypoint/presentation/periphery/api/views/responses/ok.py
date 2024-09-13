@@ -21,3 +21,5 @@ renamed_user_view = View(bodies.ok.RenamedUserView)
 user_with_changed_password_view = View(bodies.ok.UserWithChangedPasswordView)
 
 cancelled_record_view = View(bodies.ok.CancelledRecordView)
+
+user_exists_view = View(bodies.ok.UserExistsView)

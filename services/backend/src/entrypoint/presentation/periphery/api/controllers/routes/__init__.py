@@ -20,5 +20,8 @@ from entrypoint.presentation.periphery.api.controllers.routes import (
     rename_user as rename_user,
 )
 from entrypoint.presentation.periphery.api.controllers.routes import (
+    user_exists as user_exists,
+)
+from entrypoint.presentation.periphery.api.controllers.routes import (
     write_water as write_water,
 )

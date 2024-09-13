@@ -119,3 +119,7 @@ class CancelledRecordView(BaseModel):
     user_id: UUID
     data: Data
     error: Error
+
+
+class UserExistsView(BaseModel):
+    exists: bool

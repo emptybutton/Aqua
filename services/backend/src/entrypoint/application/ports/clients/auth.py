@@ -123,3 +123,11 @@ class Auth(Generic[_TransactionT_contra], ABC):
         | Literal["no_user"]
         | Literal["week_password"]
     ): ...
+
+    @abstractmethod
+    async def user_exists(
+        self,
+        username: str,
+        *,
+        transaction: _TransactionT_contra,
+    ) -> bool | Literal["auth_is_not_working"]: ...

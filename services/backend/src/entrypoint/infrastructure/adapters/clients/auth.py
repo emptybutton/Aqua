@@ -185,3 +185,18 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             username=result.username,
             session_id=result.session_id,
         )
+
+    async def user_exists(
+        self,
+        username: str,
+        *,
+        transaction: DBTransaction,
+    ) -> bool | Literal["auth_is_not_working"]:
+        try:
+            return await auth.user_exists.perform(
+                username,
+                session=transaction.session,
+            )
+        except Exception as error:
+            self.__errors.append(error)
+            return "auth_is_not_working"
