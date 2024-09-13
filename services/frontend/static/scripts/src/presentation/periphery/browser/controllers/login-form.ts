@@ -5,9 +5,10 @@ import * as _closeLoginNotification from "../../../di/facade/close-login-notific
 export function constructControllers(
     usernameElement: HTMLInputElement | HTMLTextAreaElement,
     passwordElement: HTMLInputElement | HTMLTextAreaElement,
-    notificationElement: HTMLElement,
-    pushButtonElement: HTMLElement,
+    notificationSignalElement: HTMLElement,
+    notificationTextElement: HTMLElement,
     notificationCloseButtonElement: HTMLElement,
+    pushButtonElement: HTMLElement,
 ): void {
     const handleDataInput = async (priority: _prepareToLogin.Priority) => {
         await _prepareToLogin.prepareToLogin(
@@ -16,7 +17,8 @@ export function constructControllers(
             priority,
             usernameElement,
             passwordElement,
-            notificationElement,
+            notificationSignalElement,
+            notificationTextElement,
         );
     }
     const handleUsernameInput = async () => await handleDataInput(
@@ -31,12 +33,14 @@ export function constructControllers(
         passwordElement.value,
         usernameElement,
         passwordElement,
-        notificationElement,
+        notificationSignalElement,
+        notificationTextElement,
     );
 
     const handleNotificationCloseButtonActivation = async () => {
         await _closeLoginNotification.closeLoginNotification(
-            notificationElement,
+            notificationSignalElement,
+            notificationTextElement,
         )
     };
 

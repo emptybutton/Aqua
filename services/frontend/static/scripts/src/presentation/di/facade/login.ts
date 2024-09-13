@@ -6,7 +6,8 @@ export async function login(
     password: string,
     usernameFieldElement: HTMLElement,
     passwordFieldElement: HTMLElement,
-    notificationElement: HTMLElement,
+    notificationSignalElement: HTMLElement,
+    notificationTextElement: HTMLElement,
 ): Promise<void> {
     await _login.login(
         username,
@@ -18,6 +19,9 @@ export async function login(
         adapterContainer.usernamesOfUnregisteredUsers,
         adapterContainer._invalidCredentialSet,
         adapterContainer.windowView,
-        adapterContainer.loginNotificationViewOf(notificationElement),
+        adapterContainer.loginNotificationViewOf(
+            notificationSignalElement,
+            notificationTextElement,
+        ),
     );
 }

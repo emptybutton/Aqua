@@ -1,1 +1,57 @@
 @import "../common/base";
+@import "../common/forms";
+@import "../common/notifications";
+
+#registration-icon {
+  @include horizontally-centered;
+  position: relative;
+  margin-top: 20px;
+}
+
+#form-title {
+  font-size: 31px;
+}
+
+#buttons {
+  text-align: center;
+  margin-top: 36px;
+  margin-bottom: 10px;
+}
+
+#finish-button {
+  display: none;
+}
+
+#continue-button {
+  display: none;
+}
+
+#back-button {
+  display: none;
+}
+
+#continue-button, #finish-button {
+  margin-left: 5px;
+}
+
+#links {
+  text-align: center;
+}
+
+#input-weight-kilograms {
+  display: none;
+}
+
+#target-water-balance-milliliters {
+  display: none;
+}
+
+#glass-milliliters {
+  display: none;
+}
+
+.field-help-button {
+  position: absolute;
+  left: -30px;
+  cursor: pointer;
+}

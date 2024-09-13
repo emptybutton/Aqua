@@ -9,7 +9,8 @@ export async function prepareToLogin(
     priority: Priority,
     usernameFieldElement: HTMLElement,
     passwordFieldElement: HTMLElement,
-    notificationElement: HTMLElement,
+    notificationSignalElement: HTMLElement,
+    notificationTextElement: HTMLElement,
 ): Promise<void> {
     await _prepareToLogin.prepareToLogin(
         username,
@@ -19,7 +20,10 @@ export async function prepareToLogin(
         adapterContainer.formFieldViewOf(passwordFieldElement),
         adapterContainer.usernamesOfUnregisteredUsers,
         adapterContainer.invalidCredentialSet,
-        adapterContainer.loginNotificationViewOf(notificationElement),
+        adapterContainer.loginNotificationViewOf(
+            notificationSignalElement,
+            notificationTextElement,
+        ),
     );
 }
 

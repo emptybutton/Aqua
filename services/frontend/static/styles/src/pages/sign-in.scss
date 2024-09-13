@@ -1,10 +1,10 @@
 @import "../common/base";
 @import "../common/forms";
+@import "../common/notifications";
 
 #authorization-icon {
+  @include horizontally-centered;
   position: relative;
-  left: 50%;
-  transform: translate(-50%);
   margin-bottom: 10px;
   margin-top: 20px;
 }
@@ -13,31 +13,4 @@
   position: relative;
   right: -27px;
   bottom: -5px;
-  font-size: 16px;
-}
-
-#notification {
-  display: none;
-  position: absolute;
-  bottom: 0px;
-  width: 280px;
-  left: -14px;
-  min-height: 22px;
-  left: 50%;
-  transform: translate(-50%);
-  margin-bottom: 9px;
-}
-
-#notification #text {
-  width: 90%;
-  overflow-wrap: break-word;
-}
-
-#notification #close-button {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  cursor: pointer;
-  opacity: 0.6;
-  user-select: none;
 }

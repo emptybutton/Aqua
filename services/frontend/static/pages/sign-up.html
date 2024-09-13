@@ -8,6 +8,35 @@
     <title>Aqua</title>
 </head>
 <body>
-    Hello registration!
+    <div class="center">
+        <div id="registration-form">
+            <div id="header">
+                <img id="registration-icon" src="static/images/user.png" width="130" height="130">
+                <h1 id="form-title">Новый аккаунт</h1>
+            </div>
+            <div id="inputs">
+                <p><input id="input-name" type="text" autocomplete="username" placeholder="Имя"></p>
+                <p><input id="input-password" type="password" autocomplete="current-password" placeholder="Пароль"></p>
+                <p><input id="input-weight-kilograms" type="number" placeholder="Вес"></p>
+                <p><input id="target-water-balance-milliliters" type="number" placeholder="Цель"></p>
+                <p><input id="glass-milliliters" type="number" placeholder="Стакан"></p>
+            </div>
+            <div id="transition-menu">
+                <div id="buttons">
+                    <button id="finish-button">Создать</button>
+                    <button id="continue-button">Продолжить</button>
+                    <button id="back-button">Назад</button>
+                </div>
+                <div id="links">
+                    <a id="authorization-link" href="/sign-in">У меня уже есть аккаунт</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="default-neutral-notification">
+        <div class="default-notification-text"></div>
+        <img class="default-notification-close-button" height="22" width="22" src="static/images/close-button.png">
+    </div>
+    <script type="module" src="static/scripts/presentation/periphery/browser/entrypoints/sign-up.js"></script>
 </body>
 </html>

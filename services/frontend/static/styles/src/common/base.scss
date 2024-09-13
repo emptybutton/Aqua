@@ -16,6 +16,7 @@ a {
   text-decoration: none;
   color: $activable-primary-color;
   font-weight: 400;
+  font-size: 16px;
 }
 
 a:hover {
@@ -60,27 +61,13 @@ button:active {
   color: $activable-primary-color;
 }
 
-.center {
-  width: min-content;
-  position: relative;
+@mixin horizontally-centered {
   left: 50%;
   transform: translate(-50%);
 }
 
-@mixin notification {
-  background-color: $activable-secondary-color;
-  padding: 5px;
-  border-radius: 5px;
+.center {
+  @include horizontally-centered;
+  position: relative;
+  width: min-content;
 }
-
-.neutral-notification {
-  @include notification;
-  background-color: #7daaf8;
-  color: #f5f8fc;
-}
-
-.bad-notification {
-  @include notification;
-  background-color: #fa4956;
-  color: #f9f4f4;
-} 

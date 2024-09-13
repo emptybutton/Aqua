@@ -1,0 +1,54 @@
+@import "../common/base";
+
+@mixin notification {
+  background-color: $activable-secondary-color;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+@mixin neutral-notification {
+  @include notification;
+  background-color: #7daaf8;
+  color: #f5f8fc;
+}
+
+@mixin bad-notification {
+  @include notification;
+  background-color: #fa4956;
+  color: #f9f4f4;
+}
+
+@mixin default-notification {
+  @include notification;
+  @include horizontally-centered;
+  position: absolute;
+  width: 280px;
+  min-height: 22px;
+  bottom: 0px;
+  margin-bottom: 9px;
+  display: none;
+}
+
+.default-neutral-notification {
+  @include default-notification;
+  @include neutral-notification;
+}
+
+.default-bad-notification {
+  @include default-notification;
+  @include bad-notification;
+}
+
+.default-notification-text {
+  width: 90%;
+  overflow-wrap: break-word;
+}
+
+.default-notification-close-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  opacity: 0.6;
+  user-select: none;
+  cursor: pointer;
+}

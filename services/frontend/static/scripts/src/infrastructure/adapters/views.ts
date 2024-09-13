@@ -29,20 +29,11 @@ export class ValidationCSSView implements views.ValidationView {
     }
 }
 
-export class LoginNotificationLayoutView implements views.LoginNotificationView {
-    private _textElement: HTMLElement;
-
-    constructor(private _notificationElement: HTMLElement) {
-        if (_notificationElement.id !== "notification")
-            throw new Error("`_notificationElement` must have id = \"notification\"");
-        
-        let textElement = _notificationElement.querySelector("#text");
-
-        if (!(textElement instanceof HTMLElement))
-            throw new Error("`_notificationElement` must have `#text` subelement");
-
-        this._textElement = textElement;
-    }
+export class LoginDefaultNotificationCSSView implements views.LoginNotificationView {
+    constructor(
+        private _notificationElement: HTMLElement,
+        private _textElement: HTMLElement,
+    ) {}
 
     redrawInvisible(): void {
         this._notificationElement.style.display = "none";
@@ -50,44 +41,56 @@ export class LoginNotificationLayoutView implements views.LoginNotificationView 
     }
 
     redrawNoUserWithUsername(_: _username.AnyUsername): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Пользователя с таким именем нет";
+        this._redrawBad();
+        this._redrawVisible();
     }
 
     redrawInvalidCredentials(_: _credentials.Credentials): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Неправильный пароль";
+        this._redrawBad();
+        this._redrawVisible();
     }
 
     redrawLastTimeThereWasNoUserNamed(_: _username.AnyUsername): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "neutral-notification";
         this._textElement.innerText = "В прошлых попытках пользователя с таким именем не было";
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 
     redrawLastTimeThereWasNoUserWithCredentials(_: _credentials.Credentials): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "neutral-notification";
         this._textElement.innerText = "В прошлых попытках такой пароль не подошёл";
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 
     redrawInvalidUsername(_: _username.AnyUsername): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Не может быть пользователя с таким именем";
+        this._redrawBad();
+        this._redrawVisible();
     }
 
     redrawInvalidPassword(_: _password.Password): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Не может быть пользователя с таким паролем";
+        this._redrawBad();
+        this._redrawVisible();
     }
 
     redrawTryAgainLater(): void {
-        this._notificationElement.style.display = "unset";
-        this._notificationElement.className = "bad-notification";
         this._textElement.innerText = "Что то пошло не по плану, попробуйте когда нибудь потом!";
+        this._redrawBad();
+        this._redrawVisible();
+    }
+
+    private _redrawVisible(): void {
+        this._notificationElement.style.display = "unset";
+    }
+
+    private _redrawBad(): void {
+        this._notificationElement.className = "default-bad-notification";
+    }
+
+    private _redrawNeutral(): void {
+        this._notificationElement.className = "default-neutral-notification";
     }
 }

@@ -41,7 +41,10 @@ export const adapterContainer = {
         );
     },
 
-    loginNotificationViewOf(element: HTMLElement): pViews.LoginNotificationView {
-        return new aViews.LoginNotificationLayoutView(element);
+    loginNotificationViewOf(
+        signalElement: HTMLElement,
+        textElement: HTMLElement,
+    ): pViews.LoginNotificationView {
+        return new aViews.LoginDefaultNotificationCSSView(signalElement, textElement);
     },
 }

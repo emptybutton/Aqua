@@ -3,9 +3,13 @@ import * as _closeLoginNotification from "../../../application/cases/close-login
 
 
 export async function closeLoginNotification(
-    notificationElement: HTMLElement,
+    notificationSignalElement: HTMLElement,
+    notificationTextElement: HTMLElement,
 ): Promise<void> {
     await _closeLoginNotification.closeLoginNotification(
-        adapterContainer.loginNotificationViewOf(notificationElement)
+        adapterContainer.loginNotificationViewOf(
+            notificationSignalElement,
+            notificationTextElement,
+        )
     );
 }
