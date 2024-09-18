@@ -1,4 +1,4 @@
-import { Water } from "./water.js";
+import * as _water from "./water.js";
 
 export enum Status {
     good = 1,
@@ -7,5 +7,11 @@ export enum Status {
 }
 
 export class WaterBalance {
-    constructor(readonly water: Water) {}
+    constructor(readonly water: _water.Water) {}
 }
+
+export class InvalidWaterBalance {
+    constructor(readonly water: _water.InvalidWater) {}
+}
+
+export type AnyWaterBalance = WaterBalance | InvalidWaterBalance;

@@ -4,12 +4,14 @@ import * as _glass from "../../domains/water-recording/value-objects/glass.js";
 import * as _waterBalance from "../../domains/water-recording/value-objects/water-balance.js";
 import * as _weight from "../../domains/water-recording/value-objects/weight.js";
 import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as _username from "../../domains/access/value-objects/username.js";
 import * as _account from "../../domains/access/entities/account.js";
 
+export type Result<T> = Promise<T | "error">
+
 export interface Backend {
-    login(credentials: _credentials.StrongCredentials): Promise<
+    login(credentials: _credentials.StrongCredentials): Result<
         {userId: _id.ID}
-        | "error"
         | "incorrectPassword"
         | "noUser"
     >,
@@ -19,11 +21,12 @@ export interface Backend {
         targetWaterBalance: _waterBalance.WaterBalance | undefined,
         glass: _glass.Glass | undefined,
         weight: _weight.Weight | undefined,
-    ): Promise<
+    ): Result<
         {user: _user.User, account: _account.Account}
-        | "error"
         | "userIsAlreadyRegistered"
         | "noWeightForWaterBalance"
         | "extremeWeightForWaterBalance"
     >,
+
+    existsNamed(username: _username.Username): Result<{exists: boolean}>,
 }

@@ -13,14 +13,14 @@ import { maybe } from "../../domains/shared/value-objects/maybe.js";
 const _urls = {
     registrationURL: "/api/0.1v/user/register",
     authrizationURL: "/api/0.1v/user/authorize",
+    existenceCheckByUsernameURL: "/api/0.1v/user/exists",
 }
 
 export const _headers = {'Content-Type': 'application/json'}
 
 export const backendAPI: _clients.Backend = {
-    async login(credentials: _credentials.StrongCredentials): Promise<
+    async login(credentials: _credentials.StrongCredentials): _clients.Result<
         {userId: _id.ID}
-        | "error"
         | "incorrectPassword"
         | "noUser"
     > {
@@ -52,9 +52,8 @@ export const backendAPI: _clients.Backend = {
         targetWaterBalance: _waterBalance.WaterBalance | undefined,
         glass: _glass.Glass | undefined,
         weight: _weight.Weight | undefined,
-    ): Promise<
+    ): _clients.Result<
         {user: _user.User, account: _account.Account}
-        | "error"
         | "userIsAlreadyRegistered"
         | "noWeightForWaterBalance"
         | "extremeWeightForWaterBalance"
@@ -120,5 +119,24 @@ export const backendAPI: _clients.Backend = {
             return "error"
 
         return {user: user, account: account};
-    }
+    },
+
+    async existsNamed(username: _username.Username): _clients.Result<{exists: boolean}> {
+        let headPart = _urls.registrationURL;
+        let paramPart = new URLSearchParams({username: username.text}).toString();
+        let url = `${headPart}?${paramPart}`;
+
+        const response = await fetch(url, {method: 'GET'});
+
+        if (!response.ok)
+            return "error";
+
+        const data = await response.json();
+        const exists = data["exists"];
+
+        if (typeof exists !== "boolean")
+            return "error";
+
+        return {exists: exists};
+    },
 }

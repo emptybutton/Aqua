@@ -2,6 +2,9 @@ import * as views from "../../application/ports/views.js";
 import * as _username from "../../domains/access/value-objects/username.js";
 import * as _password from "../../domains/access/value-objects/password.js";
 import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as _weight from "../../domains/water-recording/value-objects/weight.js";
+import * as _waterBalance from "../../domains/water-recording/value-objects/water-balance.js";
+import * as _glass from "../../domains/water-recording/value-objects/glass.js";
 
 export const pageView: views.WindowView = {
     redrawToLogin(): void {
@@ -29,12 +32,37 @@ export class ValidationCSSView implements views.ValidationView {
     }
 }
 
-export class LoginDefaultNotificationCSSView implements views.LoginNotificationView {
+export abstract class DefaultNotificationCSSView {
     constructor(
-        private _notificationElement: HTMLElement,
-        private _textElement: HTMLElement,
+        protected _notificationElement: HTMLElement,
+        protected _textElement: HTMLElement,
     ) {}
 
+    redrawInvisible(): void {
+        this._notificationElement.style.display = "none";
+        this._textElement.innerText = "";
+    }
+
+    redrawTryAgainLater(): void {
+        this._textElement.innerText = "Что то пошло не по плану, попробуйте когда нибудь потом!";
+        this._redrawBad();
+        this._redrawVisible();
+    }
+
+    protected _redrawVisible(): void {
+        this._notificationElement.style.display = "unset";
+    }
+
+    protected _redrawBad(): void {
+        this._notificationElement.className = "default-bad-notification";
+    }
+
+    protected _redrawNeutral(): void {
+        this._notificationElement.className = "default-neutral-notification";
+    }
+}
+
+export class LoginDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.LoginNotificationView {
     redrawInvisible(): void {
         this._notificationElement.style.display = "none";
         this._textElement.innerText = "";
@@ -75,22 +103,58 @@ export class LoginDefaultNotificationCSSView implements views.LoginNotificationV
         this._redrawBad();
         this._redrawVisible();
     }
+}
 
-    redrawTryAgainLater(): void {
-        this._textElement.innerText = "Что то пошло не по плану, попробуйте когда нибудь потом!";
+
+export class RegistrationDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.RegistrationNotificationView {
+    redrawForUsernameHint(_: _username.AnyUsername): void {
+        this._textElement.innerText = "Имя должно содержать хотя бы один символ";
+        this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawUsernameTaken(_: _username.AnyUsername): void {
+        this._textElement.innerText = "Имя уже занято";
         this._redrawBad();
         this._redrawVisible();
     }
 
-    private _redrawVisible(): void {
-        this._notificationElement.style.display = "unset";
+    redrawForPasswordHint(_: _password.Password): void {
+        let element1 = document.createElement("li");
+        let element2 = document.createElement("li");
+        let element3 = document.createElement("li");
+
+        element1.innerText = "не менее 8 символов";
+        element2.innerText = "любые цифры";
+        element3.innerText = "буквы в нижнем и в верхнем регистрах";
+
+        this._textElement.innerText = "Пароль должен иметь:";
+        this._textElement.appendChild(element1);
+        this._textElement.appendChild(element2);
+        this._textElement.appendChild(element3);
+
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 
-    private _redrawBad(): void {
-        this._notificationElement.className = "default-bad-notification";
+    redrawForWeightHint(_: _weight.AnyWeight): void {
+        this._textElement.innerText = "Вес должен быть целым положительным числом";
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 
-    private _redrawNeutral(): void {
-        this._notificationElement.className = "default-neutral-notification";
+    redrawForTargetWaterBalanceHint(waterBalance: _waterBalance.AnyWaterBalance): void {}
+    redrawForGlassHint(glass: _glass.AnyGlass): void,
+}
+
+export class PossiblyInvisibleCSSView implements views.PossiblyInvisibleView {
+    constructor(private _element: HTMLElement) {}
+
+    redrawVisible(): void {
+        this._element.style.display = "unset";
+    }
+
+    redrawInvisible(): void {
+        this._element.style.display = "none";
     }
 }

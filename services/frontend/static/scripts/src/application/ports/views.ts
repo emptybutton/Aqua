@@ -1,6 +1,9 @@
 import * as _username from "../../domains/access/value-objects/username.js";
 import * as _password from "../../domains/access/value-objects/password.js";
 import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as _weight from "../../domains/water-recording/value-objects/weight.js";
+import * as _waterBalance from "../../domains/water-recording/value-objects/water-balance.js";
+import * as _glass from "../../domains/water-recording/value-objects/glass.js";
 
 export interface WindowView {
     redrawToLogin(): void,
@@ -20,7 +23,23 @@ export interface LoginNotificationView {
     redrawTryAgainLater(): void,
 }
 
+export interface RegistrationNotificationView {
+    redrawInvisible(): void,
+    redrawForUsernameHint(username: _username.AnyUsername): void,
+    redrawUsernameTaken(username: _username.AnyUsername): void,
+    redrawForPasswordHint(password: _password.Password): void,
+    redrawForWeightHint(weight: _weight.AnyWeight): void,
+    redrawForTargetWaterBalanceHint(waterBalance: _waterBalance.AnyWaterBalance): void,
+    redrawForGlassHint(glass: _glass.AnyGlass): void,
+    redrawTryAgainLater(): void,
+}
+
 export interface ValidationView {
     redrawOk(): void,
     redrawNeutral(): void,
+}
+
+export interface PossiblyInvisibleView {
+    redrawVisible(): void,
+    redrawInvisible(): void,
 }

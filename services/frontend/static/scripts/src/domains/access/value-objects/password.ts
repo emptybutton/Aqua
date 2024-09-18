@@ -5,6 +5,7 @@ export class StrongPower extends Power {}
 export class WeakPower extends Power {
     constructor(readonly reasons: Set<WeaknessReasons>) {
         super();
+        Object.freeze(this.reasons);
     }
 }
 
