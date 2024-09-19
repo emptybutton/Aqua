@@ -105,10 +105,15 @@ export class LoginDefaultNotificationCSSView extends DefaultNotificationCSSView 
     }
 }
 
-
 export class RegistrationDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.RegistrationNotificationView {
     redrawForUsernameHint(_: _username.AnyUsername): void {
-        this._textElement.innerText = "Имя должно содержать хотя бы один символ";
+        this._textElement.innerText = "Имя, которое должно иметь хотя бы один символ";
+        this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawForTakenUsernameHint(_: _username.AnyUsername): void {
+        this._textElement.innerText = "Имя, занятое другим пользователем";
         this._redrawNeutral();
         this._redrawVisible();
     }
@@ -128,7 +133,7 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         element2.innerText = "любые цифры";
         element3.innerText = "буквы в нижнем и в верхнем регистрах";
 
-        this._textElement.innerText = "Пароль должен иметь:";
+        this._textElement.innerText = "Пароль, который должен иметь:";
         this._textElement.appendChild(element1);
         this._textElement.appendChild(element2);
         this._textElement.appendChild(element3);
@@ -137,24 +142,33 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForWeightHint(_: _weight.AnyWeight): void {
-        this._textElement.innerText = "Вес должен быть целым положительным числом";
+    redrawForWeightWithTargetHint(_: _weight.AnyWeight): void {
+        this._textElement.innerText = "Вес, который должен быть целым положительным числом, измеряемым в килограммах";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForTargetWaterBalanceHint(waterBalance: _waterBalance.AnyWaterBalance): void {}
-    redrawForGlassHint(glass: _glass.AnyGlass): void,
-}
-
-export class PossiblyInvisibleCSSView implements views.PossiblyInvisibleView {
-    constructor(private _element: HTMLElement) {}
-
-    redrawVisible(): void {
-        this._element.style.display = "unset";
+    redrawForWeightWithoutTargetHint(_: _weight.AnyWeight): void {
+        this._textElement.innerText = "Вес, который должен быть целым положительным числом от 30 до 150 кг включительно";
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 
-    redrawInvisible(): void {
-        this._element.style.display = "none";
+    redrawForTargetWithWeightHint(_: _waterBalance.AnyWaterBalance): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, может отсутствовать. Если указано, должно быть целым положительным числом";
+        this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawForTargetWithoutWeightHint(_: _waterBalance.AnyWaterBalance): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, должно быть целым положительным числом";
+        this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawForGlassHint(_: _glass.AnyGlass): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, которое вы обычно выпиваете, должно быть целым положительным числом, может отсутствовать";
+        this._redrawNeutral();
+        this._redrawVisible();
     }
 }

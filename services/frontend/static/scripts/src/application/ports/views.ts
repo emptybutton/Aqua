@@ -26,10 +26,13 @@ export interface LoginNotificationView {
 export interface RegistrationNotificationView {
     redrawInvisible(): void,
     redrawForUsernameHint(username: _username.AnyUsername): void,
+    redrawForTakenUsernameHint(username: _username.AnyUsername): void,
     redrawUsernameTaken(username: _username.AnyUsername): void,
     redrawForPasswordHint(password: _password.Password): void,
-    redrawForWeightHint(weight: _weight.AnyWeight): void,
-    redrawForTargetWaterBalanceHint(waterBalance: _waterBalance.AnyWaterBalance): void,
+    redrawForWeightWithTargetHint(weight: _weight.AnyWeight): void,
+    redrawForWeightWithoutTargetHint(weight: _weight.AnyWeight): void,
+    redrawForTargetWithWeightHint(waterBalance: _waterBalance.AnyWaterBalance): void,
+    redrawForTargetWithoutWeightHint(waterBalance: _waterBalance.AnyWaterBalance): void,
     redrawForGlassHint(glass: _glass.AnyGlass): void,
     redrawTryAgainLater(): void,
 }
@@ -37,9 +40,4 @@ export interface RegistrationNotificationView {
 export interface ValidationView {
     redrawOk(): void,
     redrawNeutral(): void,
-}
-
-export interface PossiblyInvisibleView {
-    redrawVisible(): void,
-    redrawInvisible(): void,
 }

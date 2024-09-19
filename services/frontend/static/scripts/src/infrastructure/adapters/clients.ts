@@ -122,7 +122,7 @@ export const backendAPI: _clients.Backend = {
     },
 
     async existsNamed(username: _username.Username): _clients.Result<{exists: boolean}> {
-        let headPart = _urls.registrationURL;
+        let headPart = _urls.existenceCheckByUsernameURL;
         let paramPart = new URLSearchParams({username: username.text}).toString();
         let url = `${headPart}?${paramPart}`;
 
