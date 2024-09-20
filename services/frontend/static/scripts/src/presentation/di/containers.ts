@@ -18,7 +18,7 @@ export const adapterContainer = {
     _timeoutForUsernameAvailability: new aTimeouts.InMemoryTimeout(),
 
     get usernamesOfRegisteredUsers(): pRepos.Usernames {
-        return this._usernamesOfUnregisteredUsers;
+        return this._usernamesOfRegisteredUsers;
     },
 
     get usernamesOfUnregisteredUsers(): pRepos.Usernames {

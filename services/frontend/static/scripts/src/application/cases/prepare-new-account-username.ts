@@ -20,7 +20,7 @@ export function prepareNewAccountUsername(
     let username = _username.anyWith(usernameText);
 
     if (username instanceof _username.InvalidUsername) {
-        notificationView.redrawForUsernameHint(username);
+        notificationView.redrawForInvalidUsernameHint(username);
         usernameView.redrawNeutral();
         timeoutForUsernameAvailability.doNothing();
 
@@ -35,11 +35,13 @@ export function prepareNewAccountUsername(
         return;
     }
 
-    notificationView.redrawForUsernameHint(username);
+    notificationView.redrawForValidUsernameHint(username);
     usernameView.redrawOk();
 
-    if (usernamesOfUnregisteredUsers.contains(username))
+    if (usernamesOfUnregisteredUsers.contains(username)) {
+        timeoutForUsernameAvailability.doNothing();
         return;
+    }
 
     timeoutForUsernameAvailability.doAfter(2500, async () => {
         let result = await backend.existsNamed(username);

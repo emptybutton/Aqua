@@ -25,10 +25,12 @@ export interface LoginNotificationView {
 
 export interface RegistrationNotificationView {
     redrawInvisible(): void,
-    redrawForUsernameHint(username: _username.AnyUsername): void,
+    redrawForValidUsernameHint(username: _username.AnyUsername): void,
+    redrawForInvalidUsernameHint(username: _username.AnyUsername): void,
     redrawForTakenUsernameHint(username: _username.AnyUsername): void,
     redrawUsernameTaken(username: _username.AnyUsername): void,
-    redrawForPasswordHint(password: _password.Password): void,
+    redrawForValidPasswordHint(password: _password.Password): void,
+    redrawForInvalidPasswordHint(password: _password.Password): void,
     redrawForWeightWithTargetHint(weight: _weight.AnyWeight): void,
     redrawForWeightWithoutTargetHint(weight: _weight.AnyWeight): void,
     redrawForTargetWithWeightHint(waterBalance: _waterBalance.AnyWaterBalance): void,

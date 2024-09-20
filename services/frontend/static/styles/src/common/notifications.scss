@@ -12,6 +12,12 @@
   color: #f5f8fc;
 }
 
+@mixin ok-notification {
+  @include notification;
+  background-color: #55e885;
+  color: #f5fcf6;
+}
+
 @mixin bad-notification {
   @include notification;
   background-color: #fa4956;
@@ -32,6 +38,11 @@
 .default-neutral-notification {
   @include default-notification;
   @include neutral-notification;
+}
+
+.default-ok-notification {
+  @include default-notification;
+  @include ok-notification;
 }
 
 .default-bad-notification {

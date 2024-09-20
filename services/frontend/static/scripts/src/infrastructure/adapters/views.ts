@@ -60,6 +60,10 @@ export abstract class DefaultNotificationCSSView {
     protected _redrawNeutral(): void {
         this._notificationElement.className = "default-neutral-notification";
     }
+
+    protected _redrawOk(): void {
+        this._notificationElement.className = "default-ok-notification";
+    }
 }
 
 export class LoginDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.LoginNotificationView {
@@ -106,9 +110,15 @@ export class LoginDefaultNotificationCSSView extends DefaultNotificationCSSView 
 }
 
 export class RegistrationDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.RegistrationNotificationView {
-    redrawForUsernameHint(_: _username.AnyUsername): void {
+    redrawForInvalidUsernameHint(_: _username.AnyUsername): void {
         this._textElement.innerText = "Имя, которое должно иметь хотя бы один символ";
         this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawForValidUsernameHint(_: _username.AnyUsername): void {
+        this._textElement.innerText = "Имя с хотя бы одним символом";
+        this._redrawOk();
         this._redrawVisible();
     }
 
@@ -124,7 +134,7 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForPasswordHint(_: _password.Password): void {
+    redrawForInvalidPasswordHint(_: _password.Password): void {
         let element1 = document.createElement("li");
         let element2 = document.createElement("li");
         let element3 = document.createElement("li");
@@ -139,6 +149,24 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._textElement.appendChild(element3);
 
         this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawForValidPasswordHint(_: _password.Password): void {
+        let element1 = document.createElement("li");
+        let element2 = document.createElement("li");
+        let element3 = document.createElement("li");
+
+        element1.innerText = "не менее 8 символов";
+        element2.innerText = "любые цифры";
+        element3.innerText = "буквы в нижнем и в верхнем регистрах";
+
+        this._textElement.innerText = "Пароль имеющий:";
+        this._textElement.appendChild(element1);
+        this._textElement.appendChild(element2);
+        this._textElement.appendChild(element3);
+
+        this._redrawOk();
         this._redrawVisible();
     }
 
