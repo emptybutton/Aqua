@@ -10,10 +10,10 @@ export function execute(
 
     if (password.isWeak) {
         passwordView.redrawNeutral();
-        notificationView.redrawForInvalidPasswordHint(password);
+        notificationView.redrawForInvalidPasswordHint();
     }
     else {
         passwordView.redrawOk();
-        notificationView.redrawForValidPasswordHint(password);
+        notificationView.redrawForValidPasswordHint();
     }
 }

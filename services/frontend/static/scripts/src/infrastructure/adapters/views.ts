@@ -110,19 +110,19 @@ export class LoginDefaultNotificationCSSView extends DefaultNotificationCSSView 
 }
 
 export class RegistrationDefaultNotificationCSSView extends DefaultNotificationCSSView implements views.RegistrationNotificationView {
-    redrawForInvalidUsernameHint(_: _username.AnyUsername): void {
+    redrawForInvalidUsernameHint(): void {
         this._textElement.innerText = "Имя, которое должно иметь хотя бы один символ";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForValidUsernameHint(_: _username.AnyUsername): void {
+    redrawForValidUsernameHint(): void {
         this._textElement.innerText = "Имя с хотя бы одним символом";
         this._redrawOk();
         this._redrawVisible();
     }
 
-    redrawForTakenUsernameHint(_: _username.AnyUsername): void {
+    redrawForTakenUsernameHint(): void {
         this._textElement.innerText = "Имя, занятое другим пользователем";
         this._redrawNeutral();
         this._redrawVisible();
@@ -134,7 +134,7 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForInvalidPasswordHint(_: _password.Password): void {
+    redrawForInvalidPasswordHint(): void {
         let element1 = document.createElement("li");
         let element2 = document.createElement("li");
         let element3 = document.createElement("li");
@@ -152,7 +152,7 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForValidPasswordHint(_: _password.Password): void {
+    redrawForValidPasswordHint(): void {
         let element1 = document.createElement("li");
         let element2 = document.createElement("li");
         let element3 = document.createElement("li");
@@ -170,31 +170,43 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForWeightWithTargetHint(_: _weight.AnyWeight): void {
-        this._textElement.innerText = "Вес, который должен быть целым положительным числом, измеряемым в килограммах";
+    redrawForValidWeightWithTargetHint(): void {
+        this._textElement.innerText = "Опциональный вес в виде целого положительного числа, измеряемым в килограммах";
+        this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawForInvalidWeightWithTargetHint(): void {
+        this._textElement.innerText = "Опциональный вес, который может быть целым положительным числом, измеряемым в килограммах";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForWeightWithoutTargetHint(_: _weight.AnyWeight): void {
+    redrawForValidWeightWithoutTargetHint(): void {
+        this._textElement.innerText = "Вес в виде целого положительного числа от 30 до 150 кг включительно";
+        this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawForInvalidWeightWithoutTargetHint(): void {
         this._textElement.innerText = "Вес, который должен быть целым положительным числом от 30 до 150 кг включительно";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForTargetWithWeightHint(_: _waterBalance.AnyWaterBalance): void {
+    redrawForTargetWithWeightHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, может отсутствовать. Если указано, должно быть целым положительным числом";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForTargetWithoutWeightHint(_: _waterBalance.AnyWaterBalance): void {
+    redrawForTargetWithoutWeightHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, должно быть целым положительным числом";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForGlassHint(_: _glass.AnyGlass): void {
+    redrawForGlassHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы обычно выпиваете, должно быть целым положительным числом, может отсутствовать";
         this._redrawNeutral();
         this._redrawVisible();

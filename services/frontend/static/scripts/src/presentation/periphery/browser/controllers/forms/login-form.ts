@@ -1,7 +1,7 @@
-import * as _login from "../../../di/facade/login/login.js";
-import * as _prepareUsername from "../../../di/facade/login/prepare-username.js";
-import * as _preparePassword from "../../../di/facade/login/prepare-password.js";
-import * as _closeNotification from "../../../di/facade/login/close-notification.js";
+import * as _login from "../../../../di/facade/login/login.js";
+import * as _prepareUsername from "../../../../di/facade/login/prepare-username.js";
+import * as _preparePassword from "../../../../di/facade/login/prepare-password.js";
+import * as _closeNotification from "../../../../di/facade/login/close-notification.js";
 
 export function constructControllers(
     usernameElement: HTMLInputElement | HTMLTextAreaElement,

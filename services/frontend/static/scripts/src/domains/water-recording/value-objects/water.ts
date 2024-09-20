@@ -6,14 +6,19 @@ export class InvalidityReasonsForWaterError extends WaterError {}
 
 export class Water {
     constructor(readonly milliliters: number) {
-        if (invalidityReasonsFor(milliliters).next().value === undefined)
+        if (new Set(invalidityReasonsFor(milliliters)).size !== 0)
             throw new InvalidityReasonsForWaterError();
     }
 }
 
-export enum InvalidityReasons { negativeAmount, floatAmount }
+export enum InvalidityReasons { negativeAmount, floatAmount, nanAmount }
 
 export function *invalidityReasonsFor(milliliters: number): Generator<InvalidityReasons, void, void> {
+    if (isNaN(milliliters)) {
+        yield InvalidityReasons.nanAmount;
+        return;
+    }
+
     if (milliliters < 0)
         yield InvalidityReasons.negativeAmount;
 
@@ -46,4 +51,8 @@ export function anyWith(milliliters: number): AnyWater {
         return new InvalidWater(milliliters, reasons);
 
     return new Water(milliliters);
+}
+
+export function isInvalid(water: AnyWater): water is InvalidWater {
+    return water instanceof InvalidWater;
 }

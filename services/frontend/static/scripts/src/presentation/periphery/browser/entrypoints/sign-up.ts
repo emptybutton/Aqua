@@ -1,9 +1,11 @@
-import * as form from "../controllers/registration-form.js";
+import * as form from "../controllers/forms/registration-form.js";
 
 form.constructControllers(
     <HTMLInputElement>document.querySelector("#input-name"),
     <HTMLInputElement>document.querySelector("#input-password"),
-    <HTMLDivElement>document.querySelector(".default-neutral-notification"),
-    <HTMLDivElement>document.querySelector(".default-notification-text"),
-    <HTMLImageElement>document.querySelector(".default-notification-close-button"),
+    <HTMLInputElement>document.querySelector("#input-weight-kilograms"),
+    <HTMLInputElement>document.querySelector("#target-water-balance-milliliters"),
+    <HTMLDivElement>document.querySelector("#notification"),
+    <HTMLDivElement>document.querySelector("#notification-text"),
+    <HTMLImageElement>document.querySelector("#notification-close-button"),
 );

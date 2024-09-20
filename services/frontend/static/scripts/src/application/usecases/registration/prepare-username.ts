@@ -20,7 +20,7 @@ export function execute(
     let username = _username.anyWith(usernameText);
 
     if (username instanceof _username.InvalidUsername) {
-        notificationView.redrawForInvalidUsernameHint(username);
+        notificationView.redrawForInvalidUsernameHint();
         usernameView.redrawNeutral();
         timeoutForUsernameAvailability.doNothing();
 
@@ -28,14 +28,14 @@ export function execute(
     }
 
     if (usernamesOfRegisteredUsers.contains(username)) {
-        notificationView.redrawForTakenUsernameHint(username);
+        notificationView.redrawForTakenUsernameHint();
         usernameView.redrawNeutral();
         timeoutForUsernameAvailability.doNothing();
 
         return;
     }
 
-    notificationView.redrawForValidUsernameHint(username);
+    notificationView.redrawForValidUsernameHint();
     usernameView.redrawOk();
 
     if (usernamesOfUnregisteredUsers.contains(username)) {

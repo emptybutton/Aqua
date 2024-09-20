@@ -1,7 +1,6 @@
 @import "../common/base";
 
 @mixin notification {
-  background-color: $activable-secondary-color;
   padding: 5px;
   border-radius: 5px;
 }
@@ -32,7 +31,6 @@
   min-height: 22px;
   bottom: 0px;
   margin-bottom: 9px;
-  display: none;
 }
 
 .default-neutral-notification {

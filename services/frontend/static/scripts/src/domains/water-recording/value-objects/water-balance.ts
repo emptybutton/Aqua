@@ -15,3 +15,14 @@ export class InvalidWaterBalance {
 }
 
 export type AnyWaterBalance = WaterBalance | InvalidWaterBalance;
+
+export function anyWith(milliliters: number): AnyWaterBalance {
+    let water = _water.anyWith(milliliters)
+
+    let waterType = _water.isInvalid(water) ? InvalidWaterBalance : WaterBalance;
+    return new waterType(water);
+}
+
+export function isInvalid(waterBalance: AnyWaterBalance): waterBalance is InvalidWaterBalance {
+    return waterBalance instanceof InvalidWaterBalance;
+}
