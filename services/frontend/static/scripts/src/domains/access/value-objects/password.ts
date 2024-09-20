@@ -18,8 +18,6 @@ export enum WeaknessReasons {
 }
 
 export class Password<PowerT extends Power = Power> {
-    private constructor(readonly text: string, readonly power: PowerT) {}
-
     static with(text: string): Password {
         const weaknessReasons = new Set(_weaknessReasonsFor(text));
         let power;
@@ -31,6 +29,12 @@ export class Password<PowerT extends Power = Power> {
 
         return new Password(text, power);
     }
+
+    get isWeak(): boolean {
+        return this.power instanceof WeakPower;
+    }
+
+    private constructor(readonly text: string, readonly power: PowerT) {}
 }
 
 export type StrongPassword = Password<StrongPower>
