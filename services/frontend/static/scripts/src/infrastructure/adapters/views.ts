@@ -218,8 +218,14 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForGlassHint(): void {
-        this._textElement.innerText = "Количество воды в миллилитрах, которое вы обычно выпиваете, должно быть целым положительным числом, может отсутствовать";
+    redrawForValidGlassHint(): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, в виде целого положительного числа, которое вы обычно выпиваете, может отсутствовать";
+        this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawForInvalidGlassHint(): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, которое вы обычно выпиваете, может отсутствовать. Если указано, должно быть целым положительным числом";
         this._redrawNeutral();
         this._redrawVisible();
     }
