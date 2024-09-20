@@ -194,13 +194,25 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
         this._redrawVisible();
     }
 
-    redrawForTargetWithWeightHint(): void {
+    redrawForValidTargetWithWeightHint(): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, в виде целого положительного числа, которое вы хотите выпивать за сутки, может отсутствовать";
+        this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawForInvalidTargetWithWeightHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, может отсутствовать. Если указано, должно быть целым положительным числом";
         this._redrawNeutral();
         this._redrawVisible();
     }
 
-    redrawForTargetWithoutWeightHint(): void {
+    redrawForValidTargetWithoutWeightHint(): void {
+        this._textElement.innerText = "Количество воды в миллилитрах, в виде целого положительного числа, которое вы хотите выпивать за сутки";
+        this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawForInvalidTargetWithoutWeightHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы хотите выпивать за сутки, должно быть целым положительным числом";
         this._redrawNeutral();
         this._redrawVisible();

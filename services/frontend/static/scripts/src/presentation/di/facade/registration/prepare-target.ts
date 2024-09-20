@@ -1,19 +1,19 @@
 import { adapterContainer } from "../../containers.js";
-import * as _prepareWeight from "../../../../application/usecases/registration/prepare-weight.js";
+import * as _prepareTarget from "../../../../application/usecases/registration/prepare-target.js";
 
 export function execute(
-    weightKilograms: number | undefined,
     targetWaterBalanceMilliliters: number | undefined,
-    weightFieldElement: HTMLElement,
+    weightKilograms: number | undefined,
     targetWaterBalanceFieldElement: HTMLElement,
+    weightFieldElement: HTMLElement,
     notificationSignalElement: HTMLElement,
     notificationTextElement: HTMLElement,
 ): void {
-    _prepareWeight.execute(
-        weightKilograms,
+    _prepareTarget.execute(
         targetWaterBalanceMilliliters,
-        adapterContainer.formFieldViewOf(weightFieldElement),
+        weightKilograms,
         adapterContainer.formFieldViewOf(targetWaterBalanceFieldElement),
+        adapterContainer.formFieldViewOf(weightFieldElement),
         adapterContainer.registrationNotificationViewOf(
             notificationSignalElement,
             notificationTextElement,

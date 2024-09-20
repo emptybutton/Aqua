@@ -35,8 +35,10 @@ export interface RegistrationNotificationView {
     redrawForInvalidWeightWithTargetHint(): void,
     redrawForValidWeightWithoutTargetHint(): void,
     redrawForInvalidWeightWithoutTargetHint(): void,
-    redrawForTargetWithWeightHint(): void,
-    redrawForTargetWithoutWeightHint(): void,
+    redrawForValidTargetWithWeightHint(): void,
+    redrawForInvalidTargetWithWeightHint(): void,
+    redrawForValidTargetWithoutWeightHint(): void,
+    redrawForInvalidTargetWithoutWeightHint(): void,
     redrawForGlassHint(): void,
     redrawTryAgainLater(): void,
 }

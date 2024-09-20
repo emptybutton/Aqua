@@ -1,6 +1,7 @@
 import * as _prepareUsername from "../../../../di/facade/registration/prepare-username.js";
 import * as _preparePassword from "../../../../di/facade/registration/prepare-password.js";
 import * as _prepareWeight from "../../../../di/facade/registration/prepare-weight.js";
+import * as _prepareTarget from "../../../../di/facade/registration/prepare-target.js";
 import * as _closeNotification from "../../../../di/facade/registration/close-notification.js";
 import { parseOptional } from "../parsers.js";
 
@@ -32,6 +33,16 @@ export function constructControllers(
         parseOptional(weightElement.value),
         parseOptional(targetWaterBalanceElement.value),
         weightElement,
+        targetWaterBalanceElement,
+        notificationSignalElement,
+        notificationTextElement,
+    );
+
+    const handleTarget = () => _prepareTarget.execute(
+        parseOptional(targetWaterBalanceElement.value),
+        parseOptional(weightElement.value),
+        targetWaterBalanceElement,
+        weightElement,
         notificationSignalElement,
         notificationTextElement,
     );
@@ -51,6 +62,9 @@ export function constructControllers(
 
     weightElement.addEventListener("input", handleWeight);
     weightElement.addEventListener("focus", handleWeight);
+
+    targetWaterBalanceElement.addEventListener("input", handleTarget);
+    targetWaterBalanceElement.addEventListener("focus", handleTarget);
 
     notificationCloseButtonElement.addEventListener(
         "click", handleNotificationCloseButtonActivation

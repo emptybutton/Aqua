@@ -3,10 +3,10 @@ import * as _weight from "../../../domains/water-recording/value-objects/weight.
 import * as _waterBalance from "../../../domains/water-recording/value-objects/water-balance.js";
 
 export function execute(
-    weightKilograms: number | undefined,
     targetWaterBalanceMilliliters: number | undefined,
-    weightView: _views.ValidationView,
+    weightKilograms: number | undefined,
     targetWaterBalanceView: _views.ValidationView,
+    weightView: _views.ValidationView,
     notificationView: _views.RegistrationNotificationView,
 ): void {
     let weight: _weight.AnyWeight | undefined = undefined;
@@ -18,31 +18,31 @@ export function execute(
     if (targetWaterBalanceMilliliters !== undefined)
         targetWaterBalance = _waterBalance.anyWith(targetWaterBalanceMilliliters);
 
-    if (targetWaterBalance !== undefined) {
-        if (weight === undefined || weight instanceof _weight.Weight) {
-            weightView.redrawOk();
-            notificationView.redrawForValidWeightWithTargetHint();
-        }
-        else {
-            weightView.redrawNeutral();
-            notificationView.redrawForInvalidWeightWithTargetHint();
-        }
+    if (targetWaterBalance instanceof _waterBalance.WaterBalance) {
+        targetWaterBalanceView.redrawOk();
 
-        return;
-    }
-
-    if (targetWaterBalance === undefined) {
         if (weight instanceof _weight.WeightForTarget) {
             weightView.redrawOk();
+            notificationView.redrawForValidTargetWithWeightHint();
+        }
+        else if (weight === undefined || weight instanceof _weight.Weight) {
+            weightView.redrawOk();
+            notificationView.redrawForValidTargetWithoutWeightHint();
+        }
+        else if (weight instanceof _weight.InvalidWeight) {
+            weightView.redrawNeutral();
+            notificationView.redrawForValidTargetWithoutWeightHint();
+        }
+    }
+    else {
+        if (weight instanceof _weight.WeightForTarget) {
             targetWaterBalanceView.redrawOk();
-            notificationView.redrawForValidWeightWithoutTargetHint();
+            notificationView.redrawForValidTargetWithWeightHint();
         }
         else {
-            weightView.redrawNeutral();
             targetWaterBalanceView.redrawNeutral();
-            notificationView.redrawForInvalidWeightWithoutTargetHint();
+            weightView.redrawNeutral();
+            notificationView.redrawForInvalidTargetWithoutWeightHint();
         }
-
-        return;
     }
 }
