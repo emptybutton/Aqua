@@ -1,7 +1,6 @@
-import * as _login from "../../../di/facade/login.js";
-import * as _prepareNewAccountUsername from "../../../di/facade/prepare-new-account-username.js";
-import * as _prepareNewAccountPassword from "../../../di/facade/prepare-new-account-password.js";
-import * as _closeNewAccountNotification from "../../../di/facade/close-new-account-notification.js";
+import * as _prepareUsername from "../../../di/facade/registration/prepare-username.js";
+import * as _preparePassword from "../../../di/facade/registration/prepare-password.js";
+import * as _closeNotification from "../../../di/facade/registration/close-notification.js";
 
 export function constructControllers(
     usernameElement: HTMLInputElement | HTMLTextAreaElement,
@@ -11,14 +10,14 @@ export function constructControllers(
     notificationCloseButtonElement: HTMLElement,
     // pushButtonElement: HTMLElement,
 ): void {
-    const handleUsername = async () => await _prepareNewAccountUsername.prepareNewAccountUsername(
+    const handleUsername = async () => await _prepareUsername.execute(
         usernameElement.value,
         usernameElement,
         notificationSignalElement,
         notificationTextElement,
     );
 
-    const handlePassword = async () => await _prepareNewAccountPassword.prepareNewAccountPassword(
+    const handlePassword = async () => await _preparePassword.execute(
         passwordElement.value,
         passwordElement,
         notificationSignalElement,
@@ -26,7 +25,7 @@ export function constructControllers(
     );
 
     const handleNotificationCloseButtonActivation = async () => {
-        await _closeNewAccountNotification.closeNewAccountNotification(
+        await _closeNotification.execute(
             notificationSignalElement,
             notificationTextElement,
         )

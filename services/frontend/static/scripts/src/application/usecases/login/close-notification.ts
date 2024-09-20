@@ -1,6 +1,6 @@
-import * as views from "../ports/views.js";
+import * as views from "../../ports/views.js";
 
-export async function closeLoginNotification(
+export async function execute(
     notificationView: views.LoginNotificationView,
 ): Promise<void> {
     notificationView.redrawInvisible();

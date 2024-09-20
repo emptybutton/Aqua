@@ -1,6 +1,6 @@
-import * as views from "../ports/views.js";
+import * as views from "../../ports/views.js";
 
-export async function closeNewAccountNotification(
+export async function execute(
     notificationView: views.RegistrationNotificationView,
 ): Promise<void> {
     notificationView.redrawInvisible();

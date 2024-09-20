@@ -1,8 +1,8 @@
-import * as views from "../ports/views.js";
-import * as repos from "../ports/repos.js";
-import * as _username from "../../domains/access/value-objects/username.js";
-import * as _password from "../../domains/access/value-objects/password.js";
-import * as _credentials from "../../domains/access/value-objects/credentials.js";
+import * as views from "../../ports/views.js";
+import * as repos from "../../ports/repos.js";
+import * as _username from "../../../domains/access/value-objects/username.js";
+import * as _password from "../../../domains/access/value-objects/password.js";
+import * as _credentials from "../../../domains/access/value-objects/credentials.js";
 
 export enum Priority { forUsername, forPassword }
 
@@ -10,7 +10,7 @@ export class BaseError extends Error {}
 
 export class InvalidPriorityError extends BaseError {}
 
-export async function prepareToLogin(
+export async function execute(
     usernameText: string,
     passwordText: string,
     priority: Priority,

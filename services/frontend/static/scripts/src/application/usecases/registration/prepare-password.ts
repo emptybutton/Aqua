@@ -1,7 +1,7 @@
-import * as _views from "../ports/views.js";
-import * as _password from "../../domains/access/value-objects/password.js";
+import * as _views from "../../ports/views.js";
+import * as _password from "../../../domains/access/value-objects/password.js";
 
-export function prepareNewAccountPassword(
+export function execute(
     passwordText: string,
     passwordView: _views.ValidationView,
     notificationView: _views.RegistrationNotificationView,

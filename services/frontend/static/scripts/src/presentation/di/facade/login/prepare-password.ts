@@ -1,7 +1,7 @@
-import { adapterContainer } from "../containers.js";
-import * as _login from "../../../application/cases/login.js";
+import { adapterContainer } from "../../containers.js";
+import * as _prepare from "../../../../application/usecases/login/prepare.js";
 
-export async function login(
+export async function execute(
     username: string,
     password: string,
     usernameFieldElement: HTMLElement,
@@ -9,16 +9,14 @@ export async function login(
     notificationSignalElement: HTMLElement,
     notificationTextElement: HTMLElement,
 ): Promise<void> {
-    await _login.login(
+    await _prepare.execute(
         username,
         password,
-        adapterContainer.backend,
-        adapterContainer.logger,
+        _prepare.Priority.forPassword,
         adapterContainer.formFieldViewOf(usernameFieldElement),
         adapterContainer.formFieldViewOf(passwordFieldElement),
         adapterContainer.usernamesOfUnregisteredUsers,
-        adapterContainer._invalidCredentialSet,
-        adapterContainer.windowView,
+        adapterContainer.invalidCredentialSet,
         adapterContainer.loginNotificationViewOf(
             notificationSignalElement,
             notificationTextElement,

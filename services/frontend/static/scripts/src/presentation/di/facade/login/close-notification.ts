@@ -1,11 +1,11 @@
-import { adapterContainer } from "../containers.js";
-import * as _closeLoginNotification from "../../../application/cases/close-login-notification.js";
+import { adapterContainer } from "../../containers.js";
+import * as _closeNotification from "../../../../application/usecases/login/close-notification.js";
 
-export async function closeLoginNotification(
+export async function execute(
     notificationSignalElement: HTMLElement,
     notificationTextElement: HTMLElement,
 ): Promise<void> {
-    await _closeLoginNotification.closeLoginNotification(
+    await _closeNotification.execute(
         adapterContainer.loginNotificationViewOf(
             notificationSignalElement,
             notificationTextElement,

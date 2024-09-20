@@ -1,13 +1,13 @@
-import { adapterContainer } from "../containers.js";
-import * as _prepareNewAccountPassword from "../../../application/cases/prepare-new-account-password.js";
+import { adapterContainer } from "../../containers.js";
+import * as _preparePassword from "../../../../application/usecases/registration/prepare-password.js";
 
-export async function prepareNewAccountPassword(
+export async function execute(
     password: string,
     passwordFieldElement: HTMLElement,
     notificationSignalElement: HTMLElement,
     notificationTextElement: HTMLElement,
 ): Promise<void> {
-    _prepareNewAccountPassword.prepareNewAccountPassword(
+    _preparePassword.execute(
         password,
         adapterContainer.formFieldViewOf(passwordFieldElement),
         adapterContainer.registrationNotificationViewOf(

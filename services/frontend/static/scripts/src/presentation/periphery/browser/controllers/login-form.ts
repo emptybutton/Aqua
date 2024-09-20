@@ -1,6 +1,7 @@
-import * as _login from "../../../di/facade/login.js";
-import * as _prepareToLogin from "../../../di/facade/prepare-to-login.js";
-import * as _closeLoginNotification from "../../../di/facade/close-login-notification.js";
+import * as _login from "../../../di/facade/login/login.js";
+import * as _prepareUsername from "../../../di/facade/login/prepare-username.js";
+import * as _preparePassword from "../../../di/facade/login/prepare-password.js";
+import * as _closeNotification from "../../../di/facade/login/close-notification.js";
 
 export function constructControllers(
     usernameElement: HTMLInputElement | HTMLTextAreaElement,
@@ -10,25 +11,25 @@ export function constructControllers(
     notificationCloseButtonElement: HTMLElement,
     pushButtonElement: HTMLElement,
 ): void {
-    const handleDataInput = async (priority: _prepareToLogin.Priority) => {
-        await _prepareToLogin.prepareToLogin(
-            usernameElement.value,
-            passwordElement.value,
-            priority,
-            usernameElement,
-            passwordElement,
-            notificationSignalElement,
-            notificationTextElement,
-        );
-    }
-    const handleUsernameInput = async () => await handleDataInput(
-        _prepareToLogin.Priority.forUsername,
-    );
-    const handlePasswordInput = async () => await handleDataInput(
-        _prepareToLogin.Priority.forPassword,
+    const handleUsernameInput = async () => await _prepareUsername.execute(
+        usernameElement.value,
+        passwordElement.value,
+        usernameElement,
+        passwordElement,
+        notificationSignalElement,
+        notificationTextElement,
     );
 
-    const handlePushButtonActivation = async () => await _login.login(
+    const handlePasswordInput = async () => await _preparePassword.execute(
+        usernameElement.value,
+        passwordElement.value,
+        usernameElement,
+        passwordElement,
+        notificationSignalElement,
+        notificationTextElement,
+    );
+
+    const handlePushButtonActivation = async () => await _login.execute(
         usernameElement.value,
         passwordElement.value,
         usernameElement,
@@ -38,7 +39,7 @@ export function constructControllers(
     );
 
     const handleNotificationCloseButtonActivation = async () => {
-        await _closeLoginNotification.closeLoginNotification(
+        await _closeNotification.execute(
             notificationSignalElement,
             notificationTextElement,
         )
