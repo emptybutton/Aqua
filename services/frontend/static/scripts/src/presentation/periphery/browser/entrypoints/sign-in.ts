@@ -1,6 +1,6 @@
-import * as loginForm from "../controllers/login-form.js";
+import * as form from "../controllers/login-form.js";
 
-loginForm.constructControllers(
+form.constructControllers(
     <HTMLInputElement>document.querySelector("#input-name"),
     <HTMLInputElement>document.querySelector("#input-password"),
     <HTMLDivElement>document.querySelector(".default-neutral-notification"),
