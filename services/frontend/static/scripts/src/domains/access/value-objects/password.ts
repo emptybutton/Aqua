@@ -45,23 +45,37 @@ function *_weaknessReasonsFor(text: string) {
     if (text.length < 8)
         yield WeaknessReasons.tooShort;
 
-    if (text.toLocaleLowerCase() === text)
-        yield WeaknessReasons.onlySmallLetters;
+    if (text.length !== 0) {
+        if (text.toLocaleLowerCase() === text)
+            yield WeaknessReasons.onlySmallLetters;
 
-    if (text.toLocaleUpperCase() === text)
-        yield WeaknessReasons.onlyCapitalLetters;
-
-    if (_hasOnlyDigits(text))
-        yield WeaknessReasons.onlyDigits;
+        if (text.toLocaleUpperCase() === text)
+            yield WeaknessReasons.onlyCapitalLetters;
+    }
 
     if (_hasNoDigits(text))
         yield WeaknessReasons.noDigits;
+
+    else if (_hasOnlyDigits(text))
+        yield WeaknessReasons.onlyDigits;
 }
 
 function _hasOnlyDigits(text: string): boolean {
-    return !isNaN(parseInt(text));
+    return _digitAmountIn(text) === text.length;
 }
 
 function _hasNoDigits(text: string): boolean {
-    return !text.split('').some(char => char >= '0' && char <= '9');
+    return _digitAmountIn(text) === 0;
+}
+
+function _digitAmountIn(text: string): number {
+    let amount = 0;
+    let digits = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+
+    for (const char of text) {
+        if (digits.has(char))
+            amount++;
+    }
+
+    return amount; 
 }
