@@ -14,8 +14,8 @@ export async function execute(
     usernameText: string,
     passwordText: string,
     priority: Priority,
-    usernameView: views.ValidationView,
-    passwordView: views.ValidationView,
+    usernameView: views.OptionalPositiveView,
+    passwordView: views.OptionalPositiveView,
     usernamesOfUnregisteredUsers: repos.Usernames,
     invalidCredentialSet: repos.CredentialSet,
     notificationView: views.LoginNotificationView,
@@ -55,7 +55,7 @@ export async function execute(
 function _validateUsername(
     username: _username.AnyUsername,
     notificationView: views.LoginNotificationView,
-    usernameView: views.ValidationView,
+    usernameView: views.OptionalPositiveView,
     usernamesOfUnregisteredUsers: repos.Usernames,
 ): boolean {
      if (username instanceof _username.InvalidUsername) {
@@ -76,7 +76,7 @@ function _validateUsername(
 
 function _validatePassword(
     password: _password.Password,
-    passwordView: views.ValidationView,
+    passwordView: views.OptionalPositiveView,
     notificationView: views.LoginNotificationView,
 ): boolean {
      if (password.power instanceof _password.WeakPower) {

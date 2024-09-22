@@ -58,10 +58,21 @@ button:active {
 .ok-button {
   background-color: $ok-color;
   border: solid 1px $ok-bordering-color;
+  text-decoration: line-through;
 }
 
 .ok-button:active {
   color: $ok-color;
+}
+
+.bad-button {
+  background-color: $bad-color;
+  border: solid 1px $bad-non-interaction-bordering-color;
+  text-decoration: line-through;
+}
+
+.bad-button:active {
+  color: $bad-color;
 }
 
 @mixin horizontally-centered {

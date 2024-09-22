@@ -3,7 +3,7 @@ import * as _glass from "../../../domains/water-recording/value-objects/glass.js
 
 export function execute(
     glassCapacityMilliliters: number | undefined,
-    glassView: _views.ValidationView,
+    glassView: _views.OptionalPositiveView,
     notificationView: _views.RegistrationNotificationView,
 ): void {
     let glass: _glass.AnyGlass | undefined = undefined;

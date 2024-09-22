@@ -16,7 +16,7 @@ export const pageView: views.WindowView = {
     },
 }
 
-export class ValidationCSSView implements views.ValidationView {
+export class OptionalPositiveCSSView implements views.OptionalPositiveView {
     constructor(
         private _element: HTMLElement,
         private _classNameWhenOk: string,
@@ -29,6 +29,27 @@ export class ValidationCSSView implements views.ValidationView {
 
     redrawNeutral(): void {
         this._element.className = this._classNameWhenNeutral;
+    }
+}
+
+export class TernaryCSSView implements views.TernaryView {
+    constructor(
+        private _element: HTMLElement,
+        private _classNameWhenOk: string,
+        private _classNameWhenNeutral: string,
+        private _classNameWhenBad: string,
+    ) {}
+
+    redrawOk(): void {
+        this._element.className = this._classNameWhenOk;
+    }
+
+    redrawNeutral(): void {
+        this._element.className = this._classNameWhenNeutral;
+    }
+
+    redrawBad(): void {
+        this._element.className = this._classNameWhenBad;
     }
 }
 
@@ -227,6 +248,12 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
     redrawForInvalidGlassHint(): void {
         this._textElement.innerText = "Количество воды в миллилитрах, которое вы обычно выпиваете, может отсутствовать. Если указано, должно быть целым положительным числом";
         this._redrawNeutral();
+        this._redrawVisible();
+    }
+
+    redrawAccountCreated(): void {
+        this._textElement.innerText = "Аккаунт создан";
+        this._redrawOk();
         this._redrawVisible();
     }
 }

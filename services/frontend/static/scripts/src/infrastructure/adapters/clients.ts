@@ -50,13 +50,11 @@ export const backendAPI: _clients.Backend = {
     async register(
         credentials: _credentials.StrongCredentials,
         targetWaterBalance: _waterBalance.WaterBalance | undefined,
-        glass: _glass.Glass | undefined,
         weight: _weight.Weight | undefined,
+        glass: _glass.Glass | undefined,
     ): _clients.Result<
         {user: _user.User, account: _account.Account}
         | "userIsAlreadyRegistered"
-        | "noWeightForWaterBalance"
-        | "extremeWeightForWaterBalance"
     > {
         const response = await fetch(_urls.registrationURL, {
             method: 'POST',
@@ -64,7 +62,7 @@ export const backendAPI: _clients.Backend = {
             body: JSON.stringify({
                 "username": credentials.username.text,
                 "password": credentials.password.text,
-                "water_balance_milliliters": targetWaterBalance?.water.milliliters,
+                "target_water_balance_milliliters": targetWaterBalance?.water.milliliters,
                 "glass_milliliters": glass?.capacity.milliliters,
                 "weight_kilograms": weight?.kilograms,
             })
@@ -77,13 +75,6 @@ export const backendAPI: _clients.Backend = {
 
             if (errorType === "UserIsAlreadyRegisteredError")
                 return "userIsAlreadyRegistered";
-
-            else if (errorType === "NoWeightForWaterBalanceError")
-                return "noWeightForWaterBalance";
-
-            else if (errorType === "ExtremeWeightForWaterBalanceError")
-                return "extremeWeightForWaterBalance";
-
             else 
                 return "error";
         }

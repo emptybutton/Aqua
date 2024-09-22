@@ -4,6 +4,7 @@ import * as _prepareWeight from "../../../../di/facade/registration/prepare-weig
 import * as _prepareTarget from "../../../../di/facade/registration/prepare-target.js";
 import * as _prepareGlass from "../../../../di/facade/registration/prepare-glass.js";
 import * as _closeNotification from "../../../../di/facade/registration/close-notification.js";
+import * as _createAccount from "../../../../di/facade/registration/create-account.js";
 import { parseOptional } from "../parsers.js";
 
 export function constructControllers(
@@ -15,7 +16,7 @@ export function constructControllers(
     notificationSignalElement: HTMLElement,
     notificationTextElement: HTMLElement,
     notificationCloseButtonElement: HTMLElement,
-    // pushButtonElement: HTMLElement,
+    pushButtonElement: HTMLElement,
 ): void {
     const handleUsername = () => _prepareUsername.execute(
         usernameElement.value,
@@ -63,6 +64,18 @@ export function constructControllers(
         )
     };
 
+    const handlePushButtonActivation = () => _createAccount.execute(
+        usernameElement.value,
+        passwordElement.value,
+        parseOptional(weightElement.value),
+        parseOptional(targetWaterBalanceElement.value),
+        parseOptional(glassElement.value),
+        notificationSignalElement,
+        notificationTextElement,
+        usernameElement,
+        pushButtonElement,
+    );
+
     usernameElement.addEventListener("input", handleUsername);
     usernameElement.addEventListener("focus", handleUsername);
 
@@ -81,4 +94,6 @@ export function constructControllers(
     notificationCloseButtonElement.addEventListener(
         "click", handleNotificationCloseButtonActivation
     );
+
+    pushButtonElement.addEventListener("click", handlePushButtonActivation);
 }

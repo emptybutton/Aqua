@@ -9,4 +9,5 @@ form.constructControllers(
     <HTMLDivElement>document.querySelector("#notification"),
     <HTMLDivElement>document.querySelector("#notification-text"),
     <HTMLImageElement>document.querySelector("#notification-close-button"),
+    <HTMLButtonElement>document.querySelector("#sign-up-button"),
 );

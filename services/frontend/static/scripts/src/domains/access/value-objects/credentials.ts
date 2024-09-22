@@ -15,3 +15,10 @@ export type StrongCredentials = Credentials<
     _username.Username,
     _password.StrongPassword
 >;
+
+export function isStrong(credentials: Credentials): credentials is StrongCredentials {
+    let isUsernameOk = credentials.username instanceof _username.Username;
+    let isPasswordOk = credentials.password.power instanceof _password.StrongPower;
+
+    return isUsernameOk && isPasswordOk;
+}

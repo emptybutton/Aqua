@@ -3,7 +3,7 @@ import * as _password from "../../../domains/access/value-objects/password.js";
 
 export function execute(
     passwordText: string,
-    passwordView: _views.ValidationView,
+    passwordView: _views.OptionalPositiveView,
     notificationView: _views.RegistrationNotificationView,
 ): void {
     let password = _password.Password.with(passwordText);

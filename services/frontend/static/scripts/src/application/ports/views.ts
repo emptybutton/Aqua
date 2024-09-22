@@ -42,9 +42,16 @@ export interface RegistrationNotificationView {
     redrawForValidGlassHint(): void,
     redrawForInvalidGlassHint(): void,
     redrawTryAgainLater(): void,
+    redrawAccountCreated(): void,
 }
 
-export interface ValidationView {
+export interface OptionalPositiveView {
     redrawOk(): void,
     redrawNeutral(): void,
+}
+
+export interface TernaryView {
+    redrawOk(): void,
+    redrawNeutral(): void,
+    redrawBad(): void,
 }

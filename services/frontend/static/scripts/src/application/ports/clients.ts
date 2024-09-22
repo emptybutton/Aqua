@@ -18,14 +18,19 @@ export interface Backend {
 
     register(
         credentials: _credentials.StrongCredentials,
-        targetWaterBalance: _waterBalance.WaterBalance | undefined,
-        glass: _glass.Glass | undefined,
+        targetWaterBalance: _waterBalance.WaterBalance,
         weight: _weight.Weight | undefined,
+        glass: _glass.Glass | undefined,
     ): Result<
-        {user: _user.User, account: _account.Account}
-        | "userIsAlreadyRegistered"
-        | "noWeightForWaterBalance"
-        | "extremeWeightForWaterBalance"
+        {user: _user.User, account: _account.Account} | "userIsAlreadyRegistered"
+    >,
+    register(
+        credentials: _credentials.StrongCredentials,
+        targetWaterBalance: undefined,
+        weight: _weight.WeightForTarget,
+        glass: _glass.Glass | undefined,
+    ): Result<
+        {user: _user.User, account: _account.Account} | "userIsAlreadyRegistered"
     >,
 
     existsNamed(username: _username.Username): Result<{exists: boolean}>,

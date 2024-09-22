@@ -5,8 +5,8 @@ import * as _waterBalance from "../../../domains/water-recording/value-objects/w
 export function execute(
     weightKilograms: number | undefined,
     targetWaterBalanceMilliliters: number | undefined,
-    weightView: _views.ValidationView,
-    targetWaterBalanceView: _views.ValidationView,
+    weightView: _views.OptionalPositiveView,
+    targetWaterBalanceView: _views.OptionalPositiveView,
     notificationView: _views.RegistrationNotificationView,
 ): void {
     let weight: _weight.AnyWeight | undefined = undefined;

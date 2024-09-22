@@ -9,7 +9,7 @@ import * as _credentials from "../../../domains/access/value-objects/credentials
 
 export function execute(
     usernameText: string,
-    usernameView: _views.ValidationView,
+    usernameView: _views.OptionalPositiveView,
     notificationView: _views.RegistrationNotificationView,
     usernamesOfRegisteredUsers: _repos.Usernames,
     usernamesOfUnregisteredUsers: _repos.Usernames,

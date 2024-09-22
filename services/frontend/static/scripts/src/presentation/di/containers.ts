@@ -12,10 +12,15 @@ import * as pTimeouts from "../../application/ports/timeouts.js";
 export const adapterContainer = {
     _formFieldClassNameWhenNeutral: "",
     _formFieldClassNameWhenOK: "valid-form-field",
+    _buttonClassNameWhenOK: "ok-button",
+    _buttonClassNameWhenNeutral: "",
+    _buttonClassNameWhenBad: "bad-button",
     _usernamesOfUnregisteredUsers: new aRepos.InMemoryUsernames(),
     _usernamesOfRegisteredUsers: new aRepos.InMemoryUsernames(),
     _invalidCredentialSet: new aRepos.InMemoryCredentialSet(),
     _timeoutForUsernameAvailability: new aTimeouts.InMemoryTimeout(),
+    _redirectionTimeout: new aTimeouts.InMemoryTimeout(),
+    _registrationButtonTimeout: new aTimeouts.InMemoryTimeout(),
 
     get usernamesOfRegisteredUsers(): pRepos.Usernames {
         return this._usernamesOfRegisteredUsers;
@@ -45,11 +50,28 @@ export const adapterContainer = {
         return this._timeoutForUsernameAvailability;
     },
 
-    formFieldViewOf(element: HTMLElement): pViews.ValidationView {
-        return new aViews.ValidationCSSView(
+    get redirectionTimeout(): pTimeouts.Timeout {
+        return this._redirectionTimeout;
+    },
+    
+    get registrationButtonTimeout(): pTimeouts.Timeout {
+        return this._registrationButtonTimeout;
+    },
+
+    formFieldViewOf(element: HTMLElement): pViews.OptionalPositiveView {
+        return new aViews.OptionalPositiveCSSView(
             element,
             this._formFieldClassNameWhenOK,
             this._formFieldClassNameWhenNeutral,
+        );
+    },
+
+    buttonTernaryViewOf(element: HTMLElement): pViews.TernaryView {
+        return new aViews.TernaryCSSView(
+            element,
+            this._buttonClassNameWhenOK,
+            this._buttonClassNameWhenNeutral,
+            this._buttonClassNameWhenBad,
         );
     },
 
