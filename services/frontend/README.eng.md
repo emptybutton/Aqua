@@ -25,9 +25,11 @@ docker compose -f Aqua/services/frontend/docker-compose.dev.yml up
   <table>
     <tr>
       <th>Login Page</th>
+      <th>Registration Page</th>
     </tr>
     <tr>
       <td><img src="https://github.com/emptybutton/Aqua/blob/main/services/frontend/assets/pages/login-page-view.jpg?raw=true" width="240"/></td>
+      <td><img src="https://github.com/emptybutton/Aqua/blob/main/services/frontend/assets/pages/registration-page-view.jpg?raw=true" width="240"/></td>
     </tr>
   </table>
 </details>
