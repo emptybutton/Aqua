@@ -252,8 +252,14 @@ export class RegistrationDefaultNotificationCSSView extends DefaultNotificationC
     }
 
     redrawAccountCreated(): void {
-        this._textElement.innerText = "Аккаунт создан";
+        this._textElement.innerText = "Аккаунт создан!";
         this._redrawOk();
+        this._redrawVisible();
+    }
+
+    redrawBadInput(): void {
+        this._textElement.innerText = "Для создания аккаунта все поля должны быть заполнены верно";
+        this._redrawBad();
         this._redrawVisible();
     }
 }

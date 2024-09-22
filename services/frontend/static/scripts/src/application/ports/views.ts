@@ -42,6 +42,7 @@ export interface RegistrationNotificationView {
     redrawForValidGlassHint(): void,
     redrawForInvalidGlassHint(): void,
     redrawTryAgainLater(): void,
+    redrawBadInput(): void,
     redrawAccountCreated(): void,
 }
 

@@ -26,7 +26,9 @@ export async function execute(
     backend: _clients.Backend,
     logger: _loggers.Logger,
 ): Promise<void> {
-    let showExecutingViewBad = () => _showExecutingViewBad(executingView, executingViewTimeout);
+    let showExecutingViewBad = () => _showExecutingViewBad(
+        executingView, executingViewTimeout
+    );
 
     let username = _username.anyWith(usernameText);
     let password = _password.Password.with(passwordText);
@@ -37,6 +39,7 @@ export async function execute(
         || usernamesOfRegisteredUsers.contains(username)
     ) {
         showExecutingViewBad();
+        notificationView.redrawBadInput();
         return;
     }
 
@@ -62,6 +65,7 @@ export async function execute(
         asyncResult = backend.register(credentials, targetWaterBalance, weight, glass);
     else if (targetWaterBalance === undefined) {
         showExecutingViewBad();
+        notificationView.redrawBadInput();
         return;
     }
     else
@@ -75,9 +79,9 @@ export async function execute(
         notificationView.redrawTryAgainLater();
     }
     else if (result === "userIsAlreadyRegistered") {
+        showExecutingViewBad();
         usernamesOfRegisteredUsers.add(username);
         usernameView.redrawNeutral();
-        executingView.redrawBad();
         notificationView.redrawUsernameTaken(username);
     }
     else {
