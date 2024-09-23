@@ -1,7 +1,13 @@
-from fastapi import status
+from fastapi import Response, status
 
-from entrypoint.presentation.periphery.api.views import bodies
+from entrypoint.presentation.periphery.api.views import bodies, cookies
 from entrypoint.presentation.periphery.api.views.responses.common import View
+
+
+def _remove_session_cookie(response: Response) -> Response:
+    cookies.SessionCookie(response).delete()
+
+    return response
 
 
 backend_is_not_working_view = View(
@@ -14,8 +20,6 @@ week_password_view = View(
 
 no_user_view = View(bodies.bad.NoUserView, status.HTTP_404_NOT_FOUND)
 
-no_current_user_view = View(bodies.bad.NoUserView, status.HTTP_401_UNAUTHORIZED)
-
 incorrect_password_view = View(
     bodies.bad.IncorrectPasswordView, status.HTTP_401_UNAUTHORIZED
 )
@@ -23,6 +27,7 @@ incorrect_password_view = View(
 not_authenticated_view = View(
     bodies.bad.NotAuthenticatedView,
     status.HTTP_401_UNAUTHORIZED,
+    _remove_session_cookie,
 )
 
 incorrect_water_amount_view = View(

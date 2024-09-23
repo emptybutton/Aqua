@@ -16,9 +16,11 @@ class View(Generic[_BaseModelT_co]):
         self,
         body_type: type[_BaseModelT_co],
         status_code: int = status.HTTP_200_OK,
+        extended: Callable[[Response], Response] = lambda v: v,
     ) -> None:
         self.__body_type = body_type
         self.__status_code = status_code
+        self.__extended = extended
 
     @property
     def body_type(self) -> type[_BaseModelT_co]:
@@ -49,14 +51,15 @@ class View(Generic[_BaseModelT_co]):
         background: BackgroundTasks | None = None,
     ) -> Response:
         model = self.__body_type() if model is None else model
-
-        return Response(
+        response = Response(
             model.model_dump_json(),
             self.__status_code,
             headers,
             "application/json",
             background,
         )
+
+        return self.__extended(response)
 
 
 def to_doc(*views: View[BaseModel]) -> _Doc:
