@@ -38,7 +38,7 @@ export const backendAPI: _clients.Backend = {
         if (response.status === 401)
             return "incorrectPassword";
 
-        const data = await response.json();
+        const data = await _bodyOf(response);
         const userId = data["user_id"];
 
         if (typeof userId !== "string")
@@ -66,9 +66,9 @@ export const backendAPI: _clients.Backend = {
                 "glass_milliliters": glass?.capacity.milliliters,
                 "weight_kilograms": weight?.kilograms,
             })
-        })
+        });
 
-        const data = await response.json();
+        const data = await _bodyOf(response);
 
         if (!response.ok) {
             const errorType = data?.detail?.[0]?.type;
@@ -122,7 +122,7 @@ export const backendAPI: _clients.Backend = {
         if (!response.ok)
             return "error";
 
-        const data = await response.json();
+        const data = await _bodyOf(response);
         const exists = data["exists"];
 
         if (typeof exists !== "boolean")
@@ -130,4 +130,16 @@ export const backendAPI: _clients.Backend = {
 
         return {exists: exists};
     },
+}
+
+async function _bodyOf(response: Response): Promise<any> {
+    let body: any;
+
+    try {
+      body = await response.json();
+    } catch {
+      body = undefined;
+    }
+
+    return body;
 }
