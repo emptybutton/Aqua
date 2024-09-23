@@ -1,4 +1,5 @@
 from typing import Literal, TypeAlias, TypeVar
+from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -17,6 +18,7 @@ Output: TypeAlias = (
 
 
 async def perform(
+    session_id: UUID | None,
     name: str,
     password: str,
     *,
@@ -25,7 +27,7 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
     auth_result = await auth.authorize_user(
-        name, password, transaction=transaction
+        session_id, name, password, transaction=transaction
     )
 
     if auth_result == "auth_is_not_working":

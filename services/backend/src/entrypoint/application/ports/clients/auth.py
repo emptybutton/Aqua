@@ -79,7 +79,12 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def authorize_user(
-        self, name: str, password: str, *, transaction: _TransactionT_contra
+        self,
+        session_id: UUID | None,
+        name: str,
+        password: str,
+        *,
+        transaction: _TransactionT_contra,
     ) -> (
         AuthorizeUserOutput
         | Literal["auth_is_not_working"]

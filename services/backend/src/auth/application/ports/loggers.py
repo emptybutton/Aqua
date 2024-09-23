@@ -34,3 +34,6 @@ class Logger(ABC):
     async def log_session_extension(
         self, session: entities.Session
     ) -> None: ...
+
+    @abstractmethod
+    async def log_replaced_session(self, session: entities.Session) -> None: ...

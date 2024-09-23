@@ -25,9 +25,16 @@ NoUserError: TypeAlias = authorize_user.NoUserError
 IncorrectPasswordError: TypeAlias = authorize_user.IncorrectPasswordError
 
 
-async def perform(name: str, password: str, *, session: AsyncSession) -> Output:
+async def perform(
+    session_id: UUID | None,
+    name: str,
+    password: str,
+    *,
+    session: AsyncSession,
+) -> Output:
     async with async_container(context={AsyncSession: session}) as container:
         result = await authorize_user.perform(
+            session_id,
             name,
             password,
             password_serializer=await container.get(

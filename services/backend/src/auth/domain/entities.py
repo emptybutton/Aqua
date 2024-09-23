@@ -29,16 +29,45 @@ class User:
 
     class IncorrectPasswordHashForAuthorizationError(AuthorizationError): ...
 
+    @dataclass(kw_only=True, frozen=True)
+    class AuthorizationOutput:
+        current_session: "Session"
+        prevous_session: "Session | None" = None
+        new_session: "Session | None" = None
+        extended_session: "Session | None" = None
+
     def authorize(
         self,
         *,
         password_hash: PasswordHash,
         current_time: Time,
-    ) -> "Session":
+        current_session: "Session | None",
+    ) -> AuthorizationOutput:
         if self.password_hash != password_hash:
             raise User.IncorrectPasswordHashForAuthorizationError
 
-        return Session.for_(self, current_time=current_time)
+        if current_session is not None and not current_session.is_active:
+            current_session = None
+
+        if current_session is not None and current_session.user_id == self.id:
+            current_session.authenticate(current_time=current_time)
+            return User.AuthorizationOutput(
+                current_session=current_session,
+                extended_session=current_session
+            )
+
+        prevous_session = current_session
+        current_session = Session.for_(self, current_time=current_time)
+
+        if prevous_session is not None:
+            prevous_session.next_session_id = current_session.id
+
+        return User.AuthorizationOutput(
+            current_session=current_session,
+            prevous_session=prevous_session,
+            new_session=current_session,
+            extended_session=prevous_session
+        )
 
     def change_name(
         self,
@@ -96,27 +125,38 @@ class Session:
     user_id: UUID
     lifetime: SessionLifetime
     cancelled: bool = False
+    next_session_id: UUID | None = None
+
+    @property
+    def replaced(self) -> bool:
+        return self.next_session_id is not None
+
+    def is_active(self, *, current_time: Time) -> bool:
+        if self.lifetime.expired(current_time=current_time):
+            return False
+
+        return not self.replaced and not self.cancelled
 
     def cancel(self) -> None:
         self.cancelled = True
 
     class AuthenticationError(Error): ...
 
-    class ExpiredLifetimeForAuthenticationError(AuthenticationError): ...
-
-    class CancelledForAuthenticationError(AuthenticationError): ...
+    class NotActiveForAuthenticationError(AuthenticationError): ...
 
     def authenticate(self, *, current_time: Time) -> None:
-        if self.lifetime.expired(current_time=current_time):
-            raise Session.ExpiredLifetimeForAuthenticationError
-
-        if self.cancelled:
-            raise Session.CancelledForAuthenticationError
+        if not self.is_active(current_time=current_time):
+            raise Session.NotActiveForAuthenticationError
 
         self.lifetime = self.lifetime.extend(current_time=current_time)
 
     @classmethod
-    def for_(cls, user: User, *, current_time: Time) -> "Session":
+    def for_(
+        cls,
+        user: User,
+        *,
+        current_time: Time,
+    ) -> "Session":
         lifetime = SessionLifetime(start_time=current_time)
 
         return Session(user_id=user.id, lifetime=lifetime)

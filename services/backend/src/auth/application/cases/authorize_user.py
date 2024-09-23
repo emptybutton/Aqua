@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TypeVar
+from uuid import UUID
 
 from auth.application.ports import loggers, repos, serializers
 from auth.domain import entities
@@ -28,6 +29,7 @@ _SessionsT = TypeVar("_SessionsT", bound=repos.Sessions)
 
 
 async def perform(
+    session_id: UUID | None,
     name_text: str,
     password_text: str,
     *,
@@ -54,22 +56,33 @@ async def perform(
 
     password_hash = password_serializer.serialized(password)
 
-    async with user_transaction_for(users):
+    async with user_transaction_for(users), session_transaction_for(sessions):
         user = await users.find_with_name(username)
 
         if user is None:
             raise NoUserError
 
+        if session_id is not None:
+            current_session = await sessions.find_with_id(session_id)
+        else:
+            current_session = None
+
         try:
-            session = user.authorize(
+            result = user.authorize(
                 password_hash=password_hash,
                 current_time=current_time,
+                current_session=current_session,
             )
         except entities.User.IncorrectPasswordHashForAuthorizationError as err:
             raise IncorrectPasswordError from err
 
-        async with session_transaction_for(sessions):
-            await sessions.add(session)
-            await logger.log_login(user=user, session=session)
+        if result.new_session is not None:
+            await sessions.add(result.new_session)
 
-            return Output(user=user, session=session)
+        if result.extended_session is not None:
+            await logger.log_session_extension(result.extended_session)
+            await sessions.update(result.extended_session)
+
+        await logger.log_login(user=user, session=result.current_session)
+
+        return Output(user=user, session=result.current_session)

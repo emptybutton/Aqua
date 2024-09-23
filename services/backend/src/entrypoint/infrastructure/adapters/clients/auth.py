@@ -71,7 +71,12 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         )
 
     async def authorize_user(
-        self, name: str, password: str, *, transaction: DBTransaction
+        self,
+        session_id: UUID | None,
+        name: str,
+        password: str,
+        *,
+        transaction: DBTransaction,
     ) -> (
         clients.auth.AuthorizeUserOutput
         | Literal["auth_is_not_working"]
@@ -80,7 +85,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.authorize_user.perform(
-                name, password, session=transaction.session
+                session_id, name, password, session=transaction.session
             )
         except auth.authorize_user.NoUserError:
             return "no_user"

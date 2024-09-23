@@ -1,7 +1,7 @@
 from typing import Annotated, TypeAlias
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Cookie, Depends
 from fastapi.security import APIKeyCookie
 
 from entrypoint.presentation.periphery.api.views import cookies
@@ -17,3 +17,9 @@ _session_cookie_scheme = APIKeyCookie(
     description=_scheme_description,
 )
 session_id_cookie: TypeAlias = Annotated[UUID, Depends(_session_cookie_scheme)]
+
+
+optional_session_id_cookie: TypeAlias = Annotated[
+    UUID | None,
+    Cookie(alias=cookies.SessionCookie.name),
+]

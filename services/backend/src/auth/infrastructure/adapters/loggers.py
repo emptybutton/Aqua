@@ -87,6 +87,9 @@ class StructlogDevLogger(loggers.Logger):
             other_sessions=other_sessions,
         )
 
+    async def log_replaced_session(self, session: entities.Session) -> None:
+        await dev_logger.ainfo(logs.replaced_session_log, session=session)
+
 
 class StructlogProdLogger(loggers.Logger):
     __mapper = _Mapper()
@@ -142,8 +145,13 @@ class StructlogProdLogger(loggers.Logger):
     ) -> None:
         await prod_logger.ainfo(
             logs.password_change_log,
-            *self.__mapper.to_dict(user),
+            **self.__mapper.to_dict(user),
             other_sessions=tuple(map(self.__mapper.to_dict, other_sessions)),
+        )
+
+    async def log_replaced_session(self, session: entities.Session) -> None:
+        await dev_logger.ainfo(
+            logs.replaced_session_log, **self.__mapper.to_dict(session),
         )
 
 
@@ -172,11 +180,16 @@ class InMemoryStorageLogger(loggers.Logger):
         user: entities.User
         other_sessions: tuple[entities.Session, ...]
 
+    @dataclass(kw_only=True, frozen=True)
+    class ReplacedSessionLog:
+        session: entities.Session
+
     __registration_logs: list[RegistrationLog]
     __login_logs: list[LoginLog]
     __session_extension_logs: list[SessionExtensionLog]
     __renaming_logs: list[RenamingLog]
     __password_change_logs: list[PasswordChangeLog]
+    __replaced_session_logs: list[ReplacedSessionLog]
 
     def __init__(self) -> None:
         self.__registration_logs = list()
@@ -184,6 +197,7 @@ class InMemoryStorageLogger(loggers.Logger):
         self.__session_extension_logs = list()
         self.__renaming_logs = list()
         self.__password_change_logs = list()
+        self.__replaced_session_logs = list()
 
     @property
     def registration_logs(self) -> list[RegistrationLog]:
@@ -206,6 +220,10 @@ class InMemoryStorageLogger(loggers.Logger):
         return list(self.__password_change_logs)
 
     @property
+    def replaced_session_logs(self) -> list[ReplacedSessionLog]:
+        return list(self.__replaced_session_logs)
+
+    @property
     def is_empty(self) -> bool:
         return (
             not self.__registration_logs
@@ -213,6 +231,7 @@ class InMemoryStorageLogger(loggers.Logger):
             and not self.__session_extension_logs
             and not self.__renaming_logs
             and not self.__password_change_logs
+            and not self.__replaced_session_logs
         )
 
     async def log_registration(
@@ -254,3 +273,7 @@ class InMemoryStorageLogger(loggers.Logger):
             other_sessions=other_sessions,
         )
         self.__password_change_logs.append(log)
+
+    async def log_replaced_session(self, session: entities.Session) -> None:
+        log = InMemoryStorageLogger.ReplacedSessionLog(session=session)
+        self.__replaced_session_logs.append(log)

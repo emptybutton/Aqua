@@ -18,21 +18,8 @@ class Output:
     session_id: UUID
 
 
-NoSessionError: TypeAlias = authenticate_user.NoSessionError
-
-ExpiredSessionError: TypeAlias = (
-    entities.Session.ExpiredLifetimeForAuthenticationError
-)
-
-CancelledSessionError: TypeAlias = (
-    entities.Session.CancelledForAuthenticationError
-)
-
 Error: TypeAlias = (
-    authenticate_user.Error
-    | NoSessionError
-    | ExpiredSessionError
-    | CancelledSessionError
+    authenticate_user.Error | entities.Session.NotActiveForAuthenticationError
 )
 
 
