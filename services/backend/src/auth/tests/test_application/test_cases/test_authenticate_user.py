@@ -188,9 +188,8 @@ async def test_result(
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
     assert not_expired_session.lifetime.start_time is not None
-    lifetime_end_time = IsDatetime(
-        approx=not_expired_session.lifetime.start_time + timedelta(days=62)
-    )
+    datetime_ = not_expired_session.lifetime.start_time.datetime_
+    lifetime_end_time = IsDatetime(approx=datetime_ + timedelta(days=62))
 
     result_session = await authenticate_user.perform(
         not_expired_session.id,
@@ -209,4 +208,4 @@ async def test_result(
         result_session.lifetime.start_time
         == not_expired_session.lifetime.start_time
     )
-    assert result_session.lifetime.end_time == lifetime_end_time
+    assert result_session.lifetime.end_time.datetime_ == lifetime_end_time

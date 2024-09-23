@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import TypeVar
 
 from auth.application.ports import loggers, repos, serializers
@@ -39,6 +40,8 @@ async def perform(
     session_transaction_for: TransactionFactory[_SessionsT],
     logger: loggers.Logger,
 ) -> Output:
+    current_time = vos.Time(datetime_=datetime.now(UTC))
+
     try:
         username = vos.Username(text=name_text)
     except vos.Username.Error as error:
@@ -58,7 +61,10 @@ async def perform(
             raise NoUserError
 
         try:
-            session = user.authorize(password_hash=password_hash)
+            session = user.authorize(
+                password_hash=password_hash,
+                current_time=current_time,
+            )
         except entities.User.IncorrectPasswordHashForAuthorizationError as err:
             raise IncorrectPasswordError from err
 

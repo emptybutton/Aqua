@@ -24,7 +24,9 @@ def user2() -> entities.User:
 
 @fixture
 def expired_session(user1: entities.User) -> entities.Session:
-    lifetime = vos.SessionLifetime(_start_time=datetime(2000, 1, 1, tzinfo=UTC))
+    lifetime = vos.SessionLifetime(
+        start_time=vos.Time(datetime_=datetime(2000, 1, 1, tzinfo=UTC)),
+    )
 
     return entities.Session(user_id=user1.id, lifetime=lifetime)
 
@@ -32,7 +34,7 @@ def expired_session(user1: entities.User) -> entities.Session:
 @fixture
 def not_expired_session(user1: entities.User) -> entities.Session:
     lifetime = vos.SessionLifetime(
-        _start_time=datetime.now(UTC) - timedelta(days=2)
+        start_time=vos.Time(datetime_=datetime.now(UTC) - timedelta(days=2)),
     )
 
     return entities.Session(user_id=user1.id, lifetime=lifetime)

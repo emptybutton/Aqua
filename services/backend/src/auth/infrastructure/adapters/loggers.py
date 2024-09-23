@@ -19,21 +19,31 @@ class _Mapper:
 
     @to_dict.register
     def _(self, session: entities.Session) -> dict[str, Any]:
+        start_time = None
+
+        if session.lifetime.start_time is not None:
+            start_time = session.lifetime.start_time.datetime_
+
         return dict(
             session_id=session.id,
             session_user_id=session.user_id,
-            session_start_time=session.lifetime.start_time,
-            session_end_time=session.lifetime.end_time,
+            session_start_time=start_time,
+            session_end_time=session.lifetime.end_time.datetime_,
             session_cancelled=session.cancelled,
         )
 
     @to_dict.register
     def _(self, previous_username: entities.PreviousUsername) -> dict[str, Any]:
+        change_time = None
+
+        if previous_username.change_time is not None:
+            change_time = previous_username.change_time.datetime_
+
         return dict(
             previous_username_id=previous_username.id,
             previous_username_user_id=previous_username.user_id,
             previous_username=previous_username.username,
-            username_change_time=previous_username.change_time,
+            username_change_time=change_time,
         )
 
 
@@ -110,13 +120,18 @@ class StructlogProdLogger(loggers.Logger):
         user: entities.User,
         previous_username: entities.PreviousUsername,
     ) -> None:
+        change_time = None
+
+        if previous_username.change_time is not None:
+            change_time = previous_username.change_time.datetime_
+
         await prod_logger.ainfo(
             logs.renaming_log,
             user_id=user.id,
             new_username=user.name,
             previous_username=previous_username.username,
             previous_username_id=previous_username.id,
-            username_change_time=previous_username.change_time,
+            username_change_time=change_time,
         )
 
     async def log_password_change(

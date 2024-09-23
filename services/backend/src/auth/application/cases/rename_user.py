@@ -41,6 +41,7 @@ async def perform(
     previous_username_transaction_for: TransactionFactory[_PreviousUsernamesT],
     logger: loggers.Logger,
 ) -> Output:
+    current_time = vos.Time(datetime_=datetime.now(UTC))
     new_username = vos.Username(text=new_username_text)
 
     user_transaction = user_transaction_for(users)
@@ -66,7 +67,7 @@ async def perform(
 
         previous_username = user.change_name(
             new_username=new_username,
-            current_time=datetime.now(UTC),
+            current_time=current_time,
         )
 
         await users.update(user)

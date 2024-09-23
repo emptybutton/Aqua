@@ -200,8 +200,8 @@ async def test_result_session(case: Case) -> None:
     result = await case("username1", "pAssword1")
 
     assert result.session.user_id == result.user.id
-    assert result.session.lifetime.start_time == IsNow(tz=UTC)
-    assert result.session.lifetime.end_time == IsDatetime(
+    assert result.session.lifetime.start_time.datetime_ == IsNow(tz=UTC)  # type: ignore[union-attr]
+    assert result.session.lifetime.end_time.datetime_ == IsDatetime(
         approx=datetime.now(UTC) + timedelta(days=60)
     )
 

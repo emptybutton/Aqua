@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import TypeVar
 
 from auth.application.ports import loggers, repos, serializers
@@ -37,6 +38,8 @@ async def perform(
     ],
     logger: loggers.Logger,
 ) -> Output:
+    current_time = vos.Time(datetime_=datetime.now(UTC))
+
     username = vos.Username(text=name_text)
     password = vos.Password(text=password_text)
     password_hash = password_serializer.serialized(password)
@@ -48,7 +51,10 @@ async def perform(
         if await users.contains_with_name(username):
             raise UserIsAlreadyRegisteredError
 
-        user, session = entities.User.register(username, password_hash)
+        user, session = entities.User.register(
+            username, password_hash, current_time=current_time
+        )
+
         await users.add(user)
 
         async with session_transaction_for(sessions):

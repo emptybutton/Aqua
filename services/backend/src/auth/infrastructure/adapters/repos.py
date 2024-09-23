@@ -94,12 +94,17 @@ class DBSessions(repos.Sessions):
         self.__builder = STMTBuilder.of(session)
 
     async def add(self, session: entities.Session) -> None:
+        start_time = None
+
+        if session.lifetime.start_time is not None:
+            start_time = session.lifetime.start_time.datetime_
+
         await self.__session.execute(
             insert(tables.Session).values(
                 id=session.id,
                 user_id=session.user_id,
-                start_time=session.lifetime.start_time,
-                expiration_date=session.lifetime.end_time,
+                start_time=start_time,
+                expiration_date=session.lifetime.end_time.datetime_,
                 cancelled=session.cancelled,
             )
         )
@@ -123,9 +128,14 @@ class DBSessions(repos.Sessions):
         if raw_session is None:
             return None
 
+        start_time = None
+
+        if raw_session.start_time is not None:
+            start_time = vos.Time(datetime_=raw_session.start_time)
+
         lifetime = vos.SessionLifetime(
-            _start_time=raw_session.start_time,
-            _end_time=raw_session.expiration_date,
+            start_time=start_time,
+            _end_time=vos.Time(datetime_=raw_session.expiration_date),
         )
 
         return entities.Session(
@@ -160,8 +170,12 @@ class DBSessions(repos.Sessions):
                 id=raw_session.id,
                 user_id=user_id,
                 lifetime=vos.SessionLifetime(
-                    _start_time=raw_session.start_time,
-                    _end_time=raw_session.expiration_date,
+                    start_time=(
+                        None
+                        if raw_session.start_time is None
+                        else vos.Time(datetime_=raw_session.start_time)
+                    ),
+                    _end_time=vos.Time(datetime_=raw_session.expiration_date),
                 ),
                 cancelled=raw_session.cancelled or False,
             )
@@ -169,13 +183,18 @@ class DBSessions(repos.Sessions):
         )
 
     async def update(self, session: entities.Session) -> None:
+        start_time = None
+
+        if session.lifetime.start_time is not None:
+            start_time = session.lifetime.start_time.datetime_
+
         await self.__session.execute(
             update(tables.Session)
             .where(tables.Session.id == session.id)
             .values(
                 user_id=session.user_id,
-                start_time=session.lifetime.start_time,
-                expiration_date=session.lifetime.end_time,
+                start_time=start_time,
+                expiration_date=session.lifetime.end_time.datetime_,
                 cancelled=session.cancelled,
             )
         )
@@ -187,8 +206,12 @@ class DBSessions(repos.Sessions):
             dict(
                 id=session.id,
                 user_id=session.user_id,
-                start_time=session.lifetime.start_time,
-                expiration_date=session.lifetime.end_time,
+                start_time=(
+                    None
+                    if session.lifetime.start_time is None
+                    else session.lifetime.start_time.datetime_
+                ),
+                expiration_date=session.lifetime.end_time.datetime_,
                 cancelled=session.cancelled,
             )
             for session in sessions
@@ -209,12 +232,17 @@ class DBPreviousUsernames(repos.PreviousUsernames):
         self.__builder = STMTBuilder.of(session)
 
     async def add(self, previous_username: entities.PreviousUsername) -> None:
+        change_time = None
+
+        if previous_username.change_time is not None:
+            change_time = previous_username.change_time.datetime_
+
         await self.__session.execute(
             insert(tables.PreviousUsername).values(
                 id=previous_username.id,
                 user_id=previous_username.user_id,
                 username=previous_username.username.text,
-                change_time=previous_username.change_time,
+                change_time=change_time,
             )
         )
 
@@ -251,7 +279,11 @@ class DBPreviousUsernames(repos.PreviousUsernames):
             id=result.id,
             user_id=result.user_id,
             username=username,
-            change_time=result.change_time,
+            change_time=(
+                None
+                if result.change_time is None
+                else vos.Time(datetime_=result.change_time)
+            ),
         )
 
 

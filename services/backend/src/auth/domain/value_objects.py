@@ -2,7 +2,23 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from functools import cached_property
 from string import digits
-from typing import ClassVar
+from typing import Callable, ClassVar, cast
+
+
+@dataclass(kw_only=True, frozen=True)
+class Time:
+    class Error(Exception): ...
+
+    class NotUTCError(Error): ...
+
+    datetime_: datetime
+
+    def of(self, mapped: Callable[[datetime], datetime]) -> "Time":
+        return Time(datetime_=mapped(self.datetime_))
+
+    def __post_init__(self) -> None:
+        if self.datetime_.tzinfo is not UTC:
+            raise Time.NotUTCError
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -80,54 +96,40 @@ class SessionLifetime:
 
     class NoPointsError(Error): ...
 
-    class NotUTCStartTimeError(Error): ...
-
-    class NotUTCEndTimeError(Error): ...
-
-    _start_time: datetime | None = None
-    _end_time: datetime | None = None
+    start_time: Time | None = None
+    _end_time: Time | None = None
 
     @cached_property
-    def start_time(self) -> datetime | None:
-        return self._start_time
-
-    @cached_property
-    def end_time(self) -> datetime:
+    def end_time(self) -> Time:
         if self._end_time is not None:
             return self._end_time
 
-        return self.start_time + SessionLifetime.__chunk  # type: ignore[return-value, operator]
+        return cast(Time, self.start_time).of(
+            lambda time: time + SessionLifetime.__chunk
+        )
 
-    def expired(self, *, time_point: datetime | None = None) -> bool:
-        if time_point is None:
-            time_point = datetime.now(UTC)
-
+    def expired(self, *, current_time: Time) -> bool:
         if self.start_time is None:
-            return not time_point <= self.end_time
+            return not current_time.datetime_ <= self.end_time.datetime_
 
-        return not self.start_time <= time_point <= self.end_time
+        start_datetime = self.start_time.datetime_
+        end_datetime = self.end_time.datetime_
+        current_datetime = current_time.datetime_
 
-    def extend(
-        self, *, time_point: datetime | None = None
-    ) -> "SessionLifetime":
-        if time_point is None:
-            time_point = datetime.now(UTC)
+        return not start_datetime <= current_datetime <= end_datetime
 
-        extended_end_time = time_point + SessionLifetime.__chunk
+    def extend(self, *, current_time: Time) -> "SessionLifetime":
+        extended_end_time = current_time.of(
+            lambda time: time + SessionLifetime.__chunk
+        )
 
         return SessionLifetime(
-            _start_time=self._start_time, _end_time=extended_end_time
+            start_time=self.start_time, _end_time=extended_end_time
         )
 
     def __post_init__(self) -> None:
-        if self._start_time is None and self._end_time is None:
+        if self.start_time is None and self._end_time is None:
             raise SessionLifetime.NoPointsError
-
-        if self._start_time is not None and self._start_time.tzinfo is not UTC:
-            raise SessionLifetime.NotUTCStartTimeError
-
-        if self._end_time is not None and self._end_time.tzinfo is not UTC:
-            raise SessionLifetime.NotUTCEndTimeError
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SessionLifetime):
@@ -139,4 +141,4 @@ class SessionLifetime:
         return is_start_time_correct and is_end_time_correct
 
     def __hash__(self) -> int:
-        return hash(self._start_time) + hash(self.end_time)
+        return hash(self.start_time) + hash(self.end_time)
