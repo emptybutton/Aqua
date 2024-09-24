@@ -39,6 +39,9 @@ class Session(Base):
     start_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     cancelled: Mapped[bool | None]
+    next_session_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("sessions.id"),
+    )
 
 
 class AquaUser(Base):

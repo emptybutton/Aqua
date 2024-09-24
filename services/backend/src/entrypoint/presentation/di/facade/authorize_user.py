@@ -24,9 +24,10 @@ Output: TypeAlias = (
 )
 
 
-async def perform(name: str, password: str) -> Output:
+async def perform(session_id: UUID | None, name: str, password: str) -> Output:
     async with async_container() as container:
         result = await authorize_user.perform(
+            session_id,
             name,
             password,
             transaction=await container.get(DBTransaction, "transactions"),

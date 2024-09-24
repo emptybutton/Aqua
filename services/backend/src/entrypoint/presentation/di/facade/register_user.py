@@ -32,7 +32,8 @@ Output: TypeAlias = (
 )
 
 
-async def perform(
+async def perform(  # noqa: PLR0913, PLR0917
+    session_id: UUID | None,
     name: str,
     password: str,
     target_water_balance_milliliters: int | None,
@@ -41,6 +42,7 @@ async def perform(
 ) -> Output:
     async with async_container() as container:
         result = await register_user.perform(
+            session_id,
             name,
             password,
             target_water_balance_milliliters,

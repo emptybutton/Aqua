@@ -47,12 +47,12 @@ def test_user_on_register() -> None:
     username = vos.Username(text="username")
     password_hash = vos.PasswordHash(text="password_hash")
 
-    user, _ = entities.User.register(
+    result = entities.User.register(
         username, password_hash, current_time=current_time
     )
 
-    assert user.name == username
-    assert user.password_hash == password_hash
+    assert result.user.name == username
+    assert result.user.password_hash == password_hash
 
 
 def test_session_on_register() -> None:
@@ -62,9 +62,9 @@ def test_session_on_register() -> None:
     password_hash = vos.PasswordHash(text="password_hash")
     lifetime = vos.SessionLifetime(start_time=current_time, _end_time=end_time)
 
-    user, session = entities.User.register(
+    result = entities.User.register(
         username, password_hash, current_time=current_time
     )
 
-    assert session.user_id == user.id
-    assert session.lifetime == lifetime
+    assert result.current_session.user_id == result.user.id
+    assert result.current_session.lifetime == lifetime

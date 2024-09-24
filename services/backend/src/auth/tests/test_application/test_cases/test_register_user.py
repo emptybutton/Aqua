@@ -25,6 +25,7 @@ async def test_storages_with_invalid_name(
 
     with raises(vos.Username.EmptyError):
         await register_user.perform(
+            None,
             "",
             "Ab345678",
             users=users,
@@ -52,6 +53,7 @@ async def test_storages_with_invalid_password(
 
     with raises(vos.Password.WeekError):
         await register_user.perform(
+            None,
             "username1",
             "ab345678",
             users=users,
@@ -79,6 +81,7 @@ async def test_loggers_with_invalid_name(
 
     with raises(vos.Username.EmptyError):
         await register_user.perform(
+            None,
             "",
             "Ab345678",
             users=users,
@@ -106,6 +109,7 @@ async def test_loggers_with_invalid_password(
 
     with raises(vos.Password.WeekError):
         await register_user.perform(
+            None,
             "username1",
             "ab345678",
             users=users,
@@ -130,6 +134,7 @@ async def test_result_user(user1: entities.User, user2: entities.User) -> None:
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -157,6 +162,7 @@ async def test_result_session(
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -187,6 +193,7 @@ async def test_logger_log_values(
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -214,6 +221,7 @@ async def test_logger_log_size(
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -242,6 +250,7 @@ async def test_user_storage_values(
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -268,6 +277,7 @@ async def test_session_storage_values(
     previous_usernames = adapters.repos.InMemoryPreviousUsernames()
 
     result = await register_user.perform(
+        None,
         "usernameX",
         "Ab345678",
         users=users,
@@ -295,6 +305,7 @@ async def test_logger_log_size_on_registred_user_registration(
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
+            None,
             "username1",
             "Ab345678",
             users=users,
@@ -324,6 +335,7 @@ async def test_user_storage_size_on_registred_user_registration(
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
+            None,
             "username1",
             "Ab345678",
             users=users,
@@ -351,6 +363,7 @@ async def test_session_storage_size_on_registred_user_registration(
 
     with raises(register_user.UserIsAlreadyRegisteredError):
         await register_user.perform(
+            None,
             "username1",
             "Ab345678",
             users=users,

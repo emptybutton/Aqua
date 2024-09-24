@@ -23,7 +23,7 @@ def test_failed_authentication_with_expired_lifetime() -> None:
     lifetime = vos.SessionLifetime(start_time=start_time)
     session = entities.Session(user_id=uuid4(), lifetime=lifetime)
 
-    with raises(entities.Session.ExpiredLifetimeForAuthenticationError):
+    with raises(entities.Session.ExpiredForAuthenticationError):
         session.authenticate(current_time=current_time)
 
 
@@ -33,7 +33,7 @@ def test_failed_authentication_with_ray_lifetime() -> None:
     lifetime = vos.SessionLifetime(_end_time=end_time)
     session = entities.Session(user_id=uuid4(), lifetime=lifetime)
 
-    with raises(entities.Session.ExpiredLifetimeForAuthenticationError):
+    with raises(entities.Session.ExpiredForAuthenticationError):
         session.authenticate(current_time=current_time)
 
 
@@ -70,26 +70,24 @@ def test_lifetime_on_authentication_with_timepoint_with_ray_lifetime() -> None:
 def test_user_id_on_creation_for_user() -> None:
     current_time = vos.Time(datetime_=datetime(2000, 1, 1, tzinfo=UTC))
     user_id = uuid4()
-    username = vos.Username(text="username")
-    password_hash = vos.PasswordHash(text="password_hash")
-    user = entities.User(id=user_id, name=username, password_hash=password_hash)
 
-    session = entities.Session.for_(user, current_time=current_time)
+    result = entities.Session.for_user_with_id(
+        user_id, current_time=current_time
+    )
 
-    assert session.user_id == user_id
+    assert result.current_session.user_id == user_id
 
 
 def test_lifetime_on_creation_for_user() -> None:
     current_time = vos.Time(datetime_=datetime(2000, 1, 1, tzinfo=UTC))
     user_id = uuid4()
-    username = vos.Username(text="username")
-    password_hash = vos.PasswordHash(text="password_hash")
-    user = entities.User(id=user_id, name=username, password_hash=password_hash)
     expected_lifetime = vos.SessionLifetime(
         start_time=current_time,
         _end_time=vos.Time(datetime_=datetime(2000, 3, 1, tzinfo=UTC)),
     )
 
-    session = entities.Session.for_(user, current_time=current_time)
+    result = entities.Session.for_user_with_id(
+        user_id, current_time=current_time
+    )
 
-    assert session.lifetime == expected_lifetime
+    assert result.current_session.lifetime == expected_lifetime

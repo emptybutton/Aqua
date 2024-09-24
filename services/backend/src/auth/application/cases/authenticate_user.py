@@ -32,8 +32,8 @@ async def perform(
         if session is None:
             raise NoSessionError
 
-        session.authenticate(current_time=current_time)
-        await sessions.update(session)
-        await logger.log_session_extension(session)
+        extended_session = session.authenticate(current_time=current_time)
+        await sessions.update(extended_session)
+        await logger.log_session_extension(extended_session)
 
         return session

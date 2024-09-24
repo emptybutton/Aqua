@@ -83,6 +83,10 @@ async def perform(
             await logger.log_session_extension(result.extended_session)
             await sessions.update(result.extended_session)
 
+        if result.replaced_session is not None:
+            await logger.log_replaced_session(result.replaced_session)
+            await sessions.update(result.replaced_session)
+
         await logger.log_login(user=user, session=result.current_session)
 
         return Output(user=user, session=result.current_session)

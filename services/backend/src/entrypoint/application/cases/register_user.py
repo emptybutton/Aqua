@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Literal, TypeAlias, TypeVar
+from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
 from shared.application.ports.transactions import Transaction
@@ -29,7 +30,8 @@ _AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: igno
 _AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: ignore[valid-type]
 
 
-async def perform(
+async def perform(  # noqa: PLR0917
+    session_id: UUID | None,
     name: str,
     password: str,
     target_water_balance_milliliters: int | None,
@@ -44,7 +46,7 @@ async def perform(
 ) -> Output:
     async with transaction:
         auth_result = await auth.register_user(
-            name, password, transaction=transaction
+            session_id, name, password, transaction=transaction
         )
 
         if not isinstance(auth_result, clients.auth.RegisterUserOutput):

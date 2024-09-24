@@ -43,6 +43,7 @@ def case(
 
     async def case_(name: str, password: str) -> authorize_user.Output:
         return await authorize_user.perform(
+            None,
             name,
             password,
             users=users,

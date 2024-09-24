@@ -29,7 +29,8 @@ class _Mapper:
             session_user_id=session.user_id,
             session_start_time=start_time,
             session_end_time=session.lifetime.end_time.datetime_,
-            session_cancelled=session.cancelled,
+            session_cancelled=session.is_cancelled,
+            next_session_id=session.next_session_id,
         )
 
     @to_dict.register
@@ -151,7 +152,8 @@ class StructlogProdLogger(loggers.Logger):
 
     async def log_replaced_session(self, session: entities.Session) -> None:
         await dev_logger.ainfo(
-            logs.replaced_session_log, **self.__mapper.to_dict(session),
+            logs.replaced_session_log,
+            **self.__mapper.to_dict(session),
         )
 
 

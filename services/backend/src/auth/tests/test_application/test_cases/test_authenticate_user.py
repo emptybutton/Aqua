@@ -101,7 +101,7 @@ async def test_storage_with_expired_session(
     logger = adapters.loggers.InMemoryStorageLogger()
     transaction_factory = InMemoryUoWTransactionFactory()
 
-    with raises(entities.Session.ExpiredLifetimeForAuthenticationError):
+    with raises(entities.Session.ExpiredForAuthenticationError):
         await authenticate_user.perform(
             expired_session.id,
             sessions=sessions,

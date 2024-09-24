@@ -57,7 +57,12 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def register_user(
-        self, name: str, password: str, *, transaction: _TransactionT_contra
+        self,
+        session_id: UUID | None,
+        name: str,
+        password: str,
+        *,
+        transaction: _TransactionT_contra,
     ) -> (
         RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -75,6 +80,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
         | Literal["no_session"]
         | Literal["expired_session"]
         | Literal["cancelled_session"]
+        | Literal["replaced_session"]
     ): ...
 
     @abstractmethod

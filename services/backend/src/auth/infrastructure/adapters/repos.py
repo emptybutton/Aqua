@@ -105,7 +105,8 @@ class DBSessions(repos.Sessions):
                 user_id=session.user_id,
                 start_time=start_time,
                 expiration_date=session.lifetime.end_time.datetime_,
-                cancelled=session.cancelled,
+                cancelled=session.is_cancelled,
+                next_session_id=session.next_session_id,
             )
         )
 
@@ -116,6 +117,7 @@ class DBSessions(repos.Sessions):
                 tables.Session.start_time,
                 tables.Session.expiration_date,
                 tables.Session.cancelled,
+                tables.Session.next_session_id,
             )
             .build()
             .where(tables.Session.id == session_id)
@@ -142,7 +144,8 @@ class DBSessions(repos.Sessions):
             id=session_id,
             user_id=raw_session.user_id,
             lifetime=lifetime,
-            cancelled=raw_session.cancelled or False,
+            is_cancelled=raw_session.cancelled or False,
+            next_session_id=raw_session.next_session_id,
         )
 
     async def find_other_with_user_id(
@@ -154,6 +157,7 @@ class DBSessions(repos.Sessions):
                 tables.Session.start_time,
                 tables.Session.expiration_date,
                 tables.Session.cancelled,
+                tables.Session.next_session_id,
             )
             .build()
             .where(
@@ -177,7 +181,8 @@ class DBSessions(repos.Sessions):
                     ),
                     _end_time=vos.Time(datetime_=raw_session.expiration_date),
                 ),
-                cancelled=raw_session.cancelled or False,
+                is_cancelled=raw_session.cancelled or False,
+                next_session_id=raw_session.next_session_id,
             )
             for raw_session in raw_sessions
         )
@@ -195,7 +200,8 @@ class DBSessions(repos.Sessions):
                 user_id=session.user_id,
                 start_time=start_time,
                 expiration_date=session.lifetime.end_time.datetime_,
-                cancelled=session.cancelled,
+                cancelled=session.is_cancelled,
+                next_session_id=session.next_session_id,
             )
         )
 
@@ -212,7 +218,8 @@ class DBSessions(repos.Sessions):
                     else session.lifetime.start_time.datetime_
                 ),
                 expiration_date=session.lifetime.end_time.datetime_,
-                cancelled=session.cancelled,
+                cancelled=session.is_cancelled,
+                next_session_id=session.next_session_id,
             )
             for session in sessions
         ]

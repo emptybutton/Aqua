@@ -18,7 +18,12 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         await auth.close.perform()
 
     async def register_user(
-        self, name: str, password: str, *, transaction: DBTransaction
+        self,
+        session_id: UUID | None,
+        name: str,
+        password: str,
+        *,
+        transaction: DBTransaction,
     ) -> (
         clients.auth.RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -28,7 +33,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.register_user.perform(
-                name, password, session=transaction.session
+                session_id, name, password, session=transaction.session
             )
         except auth.register_user.UserIsAlreadyRegisteredError:
             return "user_is_already_registered"
@@ -51,6 +56,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         | Literal["no_session"]
         | Literal["expired_session"]
         | Literal["cancelled_session"]
+        | Literal["replaced_session"]
     ):
         try:
             result = await auth.authenticate_user.perform(
@@ -62,6 +68,8 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "expired_session"
         except auth.authenticate_user.CancelledSessionError:
             return "cancelled_session"
+        except auth.authenticate_user.ReplacedSessionError:
+            return "replaced_session"
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"

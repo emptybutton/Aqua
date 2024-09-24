@@ -31,10 +31,15 @@ Error: TypeAlias = register_user.Error | EmptyUsernameError | WeekPasswordError
 
 
 async def perform(
-    username: str, password: str, *, session: AsyncSession
+    session_id: UUID | None,
+    username: str,
+    password: str,
+    *,
+    session: AsyncSession,
 ) -> Output:
     async with async_container(context={AsyncSession: session}) as container:
         result = await register_user.perform(
+            session_id,
             username,
             password,
             users=await container.get(repos.DBUsers, "repos"),
