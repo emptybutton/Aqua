@@ -1,1 +1,1 @@
-from shared.domain import pure as pure
+from shared.domain import framework as framework

@@ -6,8 +6,8 @@ from auth.domain.models.auth.pure.vos import (
     session_lifetime as _session_lifetime,
 )
 from auth.domain.models.auth.pure.vos import time as _time
-from shared.domain.pure import entity as _entity
-from shared.domain.pure.ports.effect import Effect
+from shared.domain.framework.pure import entity as _entity
+from shared.domain.framework.pure.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -45,7 +45,6 @@ SessionInactivityReasons: TypeAlias = (
 
 @dataclass(kw_only=True, eq=False)
 class Session(_entity.Entity[UUID, SessionEvent]):
-    id: UUID
     account_id: UUID
     lifetime: _session_lifetime.SessionLifetime
     is_cancelled: bool = False

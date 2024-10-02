@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from hashlib import sha256
 from string import digits
 
 
@@ -51,6 +52,16 @@ class PasswordHash:
 
     text: str
 
+    def equals(self, other_hash: "PasswordHash") -> bool:
+        return self.text == other_hash.text
+
     def __post_init__(self) -> None:
         if len(self.text) == 0:
             raise PasswordHash.EmptyError
+
+
+def hash_of(password: Password) -> PasswordHash:
+    hash_ = sha256()
+    hash_.update(password.text.encode("utf-8"))
+
+    return PasswordHash(text=hash_.hexdigest())

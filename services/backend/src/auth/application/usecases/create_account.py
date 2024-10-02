@@ -9,7 +9,7 @@ from auth.domain import value_objects as vos
 from shared.application.ports.transactions import TransactionFactory
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user: entities.User
     session: entities.Session

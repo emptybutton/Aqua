@@ -1,62 +1,17 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from auth.domain import entities
-from auth.domain import value_objects as vos
+from auth.domain.models.auth.pure.aggregates.account.root import Account
 
 
-class Users(ABC):
+class Accounts(ABC):
     @abstractmethod
-    async def add(self, user: entities.User) -> None: ...
-
-    @abstractmethod
-    async def find_with_id(self, user_id: UUID) -> entities.User | None: ...
+    async def account_with_id(self, account_id: UUID) -> Account | None: ...
 
     @abstractmethod
-    async def find_with_name(
-        self, username: vos.Username
-    ) -> entities.User | None: ...
+    async def account_with_session(
+        self, *, session_id: UUID
+    ) -> Account | None: ...
 
     @abstractmethod
-    async def contains_with_name(self, username: vos.Username) -> bool: ...
-
-    @abstractmethod
-    async def update(self, user: entities.User) -> None: ...
-
-
-class Sessions(ABC):
-    @abstractmethod
-    async def add(self, session: entities.Session) -> None: ...
-
-    @abstractmethod
-    async def find_with_id(
-        self, session_id: UUID
-    ) -> entities.Session | None: ...
-
-    @abstractmethod
-    async def find_other_with_user_id(
-        self, *, current_session_id: UUID, user_id: UUID
-    ) -> tuple[entities.Session, ...]: ...
-
-    @abstractmethod
-    async def update(self, session: entities.Session) -> None: ...
-
-    @abstractmethod
-    async def update_all(
-        self, sessions: tuple[entities.Session, ...]
-    ) -> None: ...
-
-
-class PreviousUsernames(ABC):
-    @abstractmethod
-    async def add(
-        self, previous_username: entities.PreviousUsername
-    ) -> None: ...
-
-    @abstractmethod
-    async def find_with_username(
-        self, username: vos.Username
-    ) -> entities.PreviousUsername | None: ...
-
-    @abstractmethod
-    async def contains_with_username(self, username: vos.Username) -> bool: ...
+    async def contains_with_name(self, *, name_text: str) -> bool: ...

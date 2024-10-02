@@ -1,34 +1,32 @@
 from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Generic, TypeVar, TypeAlias, ClassVar
-from uuid import UUID
+from typing import Generic, Iterable, TypeVar
 
-from shared.domain.pure.ports.effect import Effect
+from shared.domain.framework.pure.ports.effect import Effect
 
 
 _IDT = TypeVar("_IDT")
 
 
 @dataclass(kw_only=True, frozen=True)
-class EntityEvent(Generic[_IDT], MutatingEvent):
+class EntityEvent(Generic[_IDT]):
     entity_id: _IDT
 
 
 @dataclass(kw_only=True, frozen=True)
-class MutationEvent(Generic[_IDT], Event[_IDT]): ...
+class MutationEvent(Generic[_IDT], EntityEvent[_IDT]): ...
 
 
 @dataclass(kw_only=True, frozen=True)
-class СommentingEvent(Generic[_IDT], EntityEvent[_IDT]): ...
+class CommentingEvent(Generic[_IDT], EntityEvent[_IDT]): ...
 
 
 @dataclass(kw_only=True, frozen=True)
-class Created(Generic[_IDT], СommentingEvent[_IDT]):
+class Created(Generic[_IDT], CommentingEvent[_IDT]):
     entity_id: _IDT
 
 
 @dataclass(kw_only=True, frozen=True)
-class Deleted(Generic[_IDT], СommentingEvent[_IDT]):
+class Deleted(Generic[_IDT], CommentingEvent[_IDT]):
     entity_id: _IDT
 
 
@@ -41,13 +39,13 @@ class Entity(Generic[_IDT, _AdditionalEventT]):
     events: list[EntityEvent | _AdditionalEventT]
 
     @property
-    def mutation_events(self) -> Iterable[MutationEvent, ...]:
+    def mutation_events(self) -> Iterable[MutationEvent]:
         for event in self.events:
             if isinstance(event, MutationEvent):
                 yield event
 
     @property
-    def commenting_events(self) -> Iterable[MutationEvent, ...]:
+    def commenting_events(self) -> Iterable[MutationEvent]:
         for event in self.events:
             if isinstance(event, MutationEvent):
                 yield event
@@ -67,7 +65,7 @@ class Entity(Generic[_IDT, _AdditionalEventT]):
     def is_dirty(self) -> bool:
         return tuple(self.mutation_events)
 
-    def reset_events(self, effect: Effect["Entity"]) -> None:
+    def reset_events(self, effect: Effect) -> None:
         self.events = list()
         effect.ignore(self)
 

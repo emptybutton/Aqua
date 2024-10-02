@@ -3,13 +3,13 @@ from typing import TypeAlias
 from uuid import UUID, uuid4
 
 from auth.domain.models.auth.pure.vos.time import Time
-from shared.domain.pure.entity import (
+from shared.domain.framework.pure.entity import (
     CommentingEvent,
     Created,
     Entity,
     MutationEvent,
 )
-from shared.domain.pure.ports.effect import Effect
+from shared.domain.framework.pure.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -32,7 +32,6 @@ class EmptyAccountNameError(Exception): ...
 
 @dataclass(kw_only=True, eq=False)
 class AccountName(Entity[UUID, AccountNameEvent]):
-    id: UUID
     account_id: UUID
     text: str
     taking_times: set[Time]
