@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from auth.domain.models.auth.pure.aggregates import account as _account
+from auth.domain.models.access.pure.aggregates import account as _account
 
 
 class Logger(ABC):

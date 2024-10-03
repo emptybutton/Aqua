@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from auth.domain.models.auth.pure.aggregates.account.root import Account
+from auth.domain.models.access.pure.aggregates.account.root import Account
 
 
 class Accounts(ABC):
@@ -14,4 +14,4 @@ class Accounts(ABC):
     ) -> Account | None: ...
 
     @abstractmethod
-    async def contains_with_name(self, *, name_text: str) -> bool: ...
+    async def contains_account_with_name(self, *, name_text: str) -> bool: ...

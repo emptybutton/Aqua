@@ -1,1 +1,1 @@
-from auth.domain.models import auth as auth
+from auth.domain.models import access as access

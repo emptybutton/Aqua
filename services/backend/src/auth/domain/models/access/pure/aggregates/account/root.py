@@ -2,20 +2,20 @@ from dataclasses import dataclass
 from typing import Iterable, TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.auth.aggregates.account.internal import (
+from auth.domain.models.access.aggregates.account.internal import (
     account_name as _account_name,
 )
-from auth.domain.models.auth.aggregates.account.internal import (
+from auth.domain.models.access.aggregates.account.internal import (
     session as _session,
 )
-from auth.domain.models.auth.pure.vos import password as _password
-from auth.domain.models.auth.pure.vos import time as _time
+from auth.domain.models.access.pure.vos import password as _password
+from auth.domain.models.access.pure.vos import time as _time
 from shared.domain.framework.pure import entity as _entity
 from shared.domain.framework.pure.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class PasswordChange(_entity.MutationEvent[UUID]):
+class PasswordChange(_entity.MutationEvent["Account"]):
     new_password_hash: _password.PasswordHash
 
 
@@ -87,7 +87,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         new_name_text: str,
         current_time: _time.Time,
         effect: Effect,
-    ) -> None:
+    ) -> NameChangeOutput:
         if new_name_text == self.current_name.text:
             return Account.NameChangeOutput(previous_name=None)
 
@@ -136,9 +136,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
 
         self.password_hash = new_password_hash
 
-        event = PasswordChange(
-            entity_id=self.id, new_password_hash=new_password_hash
-        )
+        event = PasswordChange(entity=self, new_password_hash=new_password_hash)
         self.events.append(event)
         effect.consider(self)
 
@@ -151,14 +149,14 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     @dataclass(kw_only=True, frozen=True, slots=True)
     class CreationOutput:
         account: "Account"
-        session: _session.Session
+        current_session: _session.Session
 
     @classmethod
     def create(
         cls,
         *,
         name_text: str,
-        password_text: str,
+        password: _password.Password,
         effect: Effect,
         current_time: _time.Time,
         current_session: _session.Session | None = None,
@@ -170,7 +168,6 @@ class Account(_entity.Entity[UUID, AccountEvent]):
             account_id=account_id,
             effect=effect,
         )
-        password = _password.Password(text=password_text)
         password_hash = _password.hash_of(password)
 
         current_session = _session.issue_session(
@@ -190,7 +187,9 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         )
         effect.consider(account)
 
-        return Account.CreationOutput(account=account, session=current_session)
+        return Account.CreationOutput(
+            account=account, current_session=current_session
+        )
 
     def __session_with(self, session_id: UUID) -> _session.Session | None:
         for session in self.sessions:

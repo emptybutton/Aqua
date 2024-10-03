@@ -2,30 +2,32 @@ from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.auth.pure.vos import (
+from auth.domain.models.access.pure.vos import (
     session_lifetime as _session_lifetime,
 )
-from auth.domain.models.auth.pure.vos import time as _time
+from auth.domain.models.access.pure.vos import time as _time
 from shared.domain.framework.pure import entity as _entity
 from shared.domain.framework.pure.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Extended(_entity.MutationEvent[UUID]):
+class Extended(_entity.MutationEvent["Session"]):
     new_lifetime: _session_lifetime.SessionLifetime
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Cancelled(_entity.MutationEvent[UUID]): ...
+class Cancelled(_entity.MutationEvent["Session"]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Replaced(_entity.MutationEvent[UUID]):
-    new_next_session_id: UUID
+class Replaced(_entity.MutationEvent["Session"]):
+    new_leader_session_id: UUID
+    leader_session: "Session"
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecameLeader(_entity.СommentingEvent[UUID]): ...
+class BecameLeader(_entity.СommentingEvent["Session"]):
+    prevous_session: "Session"
 
 
 SessionEvent: TypeAlias = (
@@ -48,7 +50,7 @@ class Session(_entity.Entity[UUID, SessionEvent]):
     account_id: UUID
     lifetime: _session_lifetime.SessionLifetime
     is_cancelled: bool = False
-    next_session_id: UUID | None = None
+    leader_session_id: UUID | None = None
 
     @property
     def is_replaced(self) -> bool:
@@ -99,13 +101,13 @@ def issue_session(
     prevous_session = current_session
 
     lifetime = _session_lifetime.SessionLifetime(start_time=current_time)
-    current_session_id = uuid4()
     current_session = Session(
-        id=current_session_id,
+        id=uuid4(),
         account_id=account_id,
         lifetime=lifetime,
-        events=[_entity.Created(entity_id=current_session_id)],
+        events=[],
     )
+    current_session.events.append(_entity.Created(entity=current_session))
     effect.consider(current_session)
 
     if prevous_session is not None:
@@ -115,12 +117,12 @@ def issue_session(
 
 
 def session_id_that_replaced(session: Session) -> UUID | None:
-    return session.next_session_id
+    return session.leader_session_id
 
 
 def cancel(session: Session, *, effect: Effect) -> None:
     session.cancelled = True
-    session.events.append(Cancelled(session_id=session.id))
+    session.events.append(Cancelled(entity=session))
     effect.consider(session)
 
 
@@ -131,7 +133,7 @@ def extend(
         session.lifetime, current_time=current_time,
     )
 
-    event = Extended(new_lifetime=extended_lifetime)
+    event = Extended(entity=session, new_lifetime=extended_lifetime)
     session.events.append(event)
 
     effect.consider(session)
@@ -143,11 +145,15 @@ def replace(
     new_session = with_
 
     prevous_session, current_session = current_session, new_session
-    prevous_session.next_session_id = current_session.id
+    prevous_session.leader_session_id = current_session.id
 
-    current_session_event = BecameLeader(entity_id=current_session.id)
+    current_session_event = BecameLeader(
+        entity=current_session, prevous_session=prevous_session
+    )
     prevous_session_event = Replaced(
-        entity_id=prevous_session.id, new_next_session_id=current_session.id,
+        entity=prevous_session,
+        new_leader_session_id=current_session.id,
+        leader_session=prevous_session,
     )
 
     current_session.events.append(current_session_event)

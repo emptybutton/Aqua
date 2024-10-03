@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.auth.pure.vos.time import Time
+from auth.domain.models.access.pure.vos.time import Time
 from shared.domain.framework.pure.entity import (
     CommentingEvent,
     Created,
@@ -13,45 +13,41 @@ from shared.domain.framework.pure.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecameCurrent(MutationEvent[UUID]):
+class BecameCurrent(MutationEvent["AccountName"]):
     new_taking_time: Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecamePrevious(CommentingEvent[UUID]): ...
+class BecamePrevious(CommentingEvent["AccountName"]): ...
 
 
 AccountNameEvent: TypeAlias = BecameCurrent | BecamePrevious
 
 
-class AccountNameError(Exception): ...
-
-
-class EmptyAccountNameError(Exception): ...
-
-
 @dataclass(kw_only=True, eq=False)
 class AccountName(Entity[UUID, AccountNameEvent]):
+    class Error(Exception): ...
+
+    class EmptyError(Error): ...
+
     account_id: UUID
     text: str
     taking_times: set[Time]
 
     def __post_init__(self) -> None:
         if len(self.text) == 0:
-            raise EmptyAccountNameError
+            raise AccountName.EmptyError
 
     def become_current(self, *, current_time: Time, effect: Effect) -> None:
         self.taking_times.add(current_time)
 
-        event = BecameCurrent(
-            entity_id=self.id, new_taking_time=current_time
-        )
+        event = BecameCurrent(entity=self, new_taking_time=current_time)
         self.events.append(event)
 
         effect.consider(self)
 
     def become_previous(self, *, effect: Effect) -> None:
-        self.events.append(BecamePrevious(entity_id=self.id))
+        self.events.append(BecamePrevious(entity=self))
         effect.consider(self)
 
     @classmethod
@@ -63,19 +59,18 @@ class AccountName(Entity[UUID, AccountNameEvent]):
         account_id: UUID,
         effect: Effect,
     ) -> "AccountName":
-        account_name_id = uuid4()
-        events = [
-            Created(entity_id=account_name_id),
-            BecameCurrent(new_taking_time=current_time),
-        ]
-
         account_name = AccountName(
-            id=account_name_id,
+            id=uuid4(),
             account_id=account_id,
             text=text,
             taking_times={current_time},
-            events=events,
+            events=[],
         )
+
+        account_name.events.expand((
+            Created(entity=account_name),
+            BecameCurrent(entity=account_name, new_taking_time=current_time),
+        ))
         effect.consider(account_name)
 
         return account_name

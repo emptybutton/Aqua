@@ -1,85 +1,98 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeVar
+from typing import TypeAlias, TypeVar
 from uuid import UUID
 
-from auth.application.ports import loggers, repos, serializers
-from auth.domain import entities
-from auth.domain import value_objects as vos
+from auth.application.adapters.specs import (
+    IsAccountNameTextTakenBasedOnGatewayResult,
+    IsAccountNameTextTakenInRepo,
+)
+from auth.application.output.log_effect import log_effect
+from auth.application.ports.gateway import GatewayFactory
+from auth.application.ports.loggers import Logger
+from auth.application.ports.repos import Accounts
+from auth.domain.models.access.dirty.services.create_account import (
+    create_account as _create_account,
+)
+from auth.domain.models.access.dirty.specs.is_account_name_taken import (
+    IsAccountNameTaken,
+)
+from auth.domain.models.access.pure.aggregates import (
+    account as _account,
+)
+from auth.domain.models.access.pure.vos.password import Password
+from auth.domain.models.access.pure.vos.time import Time
+from shared.application.adapters.effects import IndexedEffect
+from shared.application.output.map_effect import map_effect
+from shared.application.ports.indexes import EmptyIndexFactory
+from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+
+
+_Account: TypeAlias = _account.root.Account
+_AccountName: TypeAlias = _account.internal.account_name.AccountName
+_Session: TypeAlias = _account.internal.session.Session
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
-    user: entities.User
-    session: entities.Session
+    account: _Account
+    session: _Session
 
 
-class Error(Exception): ...
+_AccountsT = TypeVar("_AccountsT", bound=Accounts)
 
 
-class UserIsAlreadyRegisteredError(Error): ...
-
-
-_UsersT = TypeVar("_UsersT", bound=repos.Users)
-_SessionsT = TypeVar("_SessionsT", bound=repos.Sessions)
-
-
-async def perform(
+async def create_account(
     session_id: UUID | None,
     name_text: str,
     password_text: str,
     *,
-    users: _UsersT,
-    sessions: _SessionsT,
-    previous_usernames: repos.PreviousUsernames,
-    user_transaction_for: TransactionFactory[_UsersT],
-    session_transaction_for: TransactionFactory[_SessionsT],
-    password_serializer: serializers.AsymmetricSerializer[
-        vos.Password, vos.PasswordHash
-    ],
-    logger: loggers.Logger,
+    empty_index_factory: EmptyIndexFactory,
+    accounts: _AccountsT,
+    account_mapper_in: MapperFactory[_AccountsT, _Account],
+    account_name_mapper_in: MapperFactory[_AccountsT, _AccountName],
+    session_mapper_in: MapperFactory[_AccountsT, _Session],
+    transaction_for: TransactionFactory[_AccountsT],
+    gateway_to: GatewayFactory[_AccountsT],
+    logger: Logger,
 ) -> Output:
-    current_time = vos.Time(datetime_=datetime.now(UTC))
+    current_time = Time(datetime_=datetime.now(UTC))
+    password = Password(text=password_text)
 
-    username = vos.Username(text=name_text)
-    password = vos.Password(text=password_text)
-    password_hash = password_serializer.serialized(password)
+    async with transaction_for(accounts):
+        if session_id is None:
+            current_session = None
+            is_account_name_text_taken = IsAccountNameTextTakenInRepo(accounts)
+        else:
+            gateway_result = await (
+                gateway_to(accounts)
+                .session_with_id_and_contains_account_name_with_text(session_id)
+            )
+            current_session = gateway_result.session
+            is_account_name_text_taken = (
+                IsAccountNameTextTakenBasedOnGatewayResult(gateway_result)
+            )
 
-    if await previous_usernames.contains_with_username(username):
-        raise UserIsAlreadyRegisteredError
-
-    async with user_transaction_for(users), session_transaction_for(sessions):
-        current_session = None
-
-        if session_id is not None:
-            current_session = await sessions.find_with_id(session_id)
-
-        if await users.contains_with_name(username):
-            raise UserIsAlreadyRegisteredError
-
-        result = entities.User.register(
-            username,
-            password_hash,
+        effect = IndexedEffect(empty_index_factory=empty_index_factory)
+        result = await _create_account(
+            name_text=name_text,
+            password=password,
+            effect=effect,
             current_time=current_time,
             current_session=current_session,
+            is_account_name_taken=IsAccountNameTaken(is_account_name_text_taken),
         )
-
-        await users.add(result.user)
-
-        if result.new_session is not None:
-            await sessions.add(result.new_session)
-
-        if result.extended_session is not None:
-            await logger.log_session_extension(result.extended_session)
-            await sessions.update(result.extended_session)
-
-        if result.replaced_session is not None:
-            await logger.log_replaced_session(result.replaced_session)
-            await sessions.update(result.replaced_session)
 
         await logger.log_registration(
-            user=result.user, session=result.current_session
+            account=result.account, session=result.current_session
         )
 
-        return Output(user=result.user, session=result.current_session)
+        await log_effect(effect, logger)
+        await map_effect(effect, {
+            _Account: account_mapper_in(accounts),
+            _AccountName: account_name_mapper_in(accounts),
+            _Session: session_mapper_in(accounts),
+        })
+
+        return Output(account=result.account, session=result.current_session)

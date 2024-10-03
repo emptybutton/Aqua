@@ -1,63 +1,95 @@
-from dataclasses import dataclass, field
-from typing import Generic, TypeVar, Iterator
+from typing import TypeVar
 
+from shared.application.ports.indexes import EmptyIndexFactory, Index
 from shared.domain.framework.pure.entity import Entity
-from shared.domain.framework.pure.ports.effect import Effect
+from shared.domain.framework.pure.ports.effect import Effect, Event
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
 
 class IndexedEffect(Effect):
-    @dataclass(kw_only=True, frozen=True, slots=True)
-    class Index(Generic[_EntityT]):
-        new_enitties: set[_EntityT] = field(default_factory=set)
-        dirty_enitties: set[_EntityT] = field(default_factory=set)
+    def __init__(
+        self,
+        *,
+        empty_index_factory: EmptyIndexFactory,
+        index_by_entity_type: dict[type[Entity], Index[Entity]] | None = None,
+    ) -> None:
+        self.__create_empty_index = empty_index_factory
+        self.__index_by_entity_type: dict[type[Entity], Index[Entity]]
 
-    def __init__(self) -> None:
-        self.__index_by_entity_type: dict[
-            type[Entity], IndexedEffect.Index[Entity]
-        ]
-        self.__index_by_entity_type = dict()
+        if index_by_entity_type is None:
+            self.__index_by_entity_type = dict()
+        else:
+            self.__index_by_entity_type = index_by_entity_type
 
-    @property
-    def entity_types(self) -> frozenset[type[Entity]]:
-        return frozenset(self.__index_by_entity_type.keys())
+    def new_entities_with_type(
+        self, entity_type: type[_EntityT]
+    ) -> frozenset[_EntityT]:
+        index = self.__index_by_entity_type.get(entity_type)
 
-    def __iter__(self) -> Iterator[Entity]:
-        for index in self.__index_by_type.values():
-            yield from index.new_enitties
-            yield from index.dirty_enitties
+        if index is None:
+            return frozenset()
+
+        return index.new_entities
+
+    def dirty_entities_with_type(
+        self, entity_type: type[_EntityT]
+    ) -> frozenset[_EntityT]:
+        index = self.__index_by_entity_type.get(entity_type)
+
+        if index is None:
+            return frozenset()
+
+        return index.dirty_entities
+
+    def deleted_entities_with_type(
+        self, entity_type: type[_EntityT]
+    ) -> frozenset[_EntityT]:
+        index = self.__index_by_entity_type.get(entity_type)
+
+        if index is None:
+            return frozenset()
+
+        return index.deleted_entities
+
+    def entities_with_event(
+        self,
+        *,
+        event_type: type[Event],
+        entity_type: _EntityT,
+    ) -> frozenset[_EntityT]:
+        index = self.__index_by_entity_type.get(entity_type)
+
+        if index is None:
+            return frozenset()
+
+        return index.entities_with_event(event_type=event_type)
 
     def consider(self, *entities: Entity) -> None:
         for entity in entities:
-            self.__index_by_type.setdefault() [type(entity)].add(entity)
+            self.__consider_one(entity)
 
     def ignore(self, *entities: Entity) -> None:
         for entity in entities:
-            if type(entity) in self.__entities_by_type.keys():
-                self.__entities_by_type[type(entity)].remove(entity)
+            self.__ignore_one(entity)
 
     def cancel(self) -> None:
-        self.__entities_by_type = defaultdict(set)
+        self.__index_by_entity_type = dict()
 
-    def __index_for(
-        self, entity_type: type[_EntityT]
-    ) -> Index[_EntityT] | None:
-        return self.__index_by_entity_type.get(entity_type)
+    def __consider_one(self, entity: Entity) -> None:
+        index = self.__index_by_entity_type.get(type(entity))
 
+        if index is None:
+            index = self.__create_empty_index()
+            self.__index_by_entity_type[type(entity)] = index
 
-# @abstractmethod
-# def __iter__(self) -> Iterator["Entity"]: ...
+        index.add(entity)
 
-# @abstractmethod
-# def consider(self, *entities: "Entity") -> None: ...
+    def __ignore_one(self, entity: Entity) -> None:
+        index = self.__index_by_entity_type.get(type(entity))
 
-# @abstractmethod
-# def ignore(self, *entities: "Entity") -> None: ...
+        if index is None:
+            return
 
-# @abstractmethod
-# def cancel(self) -> None: ...
-
-# @abstractmethod
-# def clone(self) -> "Effect[Entity]": ...
+        index.remove(entity)
