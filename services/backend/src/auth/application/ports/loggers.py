@@ -25,8 +25,6 @@ class Logger(ABC):
         self,
         *,
         account: _account.root.Account,
-        current_session: _account.internal.session.Session,
-        canceled_sessions: frozenset[_account.internal.session.Session],
     ) -> None: ...
 
     @abstractmethod
@@ -34,7 +32,7 @@ class Logger(ABC):
         self,
         *,
         account: _account.root.Account,
-        current_session: _account.internal.session.Session,
+        session: _account.internal.session.Session,
     ) -> None: ...
 
     @abstractmethod

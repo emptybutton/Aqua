@@ -3,20 +3,10 @@ from datetime import UTC, datetime
 from typing import TypeAlias, TypeVar
 from uuid import UUID
 
-from auth.application.adapters.specs import (
-    IsAccountNameTextTakenBasedOnGatewayResult,
-    IsAccountNameTextTakenInRepo,
-)
 from auth.application.output.log_effect import log_effect
 from auth.application.ports.gateway import GatewayFactory
 from auth.application.ports.loggers import Logger
 from auth.application.ports.repos import Accounts
-from auth.domain.models.access.dirty.services.create_account import (
-    create_account as _create_account,
-)
-from auth.domain.models.access.dirty.specs.is_account_name_taken import (
-    IsAccountNameTaken,
-)
 from auth.domain.models.access.pure.aggregates import account as _account
 from auth.domain.models.access.pure.vos.password import Password
 from auth.domain.models.access.pure.vos.time import Time
@@ -38,10 +28,19 @@ class Output:
     session: _Session
 
 
+class Error(Exception): ...
+
+
+class NoAccountError(Error): ...
+
+
+class IncorrectPasswordError(Error): ...
+
+
 _AccountsT = TypeVar("_AccountsT", bound=Accounts)
 
 
-async def create_account(
+async def login_to_account(
     session_id: UUID | None,
     name_text: str,
     password_text: str,
@@ -56,35 +55,41 @@ async def create_account(
     logger: Logger,
 ) -> Output:
     current_time = Time(datetime_=datetime.now(UTC))
-    password = Password(text=password_text)
+
+    try:
+        password = Password(text=password_text)
+    except Password.Error as error:
+        raise IncorrectPasswordError from error
 
     async with transaction_for(accounts):
         if session_id is None:
             current_session = None
-            is_account_name_text_taken = IsAccountNameTextTakenInRepo(accounts)
+            account = await accounts.account_with_name(name_text=name_text)
         else:
-            gateway_result = await (
-                gateway_to(accounts)
-                .session_with_id_and_contains_account_name_with_text(session_id)
+            gateway = gateway_to(accounts)
+            gateway_result = (
+                await gateway.session_with_id_and_account_with_name(
+                    session_id=session_id,
+                    name_text=name_text,
+                )
             )
             current_session = gateway_result.session
-            is_account_name_text_taken = (
-                IsAccountNameTextTakenBasedOnGatewayResult(gateway_result)
-            )
+            account = gateway_result.account
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
-        result = await _create_account(
-            name_text=name_text,
-            password=password,
-            effect=effect,
-            current_time=current_time,
-            current_session=current_session,
-            is_account_name_taken=IsAccountNameTaken(is_account_name_text_taken),
-        )
 
-        await logger.log_registration(
-            account=result.account, session=result.current_session
-        )
+        try:
+            session = _account.root.login_to(
+                account,
+                password=password,
+                current_time=current_time,
+                current_session=current_session,
+                effect=effect,
+            )
+        except _Account.InvalidPasswordHashForPrimaryAuthenticationError as err:
+            raise IncorrectPasswordError from err
+
+        await logger.log_login(account=account, session=session)
 
         await log_effect(effect, logger)
         await map_effect(effect, {
@@ -93,4 +98,4 @@ async def create_account(
             _Session: session_mapper_in(accounts),
         })
 
-        return Output(account=result.account, session=result.current_session)
+        return Output(account=account, session=session)

@@ -52,9 +52,6 @@ class PasswordHash:
 
     text: str
 
-    def equals(self, other_hash: "PasswordHash") -> bool:
-        return self.text == other_hash.text
-
     def __post_init__(self) -> None:
         if len(self.text) == 0:
             raise PasswordHash.EmptyError

@@ -35,11 +35,10 @@ class Account(_entity.Entity[UUID, AccountEvent]):
 
     class InvalidPasswordHashForPrimaryAuthenticationError(Error): ...
 
-    def primary_authenticate(self, *, password_text: str) -> None:
-        password = _password.Password(text=password_text)
+    def primary_authenticate(self, *, password: _password.Password) -> None:
         password_hash = _password.hash_of(password)
 
-        if not self.password_hash.equals(password_hash):
+        if self.password_hash != password_hash:
             raise Account.InvalidPasswordHashForPrimaryAuthenticationError
 
     class SecondaryAuthenticationError(Error): ...
@@ -58,7 +57,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
 
     def secondarily_authenticate(
         self, *, session_id: UUID, current_time: _time.Time, effect: Effect,
-    ) -> None:
+    ) -> _session.Session:
         session = self.__session_with(session_id)
 
         if not session:
@@ -76,6 +75,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
             raise Account.CancelledForAuthenticationError
 
         _session.extend(session, current_time=current_time, effect=effect)
+        return session
 
     @dataclass(kw_only=True, frozen=True, slots=True)
     class NameChangeOutput:
@@ -119,11 +119,10 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     def change_password(
         self,
         *,
-        new_password_text: str,
+        new_password: _password.Password,
         current_session_id: UUID,
         effect: Effect,
     ) -> None:
-        new_password = _password.Password(text=new_password_text)
         current_session = self.__session_with(current_session_id)
 
         if current_session is None:
@@ -239,12 +238,12 @@ class Account(_entity.Entity[UUID, AccountEvent]):
 def login_to(
     account: Account,
     *,
-    password_text: str,
+    password: _password.Password,
     current_time: _time.Time,
     current_session: _session.Session | None = None,
     effect: Effect,
 ) -> _session.Session:
-    account.primary_authenticate(password_text=password_text)
+    account.primary_authenticate(password=password)
 
     return _session.issue_session(
         account_id=account.id,

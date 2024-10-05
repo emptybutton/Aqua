@@ -1,27 +1,40 @@
 from dataclasses import dataclass
-from datetime import UTC, datetime
-from typing import TypeVar
+from typing import TypeAlias, TypeVar
 from uuid import UUID
 
-from auth.application.ports import loggers, repos
-from auth.domain import entities
-from auth.domain import value_objects as vos
+from auth.application.output.log_effect import log_effect
+from auth.application.ports.loggers import Logger
+from auth.application.ports.repos import Accounts
+from auth.domain.models.access.pure.aggregates import account as _account
+from auth.domain.models.access.pure.vos.password import Password
+from shared.application.adapters.effects import IndexedEffect
+from shared.application.output.map_effect import map_effect
+from shared.application.ports.indexes import EmptyIndexFactory
+from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+
+
+_Account: TypeAlias = _account.root.Account
+_AccountName: TypeAlias = _account.internal.account_name.AccountName
+_Session: TypeAlias = _account.internal.session.Session
+
+
+_AccountsT = TypeVar("_AccountsT", bound=Accounts)
 
 
 @dataclass(kw_only=True, frozen=True)
 class Output:
-    user: entities.User
-    previous_username: entities.PreviousUsername
+    account: _Account
+    previous_account_name: _AccountName
 
 
 class Error(Exception): ...
 
 
-class NoUserError(Error): ...
+class NoAccountError(Error): ...
 
 
-class NewUsernameTakenError(Error): ...
+class AccountNameTakenError(Error): ...
 
 
 _UsersT = TypeVar("_UsersT", bound=repos.Users)

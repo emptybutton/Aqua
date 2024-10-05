@@ -12,6 +12,12 @@ class SessionAndPresenceOfAccountNameWithText:
     contains_account_name_with_text: bool
 
 
+@dataclass(kw_only=True, frozen=True, slots=True)
+class SessionAndAccount:
+    session: _account.internal.session.Session | None
+    account: _account.root.Account | None
+
+
 class Gateway(ABC):
     @abstractmethod
     async def session_with_id_and_contains_account_name_with_text(
@@ -20,6 +26,16 @@ class Gateway(ABC):
         session_id: UUID,
         account_name_text: str,
     ) -> SessionAndPresenceOfAccountNameWithText: ...
+
+    @abstractmethod
+    async def session_with_id_and_account_with_name(
+        self, *, session_id: UUID, name_text: str
+    ) -> SessionAndAccount: ...
+
+    @abstractmethod
+    async def session_with_id(
+        self, session_id: UUID,
+    ) -> _account.internal.session.Session | None: ...
 
 
 _RepoT = TypeVar("_RepoT")
