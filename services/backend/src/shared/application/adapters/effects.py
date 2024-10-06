@@ -1,8 +1,8 @@
 from typing import TypeVar
 
 from shared.application.ports.indexes import EmptyIndexFactory, Index
-from shared.domain.framework.pure.entity import Entity
-from shared.domain.framework.pure.ports.effect import Effect, Event
+from shared.domain.framework.entity import Entity
+from shared.domain.framework.ports.effect import Effect, Event
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)

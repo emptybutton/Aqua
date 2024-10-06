@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.access.pure.vos import (
+from auth.domain.models.access.vos import (
     session_lifetime as _session_lifetime,
 )
-from auth.domain.models.access.pure.vos import time as _time
-from shared.domain.framework.pure import entity as _entity
-from shared.domain.framework.pure.ports.effect import Effect
+from auth.domain.models.access.vos import time as _time
+from shared.domain.framework import entity as _entity
+from shared.domain.framework.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

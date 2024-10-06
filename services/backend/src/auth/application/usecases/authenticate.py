@@ -15,8 +15,8 @@ from shared.application.ports.transactions import TransactionFactory
 
 
 _Account: TypeAlias = _account.root.Account
-_AccountName: TypeAlias = _account.internal.account_name.AccountName
-_Session: TypeAlias = _account.internal.session.Session
+_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
+_Session: TypeAlias = _account.internal.entities.session.Session
 
 
 class Error(Exception): ...

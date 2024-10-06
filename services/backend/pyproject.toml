@@ -48,13 +48,12 @@ select = [
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
     "PERF", "INP", "I", "S", "FAST", "TID", "TCH", "INT"
 ]
-ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301"]
+ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301", "PLR0913"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["PLC0414"]
-"*/cases/*" = ["PLR0911", "PLR0913"]
-"*/usecases/*" = ["PLR0911", "PLR0913"]
-"*/services/*" = ["PLR0911", "PLR0913"]
+"*/cases/*" = ["PLR0911"]
+"*/usecases/*" = ["PLR0911"]
 "*/adapters/*" = ["ARG002", "S101"]
 "*/domain/*" = ["PLR2004"]
 "src/entrypoint/presentation/periphery/api/controllers/routes/*" = ["PLR0911"]

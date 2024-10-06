@@ -2,7 +2,7 @@ from auth.application.ports.gateway import (
     SessionAndPresenceOfAccountNameWithText,
 )
 from auth.application.ports.repos import Accounts
-from auth.domain.model.access.dirty.ports.specs import (
+from auth.domain.model.access.aggregates.account.ports.specs import (
     is_account_name_text_taken,
 )
 

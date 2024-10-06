@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import 
 from typing import TypeAlias, TypeVar
 from uuid import UUID
 
@@ -15,8 +16,8 @@ from shared.application.ports.transactions import TransactionFactory
 
 
 _Account: TypeAlias = _account.root.Account
-_AccountName: TypeAlias = _account.internal.account_name.AccountName
-_Session: TypeAlias = _account.internal.session.Session
+_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
+_Session: TypeAlias = _account.internal.entities.session.Session
 
 
 _AccountsT = TypeVar("_AccountsT", bound=Accounts)
@@ -54,8 +55,8 @@ async def perform(
     previous_username_transaction_for: TransactionFactory[_PreviousUsernamesT],
     logger: loggers.Logger,
 ) -> Output:
-    current_time = vos.Time(datetime_=datetime.now(UTC))
-    new_username = vos.Username(text=new_username_text)
+    current_time = Time(datetime_=datetime.now(UTC))
+    new_username = Username(text=new_username_text)
 
     user_transaction = user_transaction_for(users)
     previous_username_transaction = previous_username_transaction_for(

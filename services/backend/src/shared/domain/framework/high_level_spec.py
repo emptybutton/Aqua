@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from shared.domain.framework.pure.entity import Entity
+from shared.domain.framework.entity import Entity
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)

@@ -2,14 +2,17 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.access.pure.vos.time import Time
-from shared.domain.framework.pure.entity import (
+from auth.domain.models.access.aggregates.account.specs import (
+    is_account_name_taken as _is_account_name_taken,
+)
+from auth.domain.models.access.vos.time import Time
+from shared.domain.framework.entity import (
     CommentingEvent,
     Created,
     Entity,
     MutationEvent,
 )
-from shared.domain.framework.pure.ports.effect import Effect
+from shared.domain.framework.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -50,13 +53,18 @@ class AccountName(Entity[UUID, AccountNameEvent]):
         self.events.append(BecamePrevious(entity=self))
         effect.consider(self)
 
+    class CreationError(Error): ...
+
+    class TakenForCreationError(Error): ...
+
     @classmethod
-    def create(
+    async def create(
         cls,
         *,
         text: str,
         current_time: Time,
         account_id: UUID,
+        is_account_name_taken: _is_account_name_taken.IsAccountNameTaken,
         effect: Effect,
     ) -> "AccountName":
         account_name = AccountName(
@@ -71,6 +79,9 @@ class AccountName(Entity[UUID, AccountNameEvent]):
             Created(entity=account_name),
             BecameCurrent(entity=account_name, new_taking_time=current_time),
         ))
-        effect.consider(account_name)
 
+        if await is_account_name_taken(account_name):
+            raise AccountName.TakenForCreationError
+
+        effect.consider(account_name)
         return account_name

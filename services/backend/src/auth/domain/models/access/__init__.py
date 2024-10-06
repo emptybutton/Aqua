@@ -1,2 +1,2 @@
-from auth.domain.models.access import dirty as dirty
-from auth.domain.models.access import pure as pure
+from auth.domain.models.access import aggregates as aggregates
+from auth.domain.models.access import vos as vos

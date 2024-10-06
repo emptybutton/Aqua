@@ -2,16 +2,19 @@ from dataclasses import dataclass
 from typing import Iterable, TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.access.aggregates.account.internal import (
+from auth.domain.models.access.aggregates.account.internal.entities import (
     account_name as _account_name,
 )
-from auth.domain.models.access.aggregates.account.internal import (
+from auth.domain.models.access.aggregates.account.internal.entities import (
     session as _session,
 )
-from auth.domain.models.access.pure.vos import password as _password
-from auth.domain.models.access.pure.vos import time as _time
-from shared.domain.framework.pure import entity as _entity
-from shared.domain.framework.pure.ports.effect import Effect
+from auth.domain.models.access.aggregates.account.ports.specs import (
+    is_account_name_taken as _is_account_name_taken,
+)
+from auth.domain.models.access.vos import password as _password
+from auth.domain.models.access.vos import time as _time
+from shared.domain.framework import entity as _entity
+from shared.domain.framework.ports.effect import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -81,11 +84,12 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     class NameChangeOutput:
         previous_name: _account_name.AccountName | None
 
-    def change_name(
+    async def change_name(
         self,
         *,
         new_name_text: str,
         current_time: _time.Time,
+        is_account_name_taken: _is_account_name_taken.IsAccountNameTaken,
         effect: Effect,
     ) -> NameChangeOutput:
         if new_name_text == self.current_name.text:
@@ -104,10 +108,11 @@ class Account(_entity.Entity[UUID, AccountEvent]):
             return output
 
         self.__make_current_name_previous(effect=effect)
-        self.current_name = _account_name.AccountName.create(
+        self.current_name = await _account_name.AccountName.create(
             text=new_name_text,
             current_time=current_time,
             account_id=self.id,
+            is_account_name_taken=is_account_name_taken,
             effect=effect,
         )
         return output
@@ -151,7 +156,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         current_session: _session.Session
 
     @classmethod
-    def create(
+    async def create(
         cls,
         *,
         name_text: str,
@@ -159,12 +164,14 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         effect: Effect,
         current_time: _time.Time,
         current_session: _session.Session | None = None,
+        is_account_name_taken: _is_account_name_taken.IsAccountNameTaken,
     ) -> CreationOutput:
         account_id = uuid4()
-        name = _account_name.AccountName.create(
+        name = await _account_name.AccountName.create(
             text=name_text,
             current_time=current_time,
             account_id=account_id,
+            is_account_name_taken=is_account_name_taken,
             effect=effect,
         )
         password_hash = _password.hash_of(password)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generic, Iterable, Self, TypeVar
 
-from shared.domain.framework.pure.ports.effect import Effect
+from shared.domain.framework.ports.effect import Effect
 
 
 _EntityT = TypeVar("_EntityT")

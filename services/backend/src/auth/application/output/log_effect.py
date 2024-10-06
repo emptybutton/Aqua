@@ -5,13 +5,13 @@ from shared.application.adapters.effects import IndexedEffect
 
 async def log_effect(effect: IndexedEffect, logger: Logger) -> None:
     extended_sessions = effect.entities_with_event(
-        entity_type=_account.internal.session.Session,
-        event_type=_account.internal.session.Extended,
+        entity_type=_account.internal.entities.session.Session,
+        event_type=_account.internal.entities.session.Extended,
     )
 
     replaced_sessions = effect.entities_with_event(
-        entity_type=_account.internal.session.Session,
-        event_type=_account.internal.session.Replaced,
+        entity_type=_account.internal.entities.session.Session,
+        event_type=_account.internal.entities.session.Replaced,
     )
 
     for extended_session in extended_sessions:
