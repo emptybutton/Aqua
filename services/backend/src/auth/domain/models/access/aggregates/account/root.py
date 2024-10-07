@@ -8,7 +8,7 @@ from auth.domain.models.access.aggregates.account.internal.entities import (
 from auth.domain.models.access.aggregates.account.internal.entities import (
     session as _session,
 )
-from auth.domain.models.access.aggregates.account.ports.specs import (
+from auth.domain.models.access.aggregates.account.internal.specs import (
     is_account_name_taken as _is_account_name_taken,
 )
 from auth.domain.models.access.vos import password as _password
@@ -69,13 +69,13 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         reasons = session.inactivity_reasons_when(current_time=current_time)
 
         if "replaced" in reasons:
-            raise Account.ReplacedForAuthenticationError
+            raise Account.ReplacedForSecondaryAuthenticationError
 
         if "expired" in reasons:
-            raise Account.ExpiredForAuthenticationError
+            raise Account.ExpiredForSecondaryAuthenticationError
 
         if "cancelled" in reasons:
-            raise Account.CancelledForAuthenticationError
+            raise Account.CancelledForSecondaryAuthenticationError
 
         _session.extend(session, current_time=current_time, effect=effect)
         return session
@@ -189,8 +189,9 @@ class Account(_entity.Entity[UUID, AccountEvent]):
             previous_names=set(),
             sessions={current_session},
             password_hash=password_hash,
-            events=[_entity.Created(entity_id=account_id)],
+            events=[],
         )
+        account.events.append(_entity.Created(entity=account))
         effect.consider(account)
 
         return Account.CreationOutput(
@@ -207,7 +208,9 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     def __other_sessions_when(
         self, *, current_session: _session.Session
     ) -> Iterable[_session.Session]:
-        return (session != current_session for session in self.sessions)
+        return (
+            session for session in self.sessions if session != current_session
+        )
 
     def __previous_name_with(
         self, *, text: str

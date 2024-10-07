@@ -26,7 +26,7 @@ class Replaced(_entity.MutationEvent["Session"]):
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecameLeader(_entity.СommentingEvent["Session"]):
+class BecameLeader(_entity.CommentingEvent["Session"]):
     prevous_session: "Session"
 
 
@@ -54,7 +54,7 @@ class Session(_entity.Entity[UUID, SessionEvent]):
 
     @property
     def is_replaced(self) -> bool:
-        return self.leader_id is not None
+        return self.leader_session_id is not None
 
     def is_expired_when(self, *, current_time: _time.Time) -> bool:
         return self.lifetime.is_expired_when(current_time=current_time)
@@ -62,7 +62,7 @@ class Session(_entity.Entity[UUID, SessionEvent]):
     def inactivity_reasons_when(
         self, *, current_time: _time.Time
     ) -> frozenset[SessionInactivityReasons]:
-        reasons: set[Session.SessionInactivityReasons] = set()
+        reasons: set[SessionInactivityReasons] = set()
 
         if self.is_replaced:
             reasons.add("replaced")
@@ -121,7 +121,7 @@ def session_id_that_replaced(session: Session) -> UUID | None:
 
 
 def cancel(session: Session, *, effect: Effect) -> None:
-    session.cancelled = True
+    session.is_cancelled = True
     session.events.append(Cancelled(entity=session))
     effect.consider(session)
 

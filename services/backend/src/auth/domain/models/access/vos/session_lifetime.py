@@ -3,7 +3,7 @@ from datetime import timedelta
 from functools import cached_property
 from typing import ClassVar, cast
 
-from auth.domain.models.access.pure.vos import time as _time
+from auth.domain.models.access.vos import time as _time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True, eq=False)

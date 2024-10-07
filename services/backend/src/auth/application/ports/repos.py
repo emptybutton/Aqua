@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from auth.domain.models.access.pure.aggregates.account.root import Account
+from auth.domain.models.access.aggregates.account.root import Account
 
 
 class Accounts(ABC):
     @abstractmethod
     async def account_with_name(
-        self, *, name_text: UUID
+        self, *, name_text: str
     ) -> Account | None: ...
 
     @abstractmethod

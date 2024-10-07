@@ -1,10 +1,10 @@
 from typing import TypeAlias
 
+from auth.domain.models.access.aggregates.account.internal.entities import (
+    account_name as _account_name,
+)
 from auth.domain.models.access.aggregates.account.ports.specs import (
     is_account_name_text_taken as _is_account_name_text_taken,
-)
-from auth.domain.models.auth.aggregates.account.internal.entities import (
-    account_name as _account_name,
 )
 from shared.domain.framework.high_level_spec import HighLevelSpec
 
@@ -22,4 +22,4 @@ class IsAccountNameTaken(HighLevelSpec[_account_name.AccountName]):
         self.__is_account_name_text_taken = is_account_name_text_taken
 
     async def __call__(self, account_name: _account_name.AccountName) -> bool:
-        return self.__is_account_name_text_taken(account_name.text)
+        return await self.__is_account_name_text_taken(account_name.text)

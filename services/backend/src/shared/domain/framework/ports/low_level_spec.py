@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-from shared.domain.framework.pure.entity import Entity
 
-
-_ValueT = TypeVar("_ValueT", bound=Entity)
+_ValueT = TypeVar("_ValueT")
 
 
 class LowLevelSpec(ABC, Generic[_ValueT]):

@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
-from shared.domain.framework.entity import Entity, Event
-
-
-_EntityT = TypeVar("_EntityT", bound=Entity)
+from shared.domain.framework.entity import Entity, EntityEvent
 
 
-class Index(ABC, Generic[_EntityT]):
+_EntityT = TypeVar("_EntityT", bound=Entity[Any, Any])
+
+
+class Index(Generic[_EntityT], ABC):
     @property
     @abstractmethod
     def entities(self) -> frozenset[_EntityT]: ...
@@ -28,7 +28,7 @@ class Index(ABC, Generic[_EntityT]):
     def entities_with_event(
         self,
         *,
-        event_type: type[Event],
+        event_type: type[EntityEvent[Any]],
     ) -> frozenset[_EntityT]: ...
 
     @abstractmethod
@@ -38,6 +38,8 @@ class Index(ABC, Generic[_EntityT]):
     def remove(self, entity: _EntityT) -> None: ...
 
 
-class EmptyIndexFactory(ABC, Generic[_EntityT]):
+class EmptyIndexFactory(ABC):
     @abstractmethod
-    def __call__(self) -> Index[_EntityT]: ...
+    def __call__(
+        self, entity_type: type[_EntityT]
+    ) -> Index[_EntityT]: ...

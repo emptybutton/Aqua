@@ -1,4 +1,4 @@
-from shared.domain.framework.aggregates.account.ports.low_level_spec import (
+from shared.domain.framework.ports.low_level_spec import (
     LowLevelSpec,
 )
 

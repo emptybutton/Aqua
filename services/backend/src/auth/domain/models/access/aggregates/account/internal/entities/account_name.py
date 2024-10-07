@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID, uuid4
 
-from auth.domain.models.access.aggregates.account.specs import (
+from auth.domain.models.access.aggregates.account.internal.specs import (
     is_account_name_taken as _is_account_name_taken,
 )
 from auth.domain.models.access.vos.time import Time
@@ -75,7 +75,7 @@ class AccountName(Entity[UUID, AccountNameEvent]):
             events=[],
         )
 
-        account_name.events.expand((
+        account_name.events.extend((
             Created(entity=account_name),
             BecameCurrent(entity=account_name, new_taking_time=current_time),
         ))

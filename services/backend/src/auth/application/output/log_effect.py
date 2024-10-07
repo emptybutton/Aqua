@@ -1,5 +1,5 @@
 from auth.application.ports.loggers import Logger
-from auth.domain.models.auth.pure.aggregates import account as _account
+from auth.domain.models.access.aggregates import account as _account
 from shared.application.adapters.effects import IndexedEffect
 
 

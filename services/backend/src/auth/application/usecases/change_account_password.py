@@ -4,10 +4,10 @@ from uuid import UUID
 from auth.application.output.log_effect import log_effect
 from auth.application.ports.loggers import Logger
 from auth.application.ports.repos import Accounts
-from auth.domain.models.access.pure.aggregates import account as _account
-from auth.domain.models.access.pure.vos.password import Password
+from auth.domain.models.access.aggregates import account as _account
+from auth.domain.models.access.vos.password import Password
 from shared.application.adapters.effects import IndexedEffect
-from shared.application.output.map_effect import map_effect
+from shared.application.output.map_effect import Mappers, map_effect
 from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
@@ -55,11 +55,10 @@ async def change_account_password(
             effect=effect,
         )
 
-        await log_effect(effect, logger)
-        await map_effect(effect, {
-            _Account: account_mapper_in(accounts),
-            _AccountName: account_name_mapper_in(accounts),
-            _Session: session_mapper_in(accounts),
-        })
-
         await logger.log_password_change(account=account)
+        await log_effect(effect, logger)
+        await map_effect(effect, Mappers(
+            (_Account, account_mapper_in(accounts)),
+            (_AccountName, account_name_mapper_in(accounts)),
+            (_Session, session_mapper_in(accounts)),
+        ))

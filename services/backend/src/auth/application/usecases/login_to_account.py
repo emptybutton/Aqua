@@ -7,11 +7,11 @@ from auth.application.output.log_effect import log_effect
 from auth.application.ports.gateway import GatewayFactory
 from auth.application.ports.loggers import Logger
 from auth.application.ports.repos import Accounts
-from auth.domain.models.access.pure.aggregates import account as _account
-from auth.domain.models.access.pure.vos.password import Password
-from auth.domain.models.access.pure.vos.time import Time
+from auth.domain.models.access.aggregates import account as _account
+from auth.domain.models.access.vos.password import Password
+from auth.domain.models.access.vos.time import Time
 from shared.application.adapters.effects import IndexedEffect
-from shared.application.output.map_effect import map_effect
+from shared.application.output.map_effect import Mappers, map_effect
 from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
@@ -70,11 +70,14 @@ async def login_to_account(
             gateway_result = (
                 await gateway.session_with_id_and_account_with_name(
                     session_id=session_id,
-                    name_text=name_text,
+                    account_name_text=name_text,
                 )
             )
             current_session = gateway_result.session
             account = gateway_result.account
+
+        if account is None:
+            raise NoAccountError
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
 
@@ -90,12 +93,11 @@ async def login_to_account(
             raise IncorrectPasswordError from err
 
         await logger.log_login(account=account, session=session)
-
         await log_effect(effect, logger)
-        await map_effect(effect, {
-            _Account: account_mapper_in(accounts),
-            _AccountName: account_name_mapper_in(accounts),
-            _Session: session_mapper_in(accounts),
-        })
+        await map_effect(effect, Mappers(
+            (_Account, account_mapper_in(accounts)),
+            (_AccountName, account_name_mapper_in(accounts)),
+            (_Session, session_mapper_in(accounts)),
+        ))
 
         return Output(account=account, session=session)

@@ -32,7 +32,7 @@ Output: TypeAlias = (
 )
 
 
-async def perform(  # noqa: PLR0913, PLR0917
+async def perform(  # noqa: PLR0917
     session_id: UUID | None,
     name: str,
     password: str,

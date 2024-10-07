@@ -62,7 +62,7 @@ class Entity(Generic[_IDT, _AdditionalEventT]):
 
     @property
     def is_dirty(self) -> bool:
-        return tuple(self.mutation_events)
+        return bool(tuple(self.mutation_events))
 
     def reset_events(self, effect: Effect) -> None:
         self.events = list()
