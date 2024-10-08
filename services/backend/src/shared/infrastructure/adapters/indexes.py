@@ -1,10 +1,10 @@
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from shared.application.ports.indexes import EmptyIndexFactory, Index
-from shared.domain.framework.pure.entity import Entity, Event
+from shared.domain.framework.entity import Entity, EntityEvent
 
 
-_EntityT = TypeVar("_EntityT", bound=Entity)
+_EntityT = TypeVar("_EntityT", bound=Entity[Any, Any])
 
 
 class SortingIndex(Generic[_EntityT], Index[_EntityT]):
@@ -34,7 +34,7 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
         return frozenset(self.__deleted_entities)
 
     def entities_with_event(
-        self, *, event_type: type[Event]
+        self, *, event_type: type[EntityEvent[Any]]
     ) -> frozenset[_EntityT]:
         return frozenset(
             entity
@@ -61,7 +61,7 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
             self.__deleted_entities.remove(entity)
 
     def __entity_has_event(
-        self, entity: _EntityT, event_type: type[Event]
+        self, entity: _EntityT, event_type: type[EntityEvent[Any]]
     ) -> bool:
         entity_event_types = tuple(map(type, entity.events))
 
@@ -71,6 +71,8 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
         )
 
 
-class EmptySortingIndexFactory(Generic[_EntityT], EmptyIndexFactory[_EntityT]):
-    def __call__(self) -> SortingIndex[_EntityT]:
+class EmptySortingIndexFactory(EmptyIndexFactory):
+    def __call__(
+        self, entity_type: type[_EntityT]
+    ) -> SortingIndex[_EntityT]:
         return SortingIndex()

@@ -1,77 +1,79 @@
-from datetime import date, datetime
-from uuid import UUID
-
-from sqlalchemy import DateTime, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-
-class Base(DeclarativeBase):
-    id: Mapped[UUID] = mapped_column(primary_key=True)
-
-    def __repr__(self) -> str:
-        return f"db.{type(self).__name__}(id={self.id!r})"
-
-
-class AuthUser(Base):
-    __tablename__ = "auth_users"
-
-    name: Mapped[str]
-    password_hash: Mapped[str]
-
-    def __repr__(self) -> str:
-        return f"db.AuthUser(id={self.id!r}, name={self.name!r})"
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Uuid,
+)
 
 
-class PreviousUsername(Base):
-    __tablename__ = "auth_previous_usernames"
+metadata = MetaData()
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("auth_users.id"))
-    username: Mapped[str]
-    change_time: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
-    )
+account_table = Table(
+    "users",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("name", String, nullable=False),
+    Column("password_hash", String, nullable=False),
+    schema="auth",
+)
 
+previous_username_table = Table(
+    "previous_usernames",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("username", String, nullable=False),
+    Column("change_time", DateTime(timezone=True), nullable=True),
+    schema="auth",
+)
 
-class Session(Base):
-    __tablename__ = "sessions"
+session_table = Table(
+    "sessions",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("start_time", DateTime(timezone=True), nullable=True),
+    Column("expiration_date", DateTime(timezone=True), nullable=False),
+    Column("cancelled", Boolean, nullable=True),
+    Column("next_session_id", Uuid, nullable=True),
+    schema="auth",
+)
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("auth_users.id"))
-    start_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    cancelled: Mapped[bool | None]
-    next_session_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("sessions.id"),
-    )
+aqua_user_table = Table(
+    "users",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("water_balance", Integer, nullable=False),
+    Column("glass", Integer, nullable=False),
+    Column("weight", Integer, nullable=True),
+    schema="aqua",
+)
 
+record_table = Table(
+    "records",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("drunk_water", Integer, nullable=False),
+    Column("recording_time", DateTime(timezone=True), nullable=False),
+    Column("is_accidental", Boolean, nullable=True),
+    schema="aqua",
+)
 
-class AquaUser(Base):
-    __tablename__ = "aqua_users"
-
-    id: Mapped[UUID] = mapped_column(
-        ForeignKey("auth_users.id"), primary_key=True
-    )
-    water_balance: Mapped[int]
-    glass: Mapped[int]
-    weight: Mapped[int | None]
-    records: Mapped[list["Record"]] = relationship(back_populates="user")
-
-
-class Record(Base):
-    __tablename__ = "records"
-
-    drunk_water: Mapped[int]
-    recording_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
-    user: Mapped["AquaUser"] = relationship(back_populates="records")
-    is_accidental: Mapped[bool | None]
-
-
-class Day(Base):
-    __tablename__ = "days"
-
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("aqua_users.id"))
-    real_water_balance: Mapped[int]
-    target_water_balance: Mapped[int]
-    date_: Mapped[date]
-    result: Mapped[int]
-    is_result_pinned: Mapped[bool | None]
+day_table = Table(
+    "days",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("real_water_balance", Integer, nullable=False),
+    Column("target_water_balance", Integer, nullable=False),
+    Column("date_", Date, nullable=False),
+    Column("result", Integer, nullable=False),
+    Column("is_result_pinned", Boolean, nullable=True),
+    schema="aqua",
+)
