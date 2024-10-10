@@ -1,13 +1,11 @@
 from auth.application.ports import mappers
 
 
-class AccountMapper(mappers.Mapper[_account.root.Account]): ...
+class DBAccountMapper(mappers.AccountMapper): ...
 
 
-class AccountNameMapper(
-    mappers.Mapper[_account.internal.entities.account_name.AccountName]
-): ...
+class DBAccountNameMapper(mappers.AccountNameMapper): ...
 
 
-class SessionMapper(mappers.Mapper[_account.internal.entities.session.Session]):
+class DBSessionMapper(mappers.SessionMapper):
     ...
