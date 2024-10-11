@@ -1,46 +1,46 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    Date,
-    DateTime,
-    Integer,
-    Table,
-    Uuid,
-)
+from datetime import date, datetime
+from uuid import UUID
+
+from sqlalchemy import DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from shared.infrastructure.periphery.db.tables.metadata import metadata
 
 
-user_table = Table(
-    "users",
-    metadata,
-    Column("id", Uuid, primary_key=True, nullable=False),
-    Column("water_balance", Integer, nullable=False),
-    Column("glass", Integer, nullable=False),
-    Column("weight", Integer, nullable=True),
-    schema="aqua",
-)
+class Base(DeclarativeBase):
+    __table_args__ = {"schema": "aqua"}  # noqa: RUF012
+    metadata = metadata
 
-record_table = Table(
-    "records",
-    metadata,
-    Column("id", Uuid, primary_key=True, nullable=False),
-    Column("user_id", Uuid, nullable=False),
-    Column("drunk_water", Integer, nullable=False),
-    Column("recording_time", DateTime(timezone=True), nullable=False),
-    Column("is_accidental", Boolean, nullable=True),
-    schema="aqua",
-)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
-day_table = Table(
-    "days",
-    metadata,
-    Column("id", Uuid, primary_key=True, nullable=False),
-    Column("user_id", Uuid, nullable=False),
-    Column("real_water_balance", Integer, nullable=False),
-    Column("target_water_balance", Integer, nullable=False),
-    Column("date_", Date, nullable=False),
-    Column("result", Integer, nullable=False),
-    Column("is_result_pinned", Boolean, nullable=True),
-    schema="aqua",
-)
+    def __repr__(self) -> str:
+        return f"db.{type(self).__name__}(id={self.id!r})"
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    water_balance: Mapped[int]
+    glass: Mapped[int]
+    weight: Mapped[int | None]
+
+
+class Record(Base):
+    __tablename__ = "records"
+
+    drunk_water: Mapped[int]
+    recording_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    user_id: Mapped[UUID]
+    is_accidental: Mapped[bool | None]
+
+
+class Day(Base):
+    __tablename__ = "days"
+
+    user_id: Mapped[UUID]
+    real_water_balance: Mapped[int]
+    target_water_balance: Mapped[int]
+    date_: Mapped[date]
+    result: Mapped[int]
+    is_result_pinned: Mapped[bool | None]

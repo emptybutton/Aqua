@@ -6,12 +6,7 @@ from typing import Generic, Iterable, Iterator, TypeVar
 _T = TypeVar("_T")
 
 
-class InMemoryUoW(Generic[_T]):
-    """
-    deprecated: use `shared.infrastructure.periphery.containers.Transactional
-    Container`.
-    """
-
+class TransactionalContainer(Generic[_T]):
     class Error(Exception): ...
 
     class NoTrasactionError(Error): ...
@@ -27,7 +22,7 @@ class InMemoryUoW(Generic[_T]):
         return len(self._storage)
 
     def __getitem__(self, index: int) -> _T:
-        return self._storage[index]
+        return copy(self._storage[index])
 
     def begin(self) -> None:
         self.__storage_snapshot_stack.append(list(self._storage))
@@ -36,7 +31,7 @@ class InMemoryUoW(Generic[_T]):
         storage_snapshot = self.__storage_snapshot_stack.pop()
 
         if storage_snapshot is None:
-            raise InMemoryUoW.NoTrasactionError
+            raise TransactionalContainer.NoTrasactionError
 
         self._storage = storage_snapshot
 
@@ -44,4 +39,4 @@ class InMemoryUoW(Generic[_T]):
         storage_snapshot = self.__storage_snapshot_stack.pop()
 
         if storage_snapshot is None:
-            raise InMemoryUoW.NoTrasactionError
+            raise TransactionalContainer.NoTrasactionError

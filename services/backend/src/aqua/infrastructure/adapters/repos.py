@@ -10,8 +10,8 @@ from aqua.application.ports import repos
 from aqua.domain import entities
 from aqua.domain import value_objects as vos
 from shared.infrastructure.periphery import uows
-from shared.infrastructure.periphery.db import tables
 from shared.infrastructure.periphery.db.stmt_builders import STMTBuilder
+from shared.infrastructure.periphery.db.tables import aqua as tables
 
 
 class DBUsers(repos.Users):
@@ -31,7 +31,7 @@ class DBUsers(repos.Users):
             glass = user.glass.capacity.milliliters
 
         await self.__session.execute(
-            insert(tables.AquaUser).values(
+            insert(tables.User).values(
                 id=user.id,
                 water_balance=water_balance,
                 weight=weight,
@@ -42,13 +42,13 @@ class DBUsers(repos.Users):
     async def find_with_id(self, user_id: UUID) -> entities.User | None:
         query = (
             self.__builder.select(
-                tables.AquaUser.id,
-                tables.AquaUser.water_balance,
-                tables.AquaUser.glass,
-                tables.AquaUser.weight,
+                tables.User.id,
+                tables.User.water_balance,
+                tables.User.glass,
+                tables.User.weight,
             )
             .build()
-            .where(tables.AquaUser.id == user_id)
+            .where(tables.User.id == user_id)
         )
         results = await self.__session.execute(query)
         raw_user = results.first()
@@ -73,7 +73,7 @@ class DBUsers(repos.Users):
 
     async def contains_with_id(self, user_id: UUID) -> bool:
         query = self.__builder.select(
-            exists(1).where(tables.AquaUser.id == user_id)
+            exists(1).where(tables.User.id == user_id)
         ).build()
 
         result = await self.__session.scalar(query)

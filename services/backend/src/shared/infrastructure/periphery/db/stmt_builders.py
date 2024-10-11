@@ -1,7 +1,7 @@
 from typing import Any, Self
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 from sqlalchemy.sql.expression import Select
 
 
@@ -19,7 +19,12 @@ class STMTBuilder:
 
     @classmethod
     def of(cls, session: AsyncSession) -> Self:
+        """deprecated: use connections instead of sessions and method `for_`"""
         return cls(is_in_trasaction=session.is_active)
+
+    @classmethod
+    def for_(cls, connection: AsyncConnection) -> Self:
+        return cls(is_in_trasaction=connection.in_transaction())
 
 
 class SelectBuilder:
