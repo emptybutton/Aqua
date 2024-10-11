@@ -34,6 +34,10 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     sessions: set[_session.Session]
     password_hash: _password.PasswordHash
 
+    @property
+    def names(self) -> frozenset[_account_name.AccountName]:
+        return frozenset({self.current_name, *self.previous_names})
+
     class PrimaryAuthenticationError(Error): ...
 
     class InvalidPasswordHashForPrimaryAuthenticationError(Error): ...

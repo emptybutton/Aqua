@@ -20,6 +20,7 @@ class Logger(ABC):
         self,
         *,
         account: _Account,
+        current_account_name: _AccountName,
         previous_account_name: _AccountName,
     ) -> None: ...
 
@@ -36,3 +37,6 @@ class Logger(ABC):
 
     @abstractmethod
     async def log_replaced_session(self, session: _Session) -> None: ...
+
+    # @abstractmethod
+    # async def log_cancelled_session(self, session: _Session) -> None: ...

@@ -6,6 +6,7 @@ from shared.domain.framework.ports.effect import Effect
 
 _EntityT = TypeVar("_EntityT")
 _IDT = TypeVar("_IDT")
+_EventTypeT = TypeVar("_EventTypeT")
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -63,6 +64,22 @@ class Entity(Generic[_IDT, _AdditionalEventT]):
     @property
     def is_dirty(self) -> bool:
         return bool(tuple(self.mutation_events))
+
+    def events_with_type(
+        self, event_type: type[_EventTypeT]
+    ) -> tuple[_EventTypeT, ...]:
+        return tuple(
+            event for event in self.events if isinstance(event, event_type)
+        )
+
+    def last_event_with_type(
+        self, event_type: type[_EventTypeT]
+    ) -> _EventTypeT | None:
+        for event in self.events:
+            if isinstance(event, event_type):
+                return event
+
+        return None
 
     def reset_events(self, effect: Effect) -> None:
         self.events = list()

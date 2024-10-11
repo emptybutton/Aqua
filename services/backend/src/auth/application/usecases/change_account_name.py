@@ -92,6 +92,7 @@ async def change_account_name(
         if result.previous_name is not None:
             await logger.log_renaming(
                 account=account,
+                current_account_name=account.current_name,
                 previous_account_name=result.previous_name,
             )
 

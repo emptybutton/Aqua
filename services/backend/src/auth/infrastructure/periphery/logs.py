@@ -1,6 +1,7 @@
-registration_log = "auth user registration"
-login_log = "new auth session created"
-session_extension_log = "auth session extended"
-renaming_log = "auth user changed name"
-password_change_log = "auth user changed password"  # noqa: S105
-replaced_session_log = "auth session replaced"
+registration_log = "user registration"
+login_log = "new session created"
+session_extension_log = "session extended"
+renaming_log = "user changed name"
+password_change_log = "user changed password"  # noqa: S105
+replaced_session_log = "session replaced"
+cancelled_session_log = "session cancelled"
