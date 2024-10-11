@@ -41,9 +41,15 @@ def upgrade() -> None:
     """)
     op.execute("""
         UPDATE auth.account_names SET is_current = true
-        FROM auth.accounts WHERE auth.account_names.text = auth.account.name
+        FROM auth.accounts WHERE auth.account_names.text = auth.accounts.name
     """)
     op.drop_column("accounts", "name", schema="auth")
+    op.alter_column(
+        "account_names",
+        "is_current",
+        nullable=False,
+        schema="auth",
+    )
 
     op.add_column(
         "previous_account_names",
@@ -98,15 +104,46 @@ def downgrade() -> None:
         new_column_name="change_time",
         schema="auth",
     )
-    op.alter_column(
-        "previous_account_names",
-        "account_name_id",
-        nullable=True,
-        schema="auth",
-    )
+
+    op.execute("""
+        UPDATE auth.previous_account_names
+        SET (
+            account_id = auth.account_names.account_id,
+            account_name = auth.account_names.text
+        )
+        FROM auth.account_names
+        WHERE (
+            auth.previous_account_names.account_name_id = auth.account_names.id
+            AND NOT auth.account_names.is_current
+        )
+    """)
 
     op.add_column(
         "accounts",
         sa.Column("name", sa.String, nullable=False),
         schema="auth",
     )
+    op.execute("""
+        UPDATE auth.accounts
+        SET name = auth.account_names.text
+        FROM auth.account_names
+        WHERE (
+            auth.account_names.account_id = auth.accounts.id
+            AND auth.account_names.is_current
+        )
+    """)
+
+    op.alter_column(
+        "previous_account_names",
+        "account_name",
+        nullable=False,
+        schema="auth",
+    )
+    op.alter_column(
+        "previous_account_names",
+        "account_id",
+        nullable=False,
+        schema="auth",
+    )
+    op.drop_column("previous_account_names", "account_name_id", schema="auth")
+    op.drop_table("account_names", schema="auth")

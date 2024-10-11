@@ -33,7 +33,7 @@ account_name_taking_time_table = Table(
     metadata,
     Column("id", Uuid, primary_key=True, nullable=False),
     Column("account_name_id", Uuid, nullable=False),
-    Column("time", DateTime(timezone=True), nullable=False),
+    Column("time", DateTime(timezone=True), nullable=True),
     schema="auth",
 )
 
