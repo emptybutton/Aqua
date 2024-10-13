@@ -44,8 +44,6 @@ async def map_effect(effect: IndexedEffect, mappers: Mappers) -> None:
 
         new_entities = effect.new_entities_with_type(entity_type)
         dirty_entities = effect.dirty_entities_with_type(entity_type)
-        deleted_entities = effect.deleted_entities_with_type(entity_type)
 
         await mapper.add_all(new_entities)
         await mapper.update_all(dirty_entities)
-        await mapper.delete_all(deleted_entities)

@@ -11,14 +11,12 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
     def __init__(self) -> None:
         self.__new_entities: set[_EntityT] = set()
         self.__dirty_entities: set[_EntityT] = set()
-        self.__deleted_entities: set[_EntityT] = set()
 
     @property
     def entities(self) -> frozenset[_EntityT]:
         return frozenset(
             *self.__new_entities,
             *self.__dirty_entities,
-            *self.__deleted_entities,
         )
 
     @property
@@ -28,10 +26,6 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
     @property
     def dirty_entities(self) -> frozenset[_EntityT]:
         return frozenset(self.__dirty_entities)
-
-    @property
-    def deleted_entities(self) -> frozenset[_EntityT]:
-        return frozenset(self.__deleted_entities)
 
     def entities_with_event(
         self, *, event_type: type[EntityEvent[Any]]
@@ -49,16 +43,12 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
             self.__new_entities.add(entity)
         elif entity.is_dirty:
             self.__dirty_entities.add(entity)
-        elif entity.is_deleted:
-            self.__deleted_entities.add(entity)
 
     def remove(self, entity: _EntityT) -> None:
         if entity in self.__new_entities:
             self.__new_entities.remove(entity)
         elif entity in self.__dirty_entities:
             self.__dirty_entities.remove(entity)
-        elif entity in self.__deleted_entities:
-            self.__deleted_entities.remove(entity)
 
     def __entity_has_event(
         self, entity: _EntityT, event_type: type[EntityEvent[Any]]

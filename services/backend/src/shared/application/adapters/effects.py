@@ -47,16 +47,6 @@ class IndexedEffect(Effect):
 
         return index.dirty_entities
 
-    def deleted_entities_with_type(
-        self, entity_type: type[_EntityT]
-    ) -> frozenset[_EntityT]:
-        index = self.__index_for(entity_type)
-
-        if index is None:
-            return frozenset()
-
-        return index.deleted_entities
-
     def entities_with_event(
         self,
         *,

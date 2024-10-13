@@ -20,10 +20,6 @@ class Index(Generic[_EntityT], ABC):
     @abstractmethod
     def dirty_entities(self) -> frozenset[_EntityT]: ...
 
-    @property
-    @abstractmethod
-    def deleted_entities(self) -> frozenset[_EntityT]: ...
-
     @abstractmethod
     def entities_with_event(
         self,

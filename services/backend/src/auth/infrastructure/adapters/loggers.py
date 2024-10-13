@@ -128,7 +128,7 @@ class StructlogProdLogger(loggers.Logger):
         previous_account_name: _AccountName,
     ) -> None:
         event = current_account_name.last_event_with_type(
-            _account.internal.entities.session.BecameCurrent
+            _account.internal.entities.account_name.BecameCurrent
         )
         taking_time = None if event is None else event.new_taking_time
 
