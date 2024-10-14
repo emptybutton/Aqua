@@ -1,31 +1,28 @@
+from abc import ABC
 from collections import deque
-from copy import copy
-from typing import Generic, Iterable, Iterator, TypeVar
+from copy import deepcopy
+from typing import Generic, TypeVar
 
 
-_T = TypeVar("_T")
+_Storage = TypeVar("_Storage")
 
 
-class TransactionalContainer(Generic[_T]):
+class TransactionalContainer(Generic[_Storage], ABC):
     class Error(Exception): ...
 
     class NoTrasactionError(Error): ...
 
-    def __init__(self, storage: Iterable[_T] = tuple()) -> None:
-        self.__storage_snapshot_stack: deque[list[_T]] = deque()
-        self._storage: list[_T] = list(storage)
+    _storage: _Storage
 
-    def __iter__(self) -> Iterator[_T]:
-        return iter(map(copy, self._storage))
+    def __init__(self) -> None:
+        self.__storage_snapshot_stack: deque[_Storage] = deque()
 
-    def __len__(self) -> int:
-        return len(self._storage)
-
-    def __getitem__(self, index: int) -> _T:
-        return copy(self._storage[index])
+    @property
+    def storage(self) -> _Storage:
+        return deepcopy(self._storage)
 
     def begin(self) -> None:
-        self.__storage_snapshot_stack.append(list(self._storage))
+        self.__storage_snapshot_stack.append(deepcopy(self._storage))
 
     def rollback(self) -> None:
         storage_snapshot = self.__storage_snapshot_stack.pop()
