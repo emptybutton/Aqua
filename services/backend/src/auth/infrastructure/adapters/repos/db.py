@@ -113,13 +113,15 @@ class DBAccounts(ports.repos.Accounts):
         ).join(
             prevous_name,
             (
-                tables.account_table.c.id == prevous_name.c.account_id
+                (tables.account_table.c.id == prevous_name.c.account_id)
                  & ~prevous_name.c.is_current
             ),
         ).join(
             prevous_name_taking_time,
             prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
-        ).join(session, tables.account_table.c.id == session.c.account_id)
+        ).join(
+            session, tables.account_table.c.id == session.c.account_id
+        )
 
         return await self.__load_by(stmt)
 
@@ -174,7 +176,7 @@ class DBAccounts(ports.repos.Accounts):
             tables.account_table,
             session_with_id,
             (
-                tables.account_table.c.id == session_with_id.c.account_id
+                (tables.account_table.c.id == session_with_id.c.account_id)
                 & session_with_id.c.id == session_id
             ),
         ).join(
@@ -186,18 +188,14 @@ class DBAccounts(ports.repos.Accounts):
         ).join(
             prevous_name,
             (
-                tables.account_table.c.id == prevous_name.c.account_id
+                (tables.account_table.c.id == prevous_name.c.account_id)
                  & ~prevous_name.c.is_current
             ),
         ).join(
             prevous_name_taking_time,
             prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
         ).join(
-            session,
-            (
-                tables.account_table.c.id
-                == session.c.account_id
-            ),
+            session, tables.account_table.c.id == session.c.account_id
         )
 
         return await self.__load_by(stmt)
