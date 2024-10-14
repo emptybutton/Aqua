@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy import select
-
 from auth.application.ports.views import AccountViewFrom
 from auth.infrastructure.adapters.repos.db import DBAccounts
 from shared.infrastructure.periphery.db.tables import auth as tables
@@ -22,9 +20,9 @@ class DBAccountViewFrom(AccountViewFrom[DBAccounts, DBAccountView]):
     async def __call__(
         self, db_accounts: DBAccounts, *, account_id: UUID
     ) -> DBAccountView:
-        stmt = select(
+        stmt = db_accounts.builder.select(
             tables.account_name_table.c.text.label("current_name_text"),
-        ).where(
+        ).build().where(
             (tables.account_name_table.c.account_id == account_id)
             & tables.account_name_table.c.is_current
         ).limit(1)

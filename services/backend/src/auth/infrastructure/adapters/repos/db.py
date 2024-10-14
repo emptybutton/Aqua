@@ -44,6 +44,10 @@ class DBAccounts(ports.repos.Accounts):
         return self.__connection
 
     @property
+    def builder(self) -> STMTBuilder:
+        return self.__builder
+
+    @property
     def _stmt_items(self) -> _ConstructorItems:
         session = tables.session_table.alias("session")
         current_name = tables.account_name_table.alias("current_name")

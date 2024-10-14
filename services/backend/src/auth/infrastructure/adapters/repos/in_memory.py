@@ -24,6 +24,13 @@ class Storage:
             if session.account_id == account_id:
                 yield deepcopy(session)
 
+    def sessions_with_id(self, session_id: UUID) -> _Session | None:
+        for session in self.sessions:
+            if session.id == session_id:
+                return deepcopy(session)
+
+        return None
+
     def current_name_with(
         self, account_id: UUID
     ) -> _AccountName | None:

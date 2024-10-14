@@ -1,3 +1,4 @@
+from auth.infrastructure.adapters import gateways as gateways
 from auth.infrastructure.adapters import loggers as loggers
 from auth.infrastructure.adapters import mappers as mappers
 from auth.infrastructure.adapters import repos as repos
