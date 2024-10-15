@@ -7,6 +7,11 @@ _T = TypeVar("_T")
 
 
 class InMemoryUoW(Generic[_T]):
+    """
+    deprecated: use `shared.infrastructure.periphery.containers.Transactional
+    Container`.
+    """
+
     class Error(Exception): ...
 
     class NoTrasactionError(Error): ...

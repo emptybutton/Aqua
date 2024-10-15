@@ -1,39 +1,45 @@
 from abc import ABC, abstractmethod
+from typing import TypeAlias
 
-from auth.domain import entities
+from auth.domain.models.access.aggregates import account as _account
+
+
+_Account: TypeAlias = _account.root.Account
+_Session: TypeAlias = _account.internal.entities.session.Session
+_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
 
 
 class Logger(ABC):
     @abstractmethod
     async def log_registration(
-        self, *, user: entities.User, session: entities.Session
+        self,
+        *,
+        account: _Account,
+        session: _Session,
     ) -> None: ...
 
     @abstractmethod
     async def log_renaming(
         self,
         *,
-        user: entities.User,
-        previous_username: entities.PreviousUsername,
+        account: _Account,
+        current_account_name: _AccountName,
+        previous_account_name: _AccountName,
     ) -> None: ...
 
     @abstractmethod
-    async def log_password_change(
-        self,
-        *,
-        user: entities.User,
-        other_sessions: tuple[entities.Session, ...],
-    ) -> None: ...
+    async def log_password_change(self, *, account: _Account) -> None: ...
 
     @abstractmethod
     async def log_login(
-        self, *, user: entities.User, session: entities.Session
+        self, *, account: _Account, session: _Session
     ) -> None: ...
 
     @abstractmethod
-    async def log_session_extension(
-        self, session: entities.Session
-    ) -> None: ...
+    async def log_session_extension(self, session: _Session) -> None: ...
 
     @abstractmethod
-    async def log_replaced_session(self, session: entities.Session) -> None: ...
+    async def log_replaced_session(self, session: _Session) -> None: ...
+
+    @abstractmethod
+    async def log_cancelled_session(self, session: _Session) -> None: ...

@@ -2,48 +2,80 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
-from auth.application.cases import authenticate_user
-from auth.domain import entities
-from auth.infrastructure.adapters import repos
+from auth.application.usecases import authenticate as _authenticate
+from auth.domain.models.access.aggregates.account.root import Account
+from auth.infrastructure.adapters import (
+    mappers,
+    repos,
+)
 from auth.presentation.di.containers import async_container
-from shared.infrastructure.adapters.transactions import DBTransactionFactory
+from shared.infrastructure.adapters import indexes
+from shared.infrastructure.adapters.transactions import (
+    DBConnectionTransactionFactory,
+)
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user_id: UUID
     session_id: UUID
 
 
-NoSessionError: TypeAlias = authenticate_user.NoSessionError
+# | Account.NoSessionForSecondaryAuthenticationError
+NoSessionError: TypeAlias = _authenticate.NoAccountError
 
-ExpiredSessionError: TypeAlias = entities.Session.ExpiredForAuthenticationError
+ExpiredSessionError: TypeAlias = (
+    Account.ExpiredSessionForSecondaryAuthenticationError
+)
 
 CancelledSessionError: TypeAlias = (
-    entities.Session.CancelledForAuthenticationError
+    Account.CancelledSessionForSecondaryAuthenticationError
 )
 
 ReplacedSessionError: TypeAlias = (
-    entities.Session.ReplacedForAuthenticationError
+    Account.ReplacedSessionForSecondaryAuthenticationError
 )
 
-Error: TypeAlias = (
-    authenticate_user.Error | entities.Session.AuthenticationError
-)
+Error: TypeAlias = _authenticate.Error | Account.SecondaryAuthenticationError
 
 
-async def perform(session_id: UUID, *, session: AsyncSession) -> Output:
-    async with async_container(context={AsyncSession: session}) as container:
-        result = await authenticate_user.perform(
+async def perform(
+    session_id: UUID,
+    *,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
+) -> Output:
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(
+        context={
+            AsyncSession | None: session,
+            AsyncConnection | None: connection,
+        }
+    )
+    async with request_container as container:
+        result = await _authenticate.authenticate(
             session_id,
-            sessions=await container.get(repos.DBSessions, "repos"),
+            empty_index_factory=await container.get(
+                indexes.EmptySortingIndexFactory, "indexes"
+            ),
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
+            account_mapper_in=await container.get(
+                mappers.db.account.DBAccountMapperFactory, "mappers"
+            ),
+            account_name_mapper_in=await container.get(
+                mappers.db.account_name.DBAccountNameMapperFactory, "mappers"
+            ),
+            session_mapper_in=await container.get(
+                mappers.db.session.DBSessionMapperFactory, "mappers"
+            ),
             transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+                DBConnectionTransactionFactory, "transactions"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    return Output(user_id=result.user_id, session_id=result.id)
+    return Output(user_id=result.account_id, session_id=result.session_id)

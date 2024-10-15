@@ -1,16 +1,28 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
-from auth.application.cases import user_exists
+from auth.application.usecases import (
+    view_account_with_name_exists as _view_account,
+)
 from auth.infrastructure.adapters import repos
 from auth.presentation.di.containers import async_container
 
 
-async def perform(username: str, *, session: AsyncSession) -> bool:
-    async with async_container(context={AsyncSession: session}) as container:
-        return await user_exists.perform(
+async def perform(
+    username: str,
+    *,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
+) -> bool:
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(
+        context={
+            AsyncSession | None: session,
+            AsyncConnection | None: connection,
+        }
+    )
+    async with request_container as container:
+        return await _view_account.view_account_with_name_exists(
             username,
-            users=await container.get(repos.DBUsers, "repos"),
-            previous_usernames=await container.get(
-                repos.DBPreviousUsernames, "repos"
-            ),
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
         )

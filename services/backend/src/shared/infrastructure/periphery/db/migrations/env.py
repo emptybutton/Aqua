@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from shared.infrastructure.periphery.db.engines import db_url
-from shared.infrastructure.periphery.db.tables import Base
+from shared.infrastructure.periphery.db.tables.metadata import metadata
 
 
 config = context.config
@@ -19,7 +19,7 @@ raw_url = db_url.render_as_string(hide_password=False)
 config.set_main_option("sqlalchemy.url", raw_url)
 
 
-target_metadata = Base.metadata
+target_metadata = metadata
 
 
 def run_migrations_offline() -> None:

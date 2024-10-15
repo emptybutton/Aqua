@@ -17,6 +17,6 @@ _TransactionT_co = TypeVar(
 )
 
 
-class TransactionFactory(ABC, Generic[_RepoT]):
+class TransactionFactory(Generic[_RepoT], ABC):
     @abstractmethod
     def __call__(self, repo: _RepoT) -> Transaction: ...

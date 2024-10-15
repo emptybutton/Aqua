@@ -41,6 +41,9 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             return "empty_username"
         except auth.register_user.WeekPasswordError:
             return "week_password"
+        except Exception as error:
+            self.__errors.append(error)
+            return "auth_is_not_working"
 
         return clients.auth.RegisterUserOutput(
             user_id=result.user_id,

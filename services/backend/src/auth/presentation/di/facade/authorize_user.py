@@ -2,27 +2,34 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
-from auth.application.cases import authorize_user
-from auth.infrastructure.adapters import repos, serializers
+from auth.application.usecases import login_to_account as _login
+from auth.infrastructure.adapters import (
+    gateways,
+    mappers,
+    repos,
+)
 from auth.presentation.di.containers import async_container
-from shared.infrastructure.adapters.transactions import DBTransactionFactory
+from shared.infrastructure.adapters import indexes
+from shared.infrastructure.adapters.transactions import (
+    DBConnectionTransactionFactory,
+)
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user_id: UUID
     username: str
     session_id: UUID
 
 
-Error: TypeAlias = authorize_user.Error
+Error: TypeAlias = _login.Error
 
-NoUserError: TypeAlias = authorize_user.NoUserError
+NoUserError: TypeAlias = _login.NoAccountError
 
-IncorrectPasswordError: TypeAlias = authorize_user.IncorrectPasswordError
+IncorrectPasswordError: TypeAlias = _login.IncorrectPasswordError
 
 
 async def perform(
@@ -30,29 +37,46 @@ async def perform(
     name: str,
     password: str,
     *,
-    session: AsyncSession,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
 ) -> Output:
-    async with async_container(context={AsyncSession: session}) as container:
-        result = await authorize_user.perform(
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(
+        context={
+            AsyncSession | None: session,
+            AsyncConnection | None: connection,
+        }
+    )
+    async with request_container as container:
+        result = await _login.login_to_account(
             session_id,
             name,
             password,
-            password_serializer=await container.get(
-                serializers.SHA256PasswordHasher, "serializers"
+            empty_index_factory=await container.get(
+                indexes.EmptySortingIndexFactory, "indexes"
             ),
-            users=await container.get(repos.DBUsers, "repos"),
-            sessions=await container.get(repos.DBSessions, "repos"),
-            user_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
+            account_mapper_in=await container.get(
+                mappers.db.account.DBAccountMapperFactory, "mappers"
             ),
-            session_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            account_name_mapper_in=await container.get(
+                mappers.db.account_name.DBAccountNameMapperFactory, "mappers"
+            ),
+            session_mapper_in=await container.get(
+                mappers.db.session.DBSessionMapperFactory, "mappers"
+            ),
+            transaction_for=await container.get(
+                DBConnectionTransactionFactory, "transactions"
+            ),
+            gateway_to=await container.get(
+                gateways.db.DBGatewayFactory, "gateways"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
     return Output(
-        user_id=result.user.id,
-        username=result.user.name.text,
+        user_id=result.account.id,
+        username=result.account.current_name.text,
         session_id=result.session.id,
     )
