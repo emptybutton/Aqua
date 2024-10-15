@@ -14,10 +14,10 @@ async def log_effect(effect: IndexedEffect, logger: Logger) -> None:
         event_type=_account.internal.entities.session.Replaced,
     )
 
-    # cancelled_sessions = effect.entities_with_event(
-    #     entity_type=_account.internal.entities.session.Session,
-    #     event_type=_account.internal.entities.session.Cancelled,
-    # )
+    cancelled_sessions = effect.entities_with_event(
+        entity_type=_account.internal.entities.session.Session,
+        event_type=_account.internal.entities.session.Cancelled,
+    )
 
     for extended_session in extended_sessions:
         await logger.log_session_extension(extended_session)
@@ -25,5 +25,5 @@ async def log_effect(effect: IndexedEffect, logger: Logger) -> None:
     for replaced_session in replaced_sessions:
         await logger.log_replaced_session(replaced_session)
 
-    # for cancelled_session in cancelled_sessions:
-    #     await logger.log_cancelled_session(cancelled_session)
+    for cancelled_session in cancelled_sessions:
+        await logger.log_cancelled_session(cancelled_session)

@@ -113,3 +113,9 @@ class StructlogProdLogger(loggers.Logger):
             logs.replaced_session_log,
             **self.__mapper.to_dict(session),
         )
+
+    async def log_cancelled_session(self, session: _Session) -> None:
+        await prod_logger.ainfo(
+            logs.cancelled_session_log,
+            **self.__mapper.to_dict(session),
+        )

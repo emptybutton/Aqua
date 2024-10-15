@@ -48,3 +48,6 @@ class StructlogDevLogger(loggers.Logger):
 
     async def log_replaced_session(self, session: _Session) -> None:
         await dev_logger.ainfo(logs.replaced_session_log, session=session)
+
+    async def log_cancelled_session(self, session: _Session) -> None:
+        await dev_logger.ainfo(logs.cancelled_session_log, session=session)

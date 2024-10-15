@@ -44,6 +44,11 @@ class ReplacedSessionLog:
     session: _Session
 
 
+@dataclass(kw_only=True, frozen=True, slots=True)
+class CancelledSessionLog:
+    session: _Session
+
+
 class InMemoryLogger(loggers.Logger):
     __registration_logs: list[RegistrationLog]
     __login_logs: list[LoginLog]
@@ -51,6 +56,7 @@ class InMemoryLogger(loggers.Logger):
     __renaming_logs: list[RenamingLog]
     __password_change_logs: list[PasswordChangeLog]
     __replaced_session_logs: list[ReplacedSessionLog]
+    __cancelled_session_logs: list[CancelledSessionLog]
 
     def __init__(self) -> None:
         self.__registration_logs = list()
@@ -59,6 +65,7 @@ class InMemoryLogger(loggers.Logger):
         self.__renaming_logs = list()
         self.__password_change_logs = list()
         self.__replaced_session_logs = list()
+        self.__cancelled_session_logs = list()
 
     @property
     def registration_logs(self) -> list[RegistrationLog]:
@@ -85,6 +92,10 @@ class InMemoryLogger(loggers.Logger):
         return list(self.__replaced_session_logs)
 
     @property
+    def cancelled_session_logs(self) -> list[CancelledSessionLog]:
+        return list(self.__cancelled_session_logs)
+
+    @property
     def is_empty(self) -> bool:
         return (
             not self.__registration_logs
@@ -93,6 +104,7 @@ class InMemoryLogger(loggers.Logger):
             and not self.__renaming_logs
             and not self.__password_change_logs
             and not self.__replaced_session_logs
+            and not self.__cancelled_session_logs
         )
 
     async def log_registration(
@@ -132,3 +144,7 @@ class InMemoryLogger(loggers.Logger):
     async def log_replaced_session(self, session: _Session) -> None:
         log = ReplacedSessionLog(session=session)
         self.__replaced_session_logs.append(log)
+
+    async def log_cancelled_session(self, session: _Session) -> None:
+        log = CancelledSessionLog(session=session)
+        self.__cancelled_session_logs.append(log)
