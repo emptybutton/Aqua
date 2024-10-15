@@ -113,9 +113,7 @@ class InMemoryLogger(loggers.Logger):
         log = RegistrationLog(account=account, session=session)
         self.__registration_logs.append(log)
 
-    async def log_login(
-        self, *, account: _Account, session: _Session
-    ) -> None:
+    async def log_login(self, *, account: _Account, session: _Session) -> None:
         log = LoginLog(account=account, session=session)
         self.__login_logs.append(log)
 

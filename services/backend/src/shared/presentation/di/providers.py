@@ -31,9 +31,7 @@ class MultilevelPeripheryProvider(Provider):
 
     component = "periphery"
 
-    session = from_context(
-        provides=AsyncSession | None, scope=Scope.REQUEST
-    )
+    session = from_context(provides=AsyncSession | None, scope=Scope.REQUEST)
     connection = from_context(
         provides=AsyncConnection | None, scope=Scope.REQUEST
     )

@@ -22,9 +22,12 @@ async def perform(
 ) -> Output | None:
     """Parameter `session` is deprecated, use `connection`."""
 
-    request_container = async_container(context={
-        AsyncSession | None: session, AsyncConnection | None: connection
-    })
+    request_container = async_container(
+        context={
+            AsyncSession | None: session,
+            AsyncConnection | None: connection,
+        }
+    )
     async with request_container as container:
         view = await view_account.view_account(
             user_id,

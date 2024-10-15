@@ -98,41 +98,44 @@ class DBAccounts(ports.repos.Accounts):
             prevous_name_items=prevous_name_items,
         )
 
-    async def account_with_name(
-        self, *, name_text: str
-    ) -> _Account | None:
+    async def account_with_name(self, *, name_text: str) -> _Account | None:
         name = tables.account_name_table.alias("name")
         stmt, current_name_items, prevous_name_items, session = self._stmt_items
         current_name, current_name_taking_time = current_name_items
         prevous_name, prevous_name_taking_time = prevous_name_items
 
-        stmt = stmt.join_from(
-            tables.account_table,
-            name,
-            (
-                (tables.account_table.c.id == name.c.account_id)
-                & (name.c.text == name_text)
-            ),
-        ).join(
-            current_name,
-            (
-                (tables.account_table.c.id == current_name.c.account_id)
-                 & (current_name.c.is_current)
-            ),
-        ).join(
-            current_name_taking_time,
-            current_name.c.id == current_name_taking_time.c.account_name_id,
-        ).outerjoin(
-            prevous_name,
-            (
-                (tables.account_table.c.id == prevous_name.c.account_id)
-                 & (~prevous_name.c.is_current)
-            ),
-        ).outerjoin(
-            prevous_name_taking_time,
-            prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
-        ).join(
-            session, tables.account_table.c.id == session.c.account_id
+        stmt = (
+            stmt.join_from(
+                tables.account_table,
+                name,
+                (
+                    (tables.account_table.c.id == name.c.account_id)
+                    & (name.c.text == name_text)
+                ),
+            )
+            .join(
+                current_name,
+                (
+                    (tables.account_table.c.id == current_name.c.account_id)
+                    & (current_name.c.is_current)
+                ),
+            )
+            .join(
+                current_name_taking_time,
+                current_name.c.id == current_name_taking_time.c.account_name_id,
+            )
+            .outerjoin(
+                prevous_name,
+                (
+                    (tables.account_table.c.id == prevous_name.c.account_id)
+                    & (~prevous_name.c.is_current)
+                ),
+            )
+            .outerjoin(
+                prevous_name_taking_time,
+                prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
+            )
+            .join(session, tables.account_table.c.id == session.c.account_id)
         )
 
         return await self.__load_by(stmt)
@@ -142,39 +145,46 @@ class DBAccounts(ports.repos.Accounts):
         current_name, current_name_taking_time = current_name_items
         prevous_name, prevous_name_taking_time = prevous_name_items
 
-        stmt = stmt.join_from(
-            tables.account_table,
-            current_name,
-            (
+        stmt = (
+            stmt.join_from(
+                tables.account_table,
+                current_name,
+                (
+                    (
+                        tables.account_table.c.id
+                        == current_name.c.account_id
+                        == account_id
+                    )
+                    & (current_name.c.is_current)
+                ),
+            )
+            .join(
+                current_name_taking_time,
+                current_name.c.id == current_name_taking_time.c.account_name_id,
+            )
+            .outerjoin(
+                prevous_name,
+                (
+                    (
+                        tables.account_table.c.id
+                        == prevous_name.c.account_id
+                        == account_id
+                    )
+                    & (~prevous_name.c.is_current)
+                ),
+            )
+            .outerjoin(
+                prevous_name_taking_time,
+                prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
+            )
+            .join(
+                session,
                 (
                     tables.account_table.c.id
-                    == current_name.c.account_id
+                    == session.c.account_id
                     == account_id
-                )
-                 & (current_name.c.is_current)
-            ),
-        ).join(
-            current_name_taking_time,
-            current_name.c.id == current_name_taking_time.c.account_name_id,
-        ).outerjoin(
-            prevous_name,
-            (
-                (
-                    tables.account_table.c.id
-                    == prevous_name.c.account_id
-                    == account_id
-                ) & (~prevous_name.c.is_current)
-            ),
-        ).outerjoin(
-            prevous_name_taking_time,
-            prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
-        ).join(
-            session,
-            (
-                tables.account_table.c.id
-                == session.c.account_id
-                == account_id
-            ),
+                ),
+            )
         )
 
         return await self.__load_by(stmt)
@@ -187,33 +197,38 @@ class DBAccounts(ports.repos.Accounts):
         current_name, current_name_taking_time = current_name_items
         prevous_name, prevous_name_taking_time = prevous_name_items
 
-        stmt = stmt.join_from(
-            tables.account_table,
-            session_with_id,
-            (
-                (tables.account_table.c.id == session_with_id.c.account_id)
-                & (session_with_id.c.id == session_id)
-            ),
-        ).join(
-            current_name,
-            (
-                (tables.account_table.c.id == current_name.c.account_id)
-                 & (current_name.c.is_current)
+        stmt = (
+            stmt.join_from(
+                tables.account_table,
+                session_with_id,
+                (
+                    (tables.account_table.c.id == session_with_id.c.account_id)
+                    & (session_with_id.c.id == session_id)
+                ),
             )
-        ).join(
-            current_name_taking_time,
-            current_name.c.id == current_name_taking_time.c.account_name_id,
-        ).outerjoin(
-            prevous_name,
-            (
-                (tables.account_table.c.id == prevous_name.c.account_id)
-                 & (~prevous_name.c.is_current)
-            ),
-        ).outerjoin(
-            prevous_name_taking_time,
-            prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
-        ).join(
-            session, tables.account_table.c.id == session.c.account_id
+            .join(
+                current_name,
+                (
+                    (tables.account_table.c.id == current_name.c.account_id)
+                    & (current_name.c.is_current)
+                ),
+            )
+            .join(
+                current_name_taking_time,
+                current_name.c.id == current_name_taking_time.c.account_name_id,
+            )
+            .outerjoin(
+                prevous_name,
+                (
+                    (tables.account_table.c.id == prevous_name.c.account_id)
+                    & (~prevous_name.c.is_current)
+                ),
+            )
+            .outerjoin(
+                prevous_name_taking_time,
+                prevous_name.c.id == prevous_name_taking_time.c.account_name_id,
+            )
+            .join(session, tables.account_table.c.id == session.c.account_id)
         )
 
         return await self.__load_by(stmt)
@@ -288,18 +303,18 @@ class DBAccounts(ports.repos.Accounts):
         for row in rows:
             yield Time(datetime_=row.current_name_taking_time)
 
-    def __prevous_names_from(
-        self, rows: Row[Any]
-    ) -> Iterable[_AccountName]:
+    def __prevous_names_from(self, rows: Row[Any]) -> Iterable[_AccountName]:
         row = rows[0]
 
         if row.prevous_name_id is None:
             return
 
         for row in rows:
-            taking_times = set(self.__prevous_name_taking_times_from(
-                rows, prevous_name_id=row.prevous_name_id
-            ))
+            taking_times = set(
+                self.__prevous_name_taking_times_from(
+                    rows, prevous_name_id=row.prevous_name_id
+                )
+            )
 
             yield _AccountName(
                 id=row.prevous_name_id,
@@ -311,7 +326,10 @@ class DBAccounts(ports.repos.Accounts):
             )
 
     def __prevous_name_taking_times_from(
-        self, rows: Row[Any], *, prevous_name_id: UUID,
+        self,
+        rows: Row[Any],
+        *,
+        prevous_name_id: UUID,
     ) -> Iterable[Time]:
         for row in rows:
             if row.prevous_name_id == prevous_name_id:

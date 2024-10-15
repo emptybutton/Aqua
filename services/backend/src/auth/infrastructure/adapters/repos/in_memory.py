@@ -31,9 +31,7 @@ class Storage:
 
         return None
 
-    def current_name_with(
-        self, account_id: UUID
-    ) -> _AccountName | None:
+    def current_name_with(self, account_id: UUID) -> _AccountName | None:
         for name in self.account_names:
             if name.account_id == account_id and name.is_current:
                 return deepcopy(name)
@@ -51,9 +49,7 @@ class InMemoryAccounts(ports.repos.Accounts, TransactionalContainer[Storage]):
         super().__init__()
         self._storage = Storage() if storage is None else deepcopy(storage)
 
-    async def account_with_name(
-        self, *, name_text: str
-    ) -> _Account | None:
+    async def account_with_name(self, *, name_text: str) -> _Account | None:
         for name in self._storage.account_names:
             if name.text == name_text:
                 return self.__load_account(account_id=name.account_id)

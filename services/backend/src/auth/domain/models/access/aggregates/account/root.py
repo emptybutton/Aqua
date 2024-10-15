@@ -67,7 +67,11 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     ): ...
 
     def secondarily_authenticate(
-        self, *, session_id: UUID, current_time: _time.Time, effect: Effect,
+        self,
+        *,
+        session_id: UUID,
+        current_time: _time.Time,
+        effect: Effect,
     ) -> _session.Session:
         session = self.__session_with(session_id)
 
@@ -152,8 +156,8 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         self.events.append(event)
         effect.consider(self)
 
-        other_sessions = (
-            self.__other_sessions_when(current_session=current_session)
+        other_sessions = self.__other_sessions_when(
+            current_session=current_session
         )
         for other_session in other_sessions:
             _session.cancel(other_session, effect=effect)
@@ -248,9 +252,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     ) -> None:
         self.__make_current_name_previous(effect=effect)
 
-        previous_name.become_current(
-            current_time=current_time, effect=effect
-        )
+        previous_name.become_current(current_time=current_time, effect=effect)
         self.current_name = previous_name
         self.previous_names.remove(self.current_name)
 

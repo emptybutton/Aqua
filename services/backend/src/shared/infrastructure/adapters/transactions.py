@@ -75,9 +75,7 @@ class DBConnectionTransactionFactory(transactions.TransactionFactory[Any]):
 
 
 class TransactionalContainerTransaction(transactions.Transaction):
-    def __init__(
-        self, container: TransactionalContainer[Any]
-    ) -> None:
+    def __init__(self, container: TransactionalContainer[Any]) -> None:
         self.__is_rollbacked = False
         self.__container = container
 
@@ -110,7 +108,8 @@ class TransactionalContainerTransactionFactory(
     transactions.TransactionFactory[TransactionalContainer[Any]]
 ):
     def __call__(
-        self, container: TransactionalContainer[Any],
+        self,
+        container: TransactionalContainer[Any],
     ) -> TransactionalContainerTransaction:
         return TransactionalContainerTransaction(container)
 

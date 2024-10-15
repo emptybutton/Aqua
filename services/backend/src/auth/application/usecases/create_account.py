@@ -68,18 +68,19 @@ async def create_account(
             current_session = None
             is_account_name_text_taken = IsAccountNameTextTakenInRepo(accounts)
         else:
-            gateway_result = await (
-                gateway_to(accounts)
-                .session_with_id_and_contains_account_name_with_text(
-                    session_id=session_id,
-                    account_name_text=name_text,
-                )
+            gateway_result = await gateway_to(
+                accounts
+            ).session_with_id_and_contains_account_name_with_text(
+                session_id=session_id,
+                account_name_text=name_text,
             )
             current_session = gateway_result.session
             is_account_name_text_taken = IsAccountNameTextTakenBasedOnCache.of(
                 gateway_result,
                 name_text=name_text,
-                is_account_name_text_taken=IsAccountNameTextTakenInRepo(accounts),
+                is_account_name_text_taken=IsAccountNameTextTakenInRepo(
+                    accounts
+                ),
             )
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
@@ -98,10 +99,13 @@ async def create_account(
             account=result.account, session=result.current_session
         )
         await log_effect(effect, logger)
-        await map_effect(effect, Mappers(
-            (_Account, account_mapper_in(accounts)),
-            (_AccountName, account_name_mapper_in(accounts)),
-            (_Session, session_mapper_in(accounts)),
-        ))
+        await map_effect(
+            effect,
+            Mappers(
+                (_Account, account_mapper_in(accounts)),
+                (_AccountName, account_name_mapper_in(accounts)),
+                (_Session, session_mapper_in(accounts)),
+            ),
+        )
 
         return Output(account=result.account, session=result.current_session)

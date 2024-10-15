@@ -19,9 +19,7 @@ class StructlogDevLogger(loggers.Logger):
             logs.registration_log, account=account, session=session
         )
 
-    async def log_login(
-        self, *, account: _Account, session: _Session
-    ) -> None:
+    async def log_login(self, *, account: _Account, session: _Session) -> None:
         await dev_logger.ainfo(logs.login_log, account=account, session=session)
 
     async def log_session_extension(self, session: _Session) -> None:

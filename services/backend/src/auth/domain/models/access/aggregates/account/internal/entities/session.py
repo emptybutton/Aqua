@@ -30,18 +30,11 @@ class BecameLeader(_entity.CommentingEvent["Session"]):
     prevous_session: "Session"
 
 
-SessionEvent: TypeAlias = (
-    Replaced
-    | BecameLeader
-    | Cancelled
-    | Extended
-)
+SessionEvent: TypeAlias = Replaced | BecameLeader | Cancelled | Extended
 
 
 SessionInactivityReasons: TypeAlias = (
-    Literal["replaced"]
-    | Literal["expired"]
-    | Literal["cancelled"]
+    Literal["replaced"] | Literal["expired"] | Literal["cancelled"]
 )
 
 
@@ -91,10 +84,7 @@ def issue_session(
     ):
         current_session = None
 
-    if (
-        current_session is not None
-        and current_session.account_id == account_id
-    ):
+    if current_session is not None and current_session.account_id == account_id:
         extend(current_session, current_time=current_time, effect=effect)
         return current_session
 
@@ -130,7 +120,8 @@ def extend(
     session: Session, *, current_time: _time.Time, effect: Effect
 ) -> None:
     extended_lifetime = _session_lifetime.extended(
-        session.lifetime, current_time=current_time,
+        session.lifetime,
+        current_time=current_time,
     )
 
     event = Extended(entity=session, new_lifetime=extended_lifetime)

@@ -64,10 +64,13 @@ async def change_account_password(
 
         await logger.log_password_change(account=account)
         await log_effect(effect, logger)
-        await map_effect(effect, Mappers(
-            (_Account, account_mapper_in(accounts)),
-            (_AccountName, account_name_mapper_in(accounts)),
-            (_Session, session_mapper_in(accounts)),
-        ))
+        await map_effect(
+            effect,
+            Mappers(
+                (_Account, account_mapper_in(accounts)),
+                (_AccountName, account_name_mapper_in(accounts)),
+                (_Session, session_mapper_in(accounts)),
+            ),
+        )
 
         return Output(account=account, session=session)

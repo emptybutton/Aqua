@@ -17,18 +17,12 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
 
     @property
     def new_entities(self) -> frozenset[_EntityT]:
-        return frozenset(
-            entity
-            for entity in self.__entities
-            if entity.is_new
-        )
+        return frozenset(entity for entity in self.__entities if entity.is_new)
 
     @property
     def dirty_entities(self) -> frozenset[_EntityT]:
         return frozenset(
-            entity
-            for entity in self.__entities
-            if entity.is_dirty
+            entity for entity in self.__entities if entity.is_dirty
         )
 
     def entities_with_event(
@@ -51,7 +45,5 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
 
 
 class EmptySortingIndexFactory(EmptyIndexFactory):
-    def __call__(
-        self, entity_type: type[_EntityT]
-    ) -> SortingIndex[_EntityT]:
+    def __call__(self, entity_type: type[_EntityT]) -> SortingIndex[_EntityT]:
         return SortingIndex()

@@ -12,7 +12,10 @@ _AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
 class Logger(ABC):
     @abstractmethod
     async def log_registration(
-        self, *, account: _Account, session: _Session,
+        self,
+        *,
+        account: _Account,
+        session: _Session,
     ) -> None: ...
 
     @abstractmethod

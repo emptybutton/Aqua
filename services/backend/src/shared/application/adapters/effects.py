@@ -9,9 +9,9 @@ _EntityT = TypeVar("_EntityT", bound=Entity[Any, Any])
 
 
 class IndexedEffect(Effect):
-    _IndexByEntityType: TypeAlias = (
-        dict[type[Entity[Any, Any]], Index[Entity[Any, Any]]]
-    )
+    _IndexByEntityType: TypeAlias = dict[
+        type[Entity[Any, Any]], Index[Entity[Any, Any]]
+    ]
 
     def __init__(
         self,

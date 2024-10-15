@@ -36,6 +36,4 @@ class Index(Generic[_EntityT], ABC):
 
 class EmptyIndexFactory(ABC):
     @abstractmethod
-    def __call__(
-        self, entity_type: type[_EntityT]
-    ) -> Index[_EntityT]: ...
+    def __call__(self, entity_type: type[_EntityT]) -> Index[_EntityT]: ...

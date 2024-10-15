@@ -20,12 +20,17 @@ class DBAccountViewFrom(AccountViewFrom[DBAccounts, DBAccountView]):
     async def __call__(
         self, db_accounts: DBAccounts, *, account_id: UUID
     ) -> DBAccountView:
-        stmt = db_accounts.builder.select(
-            tables.account_name_table.c.text.label("current_name_text"),
-        ).build().where(
-            (tables.account_name_table.c.account_id == account_id)
-            & tables.account_name_table.c.is_current
-        ).limit(1)
+        stmt = (
+            db_accounts.builder.select(
+                tables.account_name_table.c.text.label("current_name_text"),
+            )
+            .build()
+            .where(
+                (tables.account_name_table.c.account_id == account_id)
+                & tables.account_name_table.c.is_current
+            )
+            .limit(1)
+        )
 
         result = await db_accounts.connection.execute(stmt)
         row = result.first()

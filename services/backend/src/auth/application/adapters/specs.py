@@ -46,8 +46,7 @@ class IsAccountNameTextTakenBasedOnCache(
 
         if taken_and_not_taken_account_name_texts:
             raise (
-                IsAccountNameTextTakenBasedOnCache
-                .TakenAndNotTakenAccountNameTexts
+                IsAccountNameTextTakenBasedOnCache.TakenAndNotTakenAccountNameTexts
             )
 
     async def __call__(self, name_text: str) -> bool:
@@ -79,9 +78,7 @@ class IsAccountNameTextTakenBasedOnCache(
 
         return IsAccountNameTextTakenBasedOnCache(
             not_taken_account_name_texts=[name_text],
-            is_uncached_account_name_text_taken=(
-                is_account_name_text_taken
-            ),
+            is_uncached_account_name_text_taken=(is_account_name_text_taken),
         )
 
 

@@ -33,17 +33,21 @@ class DBGateway(_gateway.Gateway):
             .where(tables.account_name_table.c.text == account_name_text)
             .label("contains")
         )
-        stmt = self.__db_accounts.builder.select(
-            substmt,
-            tables.session_table.c.account_id,
-            tables.session_table.c.start_time,
-            tables.session_table.c.end_time,
-            tables.session_table.c.is_cancelled,
-            tables.session_table.c.leader_session_id,
-        ).build().outerjoin_from(
-            select(1).subquery(),
-            tables.session_table,
-            tables.session_table.c.id == session_id,
+        stmt = (
+            self.__db_accounts.builder.select(
+                substmt,
+                tables.session_table.c.account_id,
+                tables.session_table.c.start_time,
+                tables.session_table.c.end_time,
+                tables.session_table.c.is_cancelled,
+                tables.session_table.c.leader_session_id,
+            )
+            .build()
+            .outerjoin_from(
+                select(1).subquery(),
+                tables.session_table,
+                tables.session_table.c.id == session_id,
+            )
         )
 
         result = await self.__db_accounts.connection.execute(stmt)
@@ -68,15 +72,20 @@ class DBGateway(_gateway.Gateway):
         return _gateway.SessionAndAccount(session=session, account=account)
 
     async def session_with_id(self, session_id: UUID) -> _Session | None:
-        stmt = self.__db_accounts.builder.select(
-            tables.session_table.c.account_id,
-            tables.session_table.c.start_time,
-            tables.session_table.c.end_time,
-            tables.session_table.c.is_cancelled,
-            tables.session_table.c.leader_session_id,
-        ).build().where(
-            tables.session_table.c.id == session_id,
-        ).limit(1)
+        stmt = (
+            self.__db_accounts.builder.select(
+                tables.session_table.c.account_id,
+                tables.session_table.c.start_time,
+                tables.session_table.c.end_time,
+                tables.session_table.c.is_cancelled,
+                tables.session_table.c.leader_session_id,
+            )
+            .build()
+            .where(
+                tables.session_table.c.id == session_id,
+            )
+            .limit(1)
+        )
 
         result = await self.__db_accounts.connection.execute(stmt)
         row = result.first()

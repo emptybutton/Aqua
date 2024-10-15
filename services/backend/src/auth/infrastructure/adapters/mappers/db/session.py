@@ -65,10 +65,7 @@ class DBSessionMapper(SessionMapper):
         )
 
     def __updating(self, values: _Values) -> _Values:
-        return [
-            {f"{k}_": v for k, v in value.items()}
-            for value in values
-        ]
+        return [{f"{k}_": v for k, v in value.items()} for value in values]
 
 
 class DBSessionMapperFactory(MapperFactory[DBAccounts, _Session]):
