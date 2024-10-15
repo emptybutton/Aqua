@@ -16,7 +16,9 @@ from auth.infrastructure.adapters import (
 )
 from auth.presentation.di.containers import async_container
 from shared.infrastructure.adapters import indexes
-from shared.infrastructure.adapters.transactions import DBTransactionFactory
+from shared.infrastructure.adapters.transactions import (
+    DBConnectionTransactionFactory,
+)
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -62,16 +64,16 @@ async def perform(
             ),
             accounts=await container.get(repos.db.DBAccounts, "repos"),
             account_mapper_in=await container.get(
-                mappers.db.account.DBAccountMapper, "mappers"
+                mappers.db.account.DBAccountMapperFactory, "mappers"
             ),
             account_name_mapper_in=await container.get(
-                mappers.db.account_name.DBAccountNameMapper, "mappers"
+                mappers.db.account_name.DBAccountNameMapperFactory, "mappers"
             ),
             session_mapper_in=await container.get(
-                mappers.db.session.DBSessionMapper, "mappers"
+                mappers.db.session.DBSessionMapperFactory, "mappers"
             ),
             transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+                DBConnectionTransactionFactory, "transactions"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )

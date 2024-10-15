@@ -6,7 +6,7 @@ from typing import ClassVar, cast
 from auth.domain.models.access.vos import time as _time
 
 
-@dataclass(kw_only=True, frozen=True, slots=True, eq=False)
+@dataclass(kw_only=True, frozen=True, eq=False)
 class SessionLifetime:
     chunk: ClassVar[timedelta] = timedelta(days=60)
 

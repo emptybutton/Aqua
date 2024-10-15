@@ -7,11 +7,27 @@ from shared.infrastructure import adapters
 
 
 class PeripheryProvider(Provider):
+    """
+    deprecated: use `MultilevelPeripheryProvider`.
+    """
+
+    component = "periphery"
+
+    session = from_context(provides=AsyncSession, scope=Scope.REQUEST)
+
+    @provide(scope=Scope.REQUEST)
+    def get_session(self, session: AsyncSession) -> AsyncSession:
+        return session
+
+
+class MultilevelPeripheryProvider(Provider):
     class Error(Exception): ...
 
     class NoSessionError(Error): ...
 
     class NoSessionAndNoConncetionError(Error): ...
+
+    class SessionWithoutConncetionError(Error): ...
 
     component = "periphery"
 
@@ -25,24 +41,33 @@ class PeripheryProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def get_session(self, session: AsyncSession | None) -> AsyncSession:
         if session is None:
-            raise PeripheryProvider.NoSessionError
+            raise MultilevelPeripheryProvider.NoSessionError
 
         return session
 
     @provide(scope=Scope.REQUEST)
-    async def get_connection(
+    def get_connection(
         self, session: AsyncSession | None, connection: AsyncConnection | None
     ) -> AsyncConnection:
         if connection is not None:
             return connection
 
         if session is not None:
-            return await session.connection()
+            bind = session.bind
 
-        raise PeripheryProvider.NoSessionAndNoConncetionError
+            if not isinstance(bind, AsyncConnection):
+                raise MultilevelPeripheryProvider.SessionWithoutConncetionError
+
+            return bind
+
+        raise MultilevelPeripheryProvider.NoSessionAndNoConncetionError
 
 
 class TransactionProvider(Provider):
+    """
+    deprecated: use `ConnectionTransactionProvider`.
+    """
+
     component = "transactions"
 
     @provide(scope=Scope.REQUEST)
@@ -56,6 +81,10 @@ class TransactionProvider(Provider):
         self, session: Annotated[AsyncSession, FromComponent("periphery")]
     ) -> adapters.transactions.DBTransactionFactory:
         return adapters.transactions.DBTransactionFactory(session)
+
+
+class ConnectionTransactionProvider(Provider):
+    component = "transactions"
 
     @provide(scope=Scope.REQUEST)
     def get_db_conncetion_transaction(

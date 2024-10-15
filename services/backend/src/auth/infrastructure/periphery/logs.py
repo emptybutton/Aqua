@@ -1,5 +1,5 @@
 registration_log = "user registration"
-login_log = "new session created"
+login_log = "user login"
 session_extension_log = "session extended"
 renaming_log = "user changed name"
 password_change_log = "user changed password"  # noqa: S105

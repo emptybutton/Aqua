@@ -25,10 +25,16 @@ class DBAccountNameMapper(AccountNameMapper):
         self.__connection = connection
 
     async def add_all(self, account_names: frozenset[_AccountName]) -> None:
+        if not account_names:
+            return
+
         await self.__insert_to_account_name_table(account_names)
         await self.__insert_to_account_name_taking_time_table(account_names)
 
     async def update_all(self, account_names: frozenset[_AccountName]) -> None:
+        if not account_names:
+            return
+
         await self.__update_account_name_table(account_names)
         await self.__update_account_name_taking_time_table(account_names)
 
@@ -53,15 +59,15 @@ class DBAccountNameMapper(AccountNameMapper):
     ) -> None:
         stmt = (
             update(tables.account_name_table)
-            .where(tables.account_name_table.c.id == bindparam("id"))
+            .where(tables.account_name_table.c.id == bindparam("id_"))
             .values(
-                password_hash=bindparam("password_hash"),
-                text=bindparam("text"),
-                is_current=bindparam("is_current"),
+                password_hash=bindparam("password_hash_"),
+                text=bindparam("text_"),
+                is_current=bindparam("is_current_"),
             )
         )
 
-        values = self.__name_values_of(account_names)
+        values = self.__updating(self.__name_values_of(account_names))
         await self.__connection.execute(stmt, values)
 
     async def __update_account_name_taking_time_table(
@@ -115,6 +121,12 @@ class DBAccountNameMapper(AccountNameMapper):
                 time=event.new_taking_time.datetime_,
             )
             for event in events
+        ]
+
+    def __updating(self, values: _Values) -> _Values:
+        return [
+            {f"{k}_": v for k, v in value.items()}
+            for value in values
         ]
 
 

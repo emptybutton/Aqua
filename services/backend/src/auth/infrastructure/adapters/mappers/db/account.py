@@ -19,23 +19,36 @@ class DBAccountMapper(AccountMapper):
         self.__connection = connection
 
     async def add_all(self, accounts: frozenset[_Account]) -> None:
+        if not accounts:
+            return
+
         stmt = insert(tables.account_table)
 
         await self.__connection.execute(stmt, self.__values_of(accounts))
 
     async def update_all(self, accounts: frozenset[_Account]) -> None:
+        if not accounts:
+            return
+
         stmt = (
             update(tables.account_table)
-            .where(tables.account_table.c.id == bindparam("id"))
-            .values(password_hash=bindparam("password_hash"))
+            .where(tables.account_table.c.id == bindparam("id_"))
+            .values(password_hash=bindparam("password_hash_"))
         )
 
-        await self.__connection.execute(stmt, self.__values_of(accounts))
+        values = self.__updating(self.__values_of(accounts))
+        await self.__connection.execute(stmt, values)
 
     def __values_of(self, accounts: frozenset[_Account]) -> _Values:
         return [
-            dict(id=account.id, password_hash=account.password_hash)
+            dict(id_=account.id, password_hash_=account.password_hash.text)
             for account in accounts
+        ]
+
+    def __updating(self, values: _Values) -> _Values:
+        return [
+            {f"{k}_": v for k, v in value.items()}
+            for value in values
         ]
 
 

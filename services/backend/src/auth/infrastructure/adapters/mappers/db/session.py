@@ -21,23 +21,30 @@ class DBSessionMapper(SessionMapper):
         self.__connection = connection
 
     async def add_all(self, sessions: frozenset[_Session]) -> None:
+        if not sessions:
+            return
+
         stmt = insert(tables.session_table)
 
         await self.__connection.execute(stmt, self.__values_of(sessions))
 
     async def update_all(self, sessions: frozenset[_Session]) -> None:
+        if not sessions:
+            return
+
         stmt = (
             update(tables.session_table)
-            .where(tables.session_table.c.id == bindparam("id"))
+            .where(tables.session_table.c.id == bindparam("id_"))
             .values(
-                start_time=bindparam("start_time"),
-                end_time=bindparam("end_time"),
-                is_cancelled=bindparam("is_cancelled"),
-                leader_session_id=bindparam("leader_session_id"),
+                start_time=bindparam("start_time_"),
+                end_time=bindparam("end_time_"),
+                is_cancelled=bindparam("is_cancelled_"),
+                leader_session_id=bindparam("leader_session_id_"),
             )
         )
 
-        await self.__connection.execute(stmt, self.__values_of(sessions))
+        values = self.__updating(self.__values_of(sessions))
+        await self.__connection.execute(stmt, values)
 
     def __values_of(self, sessions: frozenset[_Session]) -> _Values:
         return list(map(self.__value_of, sessions))
@@ -56,6 +63,12 @@ class DBSessionMapper(SessionMapper):
             is_cancelled=session.is_cancelled,
             leader_session_id=session.leader_session_id,
         )
+
+    def __updating(self, values: _Values) -> _Values:
+        return [
+            {f"{k}_": v for k, v in value.items()}
+            for value in values
+        ]
 
 
 class DBSessionMapperFactory(MapperFactory[DBAccounts, _Session]):

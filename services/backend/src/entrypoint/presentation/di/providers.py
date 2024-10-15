@@ -1,11 +1,11 @@
 from typing import AsyncIterable
 
 from dishka import Provider, Scope, provide
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from entrypoint.application import ports
 from entrypoint.infrastructure import adapters
-from shared.infrastructure.periphery.db import sessions
+from shared.infrastructure.periphery.db import engines
 from shared.infrastructure.periphery.envs import Env
 
 
@@ -14,8 +14,10 @@ class PeripheryProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     async def get_session(self) -> AsyncIterable[AsyncSession]:
-        async with sessions.postgres_session_factory() as session:
-            yield session
+        connection = AsyncConnection(engines.postgres_engine)
+
+        async with connection:
+            yield AsyncSession(connection, autobegin=False)
 
 
 class LogerProvider(Provider):

@@ -102,7 +102,12 @@ class DBGateway(_gateway.Gateway):
             contains_account_name_with_text=contains_account,
         )
 
-    def __session_from(self, row: Row[Any], *, session_id: UUID) -> _Session:
+    def __session_from(
+        self, row: Row[Any], *, session_id: UUID
+    ) -> _Session | None:
+        if row.account_id is None:
+            return None
+
         start_time = None
 
         if row.start_time is not None:
