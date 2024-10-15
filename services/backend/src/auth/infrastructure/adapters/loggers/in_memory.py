@@ -10,36 +10,36 @@ _Session: TypeAlias = _account.internal.entities.session.Session
 _AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class RegistrationLog:
     account: _Account
     session: _Session
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class LoginLog:
     account: _Account
     session: _Session
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class SessionExtensionLog:
     session: _Session
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class RenamingLog:
     account: _Account
     current_account_name: _AccountName
     previous_account_name: _AccountName
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class PasswordChangeLog:
     account: _Account
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class ReplacedSessionLog:
     session: _Session
 
