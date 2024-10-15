@@ -50,17 +50,21 @@ class Account(_entity.Entity[UUID, AccountEvent]):
 
     class SecondaryAuthenticationError(Error): ...
 
-    class NoSessionError(SecondaryAuthenticationError): ...
-
-    class ExpiredForSecondaryAuthenticationError(SecondaryAuthenticationError):
-        ...
-
-    class CancelledForSecondaryAuthenticationError(
+    class NoSessionForSecondaryAuthenticationError(
         SecondaryAuthenticationError
     ): ...
 
-    class ReplacedForSecondaryAuthenticationError(SecondaryAuthenticationError):
-        ...
+    class ExpiredSessionForSecondaryAuthenticationError(
+        SecondaryAuthenticationError
+    ): ...
+
+    class CancelledSessionForSecondaryAuthenticationError(
+        SecondaryAuthenticationError
+    ): ...
+
+    class ReplacedSessionForSecondaryAuthenticationError(
+        SecondaryAuthenticationError
+    ): ...
 
     def secondarily_authenticate(
         self, *, session_id: UUID, current_time: _time.Time, effect: Effect,
@@ -68,18 +72,18 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         session = self.__session_with(session_id)
 
         if not session:
-            raise Account.NoSessionError
+            raise Account.NoSessionForSecondaryAuthenticationError
 
         reasons = session.inactivity_reasons_when(current_time=current_time)
 
         if "replaced" in reasons:
-            raise Account.ReplacedForSecondaryAuthenticationError
+            raise Account.ReplacedSessionForSecondaryAuthenticationError
 
         if "expired" in reasons:
-            raise Account.ExpiredForSecondaryAuthenticationError
+            raise Account.ExpiredSessionForSecondaryAuthenticationError
 
         if "cancelled" in reasons:
-            raise Account.CancelledForSecondaryAuthenticationError
+            raise Account.CancelledSessionForSecondaryAuthenticationError
 
         _session.extend(session, current_time=current_time, effect=effect)
         return session
