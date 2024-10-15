@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import TypeAlias, TypeVar
 from uuid import UUID
 
@@ -13,22 +14,28 @@ from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
 
 
+_Account: TypeAlias = _account.root.Account
+_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
+_Session: TypeAlias = _account.internal.entities.session.Session
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class Output:
+    account: _Account
+    session: _Session
+
+
 class Error(Exception): ...
 
 
 class NoAccountError(Error): ...
 
 
-_Account: TypeAlias = _account.root.Account
-_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
-_Session: TypeAlias = _account.internal.entities.session.Session
-
-
 _AccountsT = TypeVar("_AccountsT", bound=Accounts)
 
 
 async def change_account_password(
-    user_id: UUID,
+    account_id: UUID,
     new_password_text: str,
     session_id: UUID,
     *,
@@ -39,17 +46,17 @@ async def change_account_password(
     session_mapper_in: MapperFactory[_AccountsT, _Session],
     transaction_for: TransactionFactory[_AccountsT],
     logger: Logger,
-) -> None:
+) -> Output:
     new_password = Password(text=new_password_text)
 
     async with transaction_for(accounts):
-        account = await accounts.account_with_id(user_id)
+        account = await accounts.account_with_id(account_id)
 
         if not account:
             raise NoAccountError
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
-        account.change_password(
+        session = account.change_password(
             new_password=new_password,
             current_session_id=session_id,
             effect=effect,
@@ -62,3 +69,5 @@ async def change_account_password(
             (_AccountName, account_name_mapper_in(accounts)),
             (_Session, session_mapper_in(accounts)),
         ))
+
+        return Output(account=account, session=session)

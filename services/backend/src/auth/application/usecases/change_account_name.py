@@ -40,9 +40,6 @@ class Error(Exception): ...
 class NoAccountError(Error): ...
 
 
-class AccountNameTakenError(Error): ...
-
-
 _AccountsT = TypeVar("_AccountsT", bound=Accounts)
 
 

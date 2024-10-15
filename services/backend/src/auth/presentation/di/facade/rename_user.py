@@ -2,57 +2,86 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
-from auth.application.cases import rename_user
-from auth.domain import value_objects as vos
-from auth.infrastructure.adapters import repos
+from auth.application.usecases import change_account_name
+from auth.domain.models.access.aggregates import account as _account
+from auth.infrastructure.adapters import (
+    gateways,
+    mappers,
+    repos,
+)
 from auth.presentation.di.containers import async_container
+from shared.infrastructure.adapters import indexes
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
 
-@dataclass(kw_only=True, frozen=True)
+_Account: TypeAlias = _account.root.Account
+_AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user_id: UUID
     new_username: str
     previous_username: str
 
 
-NoUserError: TypeAlias = rename_user.NoUserError
+NoUserError: TypeAlias = change_account_name.NoAccountError
 
-NewUsernameTakenError: TypeAlias = rename_user.NewUsernameTakenError
+NewUsernameTakenError: TypeAlias = _AccountName.TakenForCreationError
 
-EmptyUsernameError: TypeAlias = vos.Username.EmptyError
+EmptyUsernameError: TypeAlias = _AccountName.EmptyError
 
-Error: TypeAlias = rename_user.Error | EmptyUsernameError
+Error: TypeAlias = change_account_name.Error | EmptyUsernameError
 
 
 async def perform(
     user_id: UUID,
     new_username: str,
     *,
-    session: AsyncSession,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
 ) -> Output:
-    async with async_container(context={AsyncSession: session}) as container:
-        result = await rename_user.perform(
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(context={
+        AsyncSession | None: session, AsyncConnection | None: connection
+    })
+    async with request_container as container:
+        result = await change_account_name.change_account_name(
             user_id,
             new_username,
-            users=await container.get(repos.DBUsers, "repos"),
-            previous_usernames=await container.get(
-                repos.DBPreviousUsernames, "repos"
+            empty_index_factory=await container.get(
+                indexes.EmptySortingIndexFactory, "indexes"
             ),
-            user_transaction_for=await container.get(
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
+            account_mapper_in=await container.get(
+                mappers.db.account.DBAccountMapper, "mappers"
+            ),
+            account_name_mapper_in=await container.get(
+                mappers.db.account_name.DBAccountNameMapper, "mappers"
+            ),
+            session_mapper_in=await container.get(
+                mappers.db.session.DBSessionMapper, "mappers"
+            ),
+            transaction_for=await container.get(
                 DBTransactionFactory, "transactions"
             ),
-            previous_username_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            gateway_to=await container.get(
+                gateways.db.DBGatewayFactory, "gateways"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
+    previous_username_text = result.account.current_name.text
+
+    if result.previous_account_name is not None:
+        previous_username_text = result.previous_account_name.text
+
     return Output(
-        user_id=result.user.id,
-        new_username=result.user.name.text,
-        previous_username=result.previous_username.username.text,
+        user_id=result.account.id,
+        new_username=result.account.current_name.text,
+        previous_username=previous_username_text,
     )

@@ -2,28 +2,41 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
-from auth.application.cases import change_password
-from auth.domain import value_objects as vos
-from auth.infrastructure.adapters import repos, serializers
+from auth.application.usecases import (
+    change_account_password as _change_password,
+)
+from auth.domain.models.access import vos
+from auth.domain.models.access.aggregates.account.root import Account
+from auth.infrastructure.adapters import (
+    mappers,
+    repos,
+)
 from auth.presentation.di.containers import async_container
+from shared.infrastructure.adapters import indexes
 from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     session_id: UUID
     user_id: UUID
     username: str
 
 
-NoUserError: TypeAlias = change_password.NoUserError
+NoSessionError: TypeAlias = Account.NoSessionForPasswordChangeError
 
-WeekPasswordError: TypeAlias = vos.Password.WeekError
+NoUserError: TypeAlias = _change_password.NoAccountError
 
-Error: TypeAlias = change_password.Error | WeekPasswordError
+WeekPasswordError: TypeAlias = vos.password.Password.WeekError
+
+Error: TypeAlias = (
+    _change_password.Error
+    | vos.password.Password.WeekError
+    | Account.NoSessionForPasswordChangeError
+)
 
 
 async def perform(
@@ -31,29 +44,40 @@ async def perform(
     user_id: UUID,
     new_password: str,
     *,
-    session: AsyncSession,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
 ) -> Output:
-    async with async_container(context={AsyncSession: session}) as container:
-        result = await change_password.perform(
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(context={
+        AsyncSession | None: session, AsyncConnection | None: connection
+    })
+    async with request_container as container:
+        result = await _change_password.change_account_password(
             user_id,
             new_password,
             session_id,
-            users=await container.get(repos.DBUsers, "repos"),
-            sessions=await container.get(repos.DBSessions, "repos"),
-            user_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            empty_index_factory=await container.get(
+                indexes.EmptySortingIndexFactory, "indexes"
             ),
-            session_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
+            account_mapper_in=await container.get(
+                mappers.db.account.DBAccountMapper, "mappers"
             ),
-            password_serializer=await container.get(
-                serializers.SHA256PasswordHasher, "serializers"
+            account_name_mapper_in=await container.get(
+                mappers.db.account_name.DBAccountNameMapper, "mappers"
+            ),
+            session_mapper_in=await container.get(
+                mappers.db.session.DBSessionMapper, "mappers"
+            ),
+            transaction_for=await container.get(
+                DBTransactionFactory, "transactions"
             ),
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
     return Output(
-        user_id=result.user.id,
-        username=result.user.name.text,
-        session_id=session_id,
+        user_id=result.account.id,
+        username=result.account.current_name.text,
+        session_id=result.session.id,
     )

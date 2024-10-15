@@ -58,6 +58,6 @@ class DBSessionMapper(SessionMapper):
         )
 
 
-class DBAccountMapperFactory(MapperFactory[DBAccounts, _Session]):
+class DBSessionMapperFactory(MapperFactory[DBAccounts, _Session]):
     def __call__(self, db_accounts: DBAccounts) -> DBSessionMapper:
         return DBSessionMapper(db_accounts.connection)

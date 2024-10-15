@@ -1,26 +1,43 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
-from auth.application.cases import read_user
-from auth.infrastructure.adapters import repos
+from auth.application.usecases import view_account
+from auth.infrastructure.adapters import repos, views
 from auth.presentation.di.containers import async_container
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user_id: UUID
     username: str
 
 
-async def perform(user_id: UUID, *, session: AsyncSession) -> Output | None:
-    async with async_container(context={AsyncSession: session}) as container:
-        user = await read_user.perform(
-            user_id, users=await container.get(repos.DBUsers, "repos")
+async def perform(
+    user_id: UUID,
+    *,
+    session: AsyncSession | None,
+    connection: AsyncConnection | None = None,
+) -> Output | None:
+    """Parameter `session` is deprecated, use `connection`."""
+
+    request_container = async_container(context={
+        AsyncSession | None: session, AsyncConnection | None: connection
+    })
+    async with request_container as container:
+        view = await view_account.view_account(
+            user_id,
+            accounts=await container.get(repos.db.DBAccounts, "repos"),
+            account_view_from=await container.get(
+                views.db.DBAccountViewFrom, "views"
+            ),
         )
 
-    if user is None:
+    if view is None:
         return None
 
-    return Output(user_id=user.id, username=user.name.text)
+    return Output(
+        user_id=view.account_id,
+        username=view.account_current_name_text,
+    )

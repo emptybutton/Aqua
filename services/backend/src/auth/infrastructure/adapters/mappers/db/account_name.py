@@ -118,6 +118,6 @@ class DBAccountNameMapper(AccountNameMapper):
         ]
 
 
-class DBAccountMapperFactory(MapperFactory[DBAccounts, _AccountName]):
+class DBAccountNameMapperFactory(MapperFactory[DBAccounts, _AccountName]):
     def __call__(self, db_accounts: DBAccounts) -> DBAccountNameMapper:
         return DBAccountNameMapper(db_accounts.connection)

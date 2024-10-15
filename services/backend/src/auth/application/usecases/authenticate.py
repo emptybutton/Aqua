@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TypeAlias, TypeVar
 from uuid import UUID
@@ -19,6 +20,12 @@ _AccountName: TypeAlias = _account.internal.entities.account_name.AccountName
 _Session: TypeAlias = _account.internal.entities.session.Session
 
 
+@dataclass(kw_only=True, frozen=True, slots=True)
+class Output:
+    account_id: UUID
+    session_id: UUID
+
+
 class Error(Exception): ...
 
 
@@ -38,7 +45,7 @@ async def authenticate(
     session_mapper_in: MapperFactory[_AccountsT, _Session],
     transaction_for: TransactionFactory[_AccountsT],
     logger: Logger,
-) -> _Session:
+) -> Output:
     current_time = Time(datetime_=datetime.now(UTC))
 
     async with transaction_for(accounts):
@@ -59,4 +66,4 @@ async def authenticate(
             (_Session, session_mapper_in(accounts)),
         ))
 
-        return session
+        return Output(account_id=account.id, session_id=session.id)

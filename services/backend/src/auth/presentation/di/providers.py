@@ -1,10 +1,16 @@
 from typing import Annotated
 
 from dishka import FromComponent, Provider, Scope, provide
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from auth.application import ports
-from auth.infrastructure import adapters
+from auth.infrastructure.adapters import (
+    gateways,
+    loggers,
+    mappers,
+    repos,
+    views,
+)
 from shared.infrastructure.periphery.envs import Env
 
 
@@ -13,29 +19,25 @@ class RepoProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_a(
-        self, session: Annotated[AsyncSession, FromComponent("periphery")]
-    ) -> adapters.repos.DBUsers:
-        return adapters.repos.DBUsers(session)
-
-    @provide(scope=Scope.REQUEST)
-    def get_b(
-        self, session: Annotated[AsyncSession, FromComponent("periphery")]
-    ) -> adapters.repos.DBSessions:
-        return adapters.repos.DBSessions(session)
-
-    @provide(scope=Scope.REQUEST)
-    def get_c(
-        self, session: Annotated[AsyncSession, FromComponent("periphery")]
-    ) -> adapters.repos.DBPreviousUsernames:
-        return adapters.repos.DBPreviousUsernames(session)
+        self, connection: Annotated[AsyncConnection, FromComponent("periphery")]
+    ) -> repos.db.DBAccounts:
+        return repos.db.DBAccounts(connection)
 
 
-class SerializerProvider(Provider):
-    component = "serializers"
+class MepperProvider(Provider):
+    component = "mappers"
 
     @provide(scope=Scope.APP)
-    def get_b(self) -> adapters.serializers.SHA256PasswordHasher:
-        return adapters.serializers.SHA256PasswordHasher()
+    def get_a(self) -> mappers.db.account.DBAccountMapperFactory:
+        return mappers.db.account.DBAccountMapperFactory()
+
+    @provide(scope=Scope.APP)
+    def get_b(self) -> mappers.db.account_name.DBAccountNameMapperFactory:
+        return mappers.db.account_name.DBAccountNameMapperFactory()
+
+    @provide(scope=Scope.APP)
+    def get_c(self) -> mappers.db.session.DBSessionMapperFactory:
+        return mappers.db.session.DBSessionMapperFactory()
 
 
 class LoggerProvider(Provider):
@@ -44,6 +46,22 @@ class LoggerProvider(Provider):
     @provide(scope=Scope.APP)
     def get_a(self) -> ports.loggers.Logger:
         if Env.for_dev:
-            return adapters.loggers.StructlogDevLogger()
+            return loggers.structlog.dev.StructlogDevLogger()
 
-        return adapters.loggers.StructlogProdLogger()
+        return loggers.structlog.prod.StructlogProdLogger()
+
+
+class ViewProvider(Provider):
+    component = "views"
+
+    @provide(scope=Scope.APP)
+    def get_a(self) -> views.db.DBAccountViewFrom:
+        return views.db.DBAccountViewFrom()
+
+
+class GatewayProvider(Provider):
+    component = "gateways"
+
+    @provide(scope=Scope.APP)
+    def get_a(self) -> gateways.db.DBGatewayFactory:
+        return gateways.db.DBGatewayFactory()

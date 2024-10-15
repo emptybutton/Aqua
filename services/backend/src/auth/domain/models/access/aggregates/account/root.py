@@ -135,7 +135,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         new_password: _password.Password,
         current_session_id: UUID,
         effect: Effect,
-    ) -> None:
+    ) -> _session.Session:
         current_session = self.__session_with(current_session_id)
 
         if current_session is None:
@@ -144,7 +144,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         new_password_hash = _password.hash_of(new_password)
 
         if self.password_hash == new_password_hash:
-            return
+            return current_session
 
         self.password_hash = new_password_hash
 
@@ -157,6 +157,8 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         )
         for other_session in other_sessions:
             _session.cancel(other_session, effect=effect)
+
+        return current_session
 
     @dataclass(kw_only=True, frozen=True, slots=True)
     class CreationOutput:
