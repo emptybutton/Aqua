@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeAlias, TypeVar
+from typing import Literal, TypeAlias
 from uuid import UUID
+
+from result import Err, Result
 
 from auth.application.adapters.specs import (
     IsAccountNameTextTakenBasedOnCache,
@@ -21,6 +23,7 @@ from shared.application.output.map_effect import Mappers, map_effect
 from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+from shared.domain.framework.results import swap
 
 
 _Account: TypeAlias = _account.root.Account
@@ -34,31 +37,25 @@ class Output:
     previous_account_name: _AccountName | None
 
 
-class Error(Exception): ...
-
-
-class NoAccountError(Error): ...
-
-
-_AccountsT = TypeVar("_AccountsT", bound=Accounts)
-
-
-async def change_account_name(
+async def change_account_name[AccountsT: Accounts](
     account_id: UUID,
     account_name_text: str,
     *,
     empty_index_factory: EmptyIndexFactory,
-    accounts: _AccountsT,
-    gateway_to: GatewayFactory[_AccountsT],
-    account_mapper_in: MapperFactory[_AccountsT, _Account],
-    account_name_mapper_in: MapperFactory[_AccountsT, _AccountName],
-    session_mapper_in: MapperFactory[_AccountsT, _Session],
-    transaction_for: TransactionFactory[_AccountsT],
+    accounts: AccountsT,
+    gateway_to: GatewayFactory[AccountsT],
+    account_mapper_in: MapperFactory[AccountsT, _Account],
+    account_name_mapper_in: MapperFactory[AccountsT, _AccountName],
+    session_mapper_in: MapperFactory[AccountsT, _Session],
+    transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Output:
-    current_time = Time(datetime_=datetime.now(UTC))
+) -> Result[
+    Output,
+    Literal["no_account", "account_name_text_is_empty", "account_name_is_taken"]
+]:
+    current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
-    async with transaction_for(accounts):
+    async with transaction_for(accounts) as transaction:
         gateway = gateway_to(accounts)
         gateway_result = (
             await gateway.account_with_id_and_contains_account_name_with_text(
@@ -74,7 +71,8 @@ async def change_account_name(
         )
 
         if not account:
-            raise NoAccountError
+            await transaction.rollback()
+            return Err("no_account")
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
         result = await account.change_name(
@@ -85,25 +83,28 @@ async def change_account_name(
                 is_account_name_text_taken
             ),
         )
+        await swap(result).map_async(lambda _: transaction.rollback())
 
-        if result.previous_name is not None:
-            await logger.log_renaming(
-                account=account,
-                current_account_name=account.current_name,
-                previous_account_name=result.previous_name,
-            )
+        async def act(output: _Account.NameChangeOutput) -> None:
+            if output.previous_name is not None:
+                await logger.log_renaming(
+                    account=account,
+                    current_account_name=account.current_name,
+                    previous_account_name=output.previous_name,
+                )
+        await result.map_async(act)
 
-        await log_effect(effect, logger)
-        await map_effect(
+        await result.map_async(lambda _: log_effect(effect, logger))
+        await result.map_async(lambda _: map_effect(
             effect,
             Mappers(
                 (_Account, account_mapper_in(accounts)),
                 (_AccountName, account_name_mapper_in(accounts)),
                 (_Session, session_mapper_in(accounts)),
             ),
-        )
+        ))
 
-        return Output(
+        return result.map(lambda output: Output(
             account=account,
-            previous_account_name=result.previous_name,
-        )
+            previous_account_name=output.previous_name,
+        ))

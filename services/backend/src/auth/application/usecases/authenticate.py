@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeAlias, TypeVar
+from typing import Literal, TypeAlias
 from uuid import UUID
+
+from result import Err, Result
 
 from auth.application.output.log_effect import log_effect
 from auth.application.ports.loggers import Logger
@@ -13,6 +15,7 @@ from shared.application.output.map_effect import Mappers, map_effect
 from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+from shared.domain.framework.results import swap
 
 
 _Account: TypeAlias = _account.root.Account
@@ -26,47 +29,51 @@ class Output:
     session_id: UUID
 
 
-class Error(Exception): ...
-
-
-class NoAccountError(Error): ...
-
-
-_AccountsT = TypeVar("_AccountsT", bound=Accounts)
-
-
-async def authenticate(
+async def authenticate[AccountsT: Accounts](
     session_id: UUID,
     *,
     empty_index_factory: EmptyIndexFactory,
-    accounts: _AccountsT,
-    account_mapper_in: MapperFactory[_AccountsT, _Account],
-    account_name_mapper_in: MapperFactory[_AccountsT, _AccountName],
-    session_mapper_in: MapperFactory[_AccountsT, _Session],
-    transaction_for: TransactionFactory[_AccountsT],
+    accounts: AccountsT,
+    account_mapper_in: MapperFactory[AccountsT, _Account],
+    account_name_mapper_in: MapperFactory[AccountsT, _AccountName],
+    session_mapper_in: MapperFactory[AccountsT, _Session],
+    transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Output:
-    current_time = Time(datetime_=datetime.now(UTC))
+) -> Result[
+    Output,
+    Literal[
+        "no_account",
+        "no_session_for_secondary_authentication",
+        "expired_session_for_secondary_authentication",
+        "cancelled_session_for_secondary_authentication",
+        "replaced_session_for_secondary_authentication",
+    ],
+]:
+    current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
-    async with transaction_for(accounts):
+    async with transaction_for(accounts) as transaction:
         account = await accounts.account_with_session(session_id=session_id)
 
         if account is None:
-            raise NoAccountError
+            await transaction.rollback()
+            return Err("no_account")
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
-        session = account.secondarily_authenticate(
+        session_result = account.secondarily_authenticate(
             session_id=session_id, current_time=current_time, effect=effect
         )
+        await swap(session_result).map_async(lambda _: transaction.rollback())
 
-        await log_effect(effect, logger)
-        await map_effect(
+        await session_result.map_async(lambda _: log_effect(effect, logger))
+        await session_result.map_async(lambda _: map_effect(
             effect,
             Mappers(
                 (_Account, account_mapper_in(accounts)),
                 (_AccountName, account_name_mapper_in(accounts)),
                 (_Session, session_mapper_in(accounts)),
             ),
-        )
+        ))
 
-        return Output(account_id=account.id, session_id=session.id)
+        return session_result.map(lambda session: (
+            Output(account_id=account.id, session_id=session.id))
+        )

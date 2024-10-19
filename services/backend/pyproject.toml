@@ -18,6 +18,7 @@ uvicorn = "^0.30.6"
 structlog = "^24.4.0"
 rich = "^13.7.1"
 dirty-equals = "^0.8.0"
+result = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.12.0"

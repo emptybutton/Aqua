@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeAlias, TypeVar
+from typing import Literal, TypeAlias
 from uuid import UUID
+
+from result import Err, Ok, Result
 
 from auth.application.output.log_effect import log_effect
 from auth.application.ports.gateway import GatewayFactory
@@ -28,40 +30,29 @@ class Output:
     session: _Session
 
 
-class Error(Exception): ...
-
-
-class NoAccountError(Error): ...
-
-
-class IncorrectPasswordError(Error): ...
-
-
-_AccountsT = TypeVar("_AccountsT", bound=Accounts)
-
-
-async def login_to_account(
+async def login_to_account[AccountsT: Accounts](
     session_id: UUID | None,
     name_text: str,
     password_text: str,
     *,
     empty_index_factory: EmptyIndexFactory,
-    accounts: _AccountsT,
-    account_mapper_in: MapperFactory[_AccountsT, _Account],
-    account_name_mapper_in: MapperFactory[_AccountsT, _AccountName],
-    session_mapper_in: MapperFactory[_AccountsT, _Session],
-    transaction_for: TransactionFactory[_AccountsT],
-    gateway_to: GatewayFactory[_AccountsT],
+    accounts: AccountsT,
+    account_mapper_in: MapperFactory[AccountsT, _Account],
+    account_name_mapper_in: MapperFactory[AccountsT, _AccountName],
+    session_mapper_in: MapperFactory[AccountsT, _Session],
+    transaction_for: TransactionFactory[AccountsT],
+    gateway_to: GatewayFactory[AccountsT],
     logger: Logger,
-) -> Output:
-    current_time = Time(datetime_=datetime.now(UTC))
+) -> Result[Output, Literal["no_account", "incorrect_password"]]:
+    current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
-    try:
-        password = Password(text=password_text)
-    except Password.Error as error:
-        raise IncorrectPasswordError from error
+    match Password.with_(text=password_text):
+        case Ok(value):
+            password = value
+        case Err(value):
+            return Err("incorrect_password")
 
-    async with transaction_for(accounts):
+    async with transaction_for(accounts) as transaction:
         if session_id is None:
             current_session = None
             account = await accounts.account_with_name(name_text=name_text)
@@ -77,20 +68,23 @@ async def login_to_account(
             account = gateway_result.account
 
         if account is None:
-            raise NoAccountError
+            await transaction.rollback()
+            return Err("no_account")
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
-
-        try:
-            session = _account.root.login_to(
-                account,
-                password=password,
-                current_time=current_time,
-                current_session=current_session,
-                effect=effect,
-            )
-        except _Account.InvalidPasswordHashForPrimaryAuthenticationError as err:
-            raise IncorrectPasswordError from err
+        result = _account.root.login_to(
+            account,
+            password=password,
+            current_time=current_time,
+            current_session=current_session,
+            effect=effect,
+        )
+        match result:
+            case Ok(v):
+                session = v
+            case Err(v):
+                await transaction.rollback()
+                return Err("incorrect_password")
 
         await logger.log_login(account=account, session=session)
         await log_effect(effect, logger)
@@ -103,4 +97,4 @@ async def login_to_account(
             ),
         )
 
-        return Output(account=account, session=session)
+        return Ok(Output(account=account, session=session))

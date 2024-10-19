@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from uuid import UUID
 
+from result import Err, Ok
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
@@ -30,13 +31,16 @@ class Output:
     previous_username: str
 
 
-NoUserError: TypeAlias = change_account_name.NoAccountError
+class Error(Exception): ...
 
-NewUsernameTakenError: TypeAlias = _AccountName.TakenForCreationError
 
-EmptyUsernameError: TypeAlias = _AccountName.EmptyError
+class NoUserError(Error): ...
 
-Error: TypeAlias = change_account_name.Error | EmptyUsernameError
+
+class NewUsernameTakenError(Error): ...
+
+
+class EmptyUsernameError(Error): ...
 
 
 async def perform(
@@ -80,13 +84,23 @@ async def perform(
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    previous_username_text = result.account.current_name.text
+    match result:
+        case Ok(output):
+            previous_username_text = output.account.current_name.text
 
-    if result.previous_account_name is not None:
-        previous_username_text = result.previous_account_name.text
+            if output.previous_account_name is not None:
+                previous_username_text = output.previous_account_name.text
 
-    return Output(
-        user_id=result.account.id,
-        new_username=result.account.current_name.text,
-        previous_username=previous_username_text,
-    )
+            return Output(
+                user_id=output.account.id,
+                new_username=output.account.current_name.text,
+                previous_username=previous_username_text,
+            )
+        case Err("no_account"):
+            raise NoUserError
+        case Err("account_name_text_is_empty"):
+            raise EmptyUsernameError
+        case Err("account_name_is_taken"):
+            raise NewUsernameTakenError
+        case _:
+            raise Error

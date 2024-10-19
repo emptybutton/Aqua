@@ -90,7 +90,7 @@ def issue_session(
 
     prevous_session = current_session
 
-    lifetime = _session_lifetime.SessionLifetime(start_time=current_time)
+    lifetime = _session_lifetime.SessionLifetime.starting_from(current_time)
     current_session = Session(
         id=uuid4(),
         account_id=account_id,
