@@ -124,7 +124,7 @@ class DBGateway(_gateway.Gateway):
 
         lifetime = SessionLifetime(
             start_time=start_time,
-            _end_time=Time(datetime_=row.end_time),
+            end_time=Time(datetime_=row.end_time),
         )
         return _Session(
             id=session_id,

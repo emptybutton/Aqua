@@ -271,7 +271,7 @@ class DBAccounts(ports.repos.Accounts):
 
             end_time = Time(datetime_=row.session_end_time)
             lifetime = SessionLifetime(
-                start_time=start_time, _end_time=end_time
+                start_time=start_time, end_time=end_time
             )
             yield _Session(
                 id=row.session_id,

@@ -1,29 +1,39 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from functools import cached_property
-from typing import ClassVar, cast
+from typing import ClassVar
 
 from auth.domain.models.access.vos import time as _time
+from shared.domain.framework.safe import SafeImmutable
 
 
-@dataclass(kw_only=True, frozen=True, eq=False)
-class SessionLifetime:
+@dataclass(kw_only=True, frozen=True, slots=True)
+class SessionLifetime(SafeImmutable):
     chunk: ClassVar[timedelta] = timedelta(days=60)
 
-    class Error(Exception): ...
+    start_time: _time.Time | None
+    end_time: _time.Time
 
-    class NoPointsError(Error): ...
+    @classmethod
+    def with_(
+        cls,
+        *,
+        start_time: _time.Time | None = None,
+        end_time: _time.Time,
+    ) -> "SessionLifetime":
+        return SessionLifetime(
+            start_time=start_time,
+            end_time=end_time,
+            safe=True,
+        )
 
-    start_time: _time.Time | None = None
-    _end_time: _time.Time | None = None
+    @classmethod
+    def starting_from(cls, start_time: _time.Time) -> "SessionLifetime":
+        end_time = start_time.map(lambda time: time + SessionLifetime.chunk)
 
-    @cached_property
-    def end_time(self) -> _time.Time:
-        if self._end_time is not None:
-            return self._end_time
-
-        return cast(_time.Time, self.start_time).of(
-            lambda time: time + SessionLifetime.chunk
+        return SessionLifetime(
+            start_time=start_time,
+            end_time=end_time,
+            safe=True,
         )
 
     def is_expired_when(self, *, current_time: _time.Time) -> bool:
@@ -36,32 +46,18 @@ class SessionLifetime:
 
         return not start_datetime <= current_datetime <= end_datetime
 
-    def __post_init__(self) -> None:
-        if self.start_time is None and self._end_time is None:
-            raise SessionLifetime.NoPointsError
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, SessionLifetime):
-            return False
-
-        is_start_time_correct = self.start_time == other.start_time
-        is_end_time_correct = self.end_time == other.end_time
-
-        return is_start_time_correct and is_end_time_correct
-
-    def __hash__(self) -> int:
-        return hash(self.start_time) + hash(self.end_time)
-
 
 def extended(
     lifetime: SessionLifetime,
     *,
     current_time: _time.Time,
 ) -> SessionLifetime:
-    extended_end_time = current_time.of(
+    extended_end_time = current_time.map(
         lambda time: time + SessionLifetime.chunk
     )
 
     return SessionLifetime(
-        start_time=lifetime.start_time, _end_time=extended_end_time
+        start_time=lifetime.start_time,
+        end_time=extended_end_time,
+        safe=True,
     )

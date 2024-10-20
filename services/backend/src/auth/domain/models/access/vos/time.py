@@ -1,19 +1,26 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Callable
+from typing import Callable, Literal
+
+from result import Err, Ok, Result
+
+from shared.domain.framework.safe import SafeImmutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Time:
-    class Error(Exception): ...
-
-    class NotUTCError(Error): ...
-
+class Time(SafeImmutable):
     datetime_: datetime
 
-    def of(self, mapped: Callable[[datetime], datetime]) -> "Time":
-        return Time(datetime_=mapped(self.datetime_))
+    @classmethod
+    def with_(cls, *, datetime_: datetime) -> Result[
+        "Time", Literal["not_utc_time"]
+    ]:
+        time = Time(datetime_=datetime_, safe=True)
 
-    def __post_init__(self) -> None:
-        if self.datetime_.tzinfo is not UTC:
-            raise Time.NotUTCError
+        if time.datetime_.tzinfo is not UTC:
+            return Err("not_utc_time")
+
+        return Ok(time)
+
+    def map(self, mapped: Callable[[datetime], datetime]) -> "Time":
+        return Time(datetime_=mapped(self.datetime_))

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import TypeAlias
 from uuid import UUID
 
+from result import Err, Ok
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
@@ -25,11 +25,13 @@ class Output:
     session_id: UUID
 
 
-Error: TypeAlias = _login.Error
+class Error(Exception): ...
 
-NoUserError: TypeAlias = _login.NoAccountError
 
-IncorrectPasswordError: TypeAlias = _login.IncorrectPasswordError
+class NoUserError(Error): ...
+
+
+class IncorrectPasswordError(Error): ...
 
 
 async def perform(
@@ -75,8 +77,16 @@ async def perform(
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    return Output(
-        user_id=result.account.id,
-        username=result.account.current_name.text,
-        session_id=result.session.id,
-    )
+    match result:
+        case Ok(output):
+            return Output(
+                user_id=output.account.id,
+                username=output.account.current_name.text,
+                session_id=output.session.id,
+            )
+        case Err("no_account"):
+            raise NoUserError
+        case Err("incorrect_password"):
+            raise IncorrectPasswordError
+
+    raise Error

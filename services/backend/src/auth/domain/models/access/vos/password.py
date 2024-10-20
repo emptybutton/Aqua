@@ -1,60 +1,59 @@
 from dataclasses import dataclass
 from hashlib import sha256
 from string import digits
+from typing import Literal
+
+from result import Err, Ok, Result
+
+from shared.domain.framework.safe import SafeImmutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Password:
-    class Error(Exception): ...
-
-    class WeekError(Error): ...
-
-    class TooShortError(WeekError): ...
-
-    class OnlySmallLettersError(WeekError): ...
-
-    class OnlyCapitalLettersError(WeekError): ...
-
-    class OnlyDigitsError(WeekError): ...
-
-    class NoDigitsError(WeekError): ...
-
+class Password(SafeImmutable):
     text: str
 
-    def __post_init__(self) -> None:
-        if len(self.text) < 8:
-            raise Password.TooShortError
+    @classmethod
+    def with_(cls, *, text: str) -> Result[
+        "Password",
+        Literal[
+            "password_too_short",
+            "password_contains_only_small_letters",
+            "password_contains_only_capital_letters",
+            "password_contains_only_digits",
+            "password_has_no_numbers",
+        ],
+    ]:
+        password = cls(text=text, safe=True)
 
-        if self.__has_no_digits():
-            raise Password.NoDigitsError
+        if len(password.text) < 8:
+            return Err("password_too_short")
 
-        if self.__has_only_digits():
-            raise Password.OnlyDigitsError
+        if _has_no_digits(password):
+            return Err("password_has_no_numbers")
 
-        if self.text.upper() == self.text:
-            raise Password.OnlyCapitalLettersError
+        if _has_only_digits(password):
+            return Err("password_contains_only_digits")
 
-        if self.text.lower() == self.text:
-            raise Password.OnlySmallLettersError
+        if password.text.upper() == password.text:
+            return Err("password_contains_only_capital_letters")
 
-    def __has_no_digits(self) -> bool:
-        return set(digits) - set(self.text) == set(digits)
+        if password.text.lower() == password.text:
+            return Err("password_contains_only_small_letters")
 
-    def __has_only_digits(self) -> bool:
-        return set(self.text) - set(digits) == set()
+        return Ok(password)
+
+
+def _has_no_digits(password: Password) -> bool:
+    return set(digits) - set(password.text) == set(digits)
+
+
+def _has_only_digits(password: Password) -> bool:
+    return set(password.text) - set(digits) == set()
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class PasswordHash:
-    class Error(Exception): ...
-
-    class EmptyError(Error): ...
-
     text: str
-
-    def __post_init__(self) -> None:
-        if len(self.text) == 0:
-            raise PasswordHash.EmptyError
 
 
 def hash_of(password: Password) -> PasswordHash:

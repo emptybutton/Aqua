@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from typing import TypeAlias
 from uuid import UUID
 
+from result import is_ok
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
 from auth.application.usecases import authenticate as _authenticate
-from auth.domain.models.access.aggregates.account.root import Account
 from auth.infrastructure.adapters import (
     mappers,
     repos,
@@ -24,22 +23,19 @@ class Output:
     session_id: UUID
 
 
-# | Account.NoSessionForSecondaryAuthenticationError
-NoSessionError: TypeAlias = _authenticate.NoAccountError
+class Error(Exception): ...
 
-ExpiredSessionError: TypeAlias = (
-    Account.ExpiredSessionForSecondaryAuthenticationError
-)
 
-CancelledSessionError: TypeAlias = (
-    Account.CancelledSessionForSecondaryAuthenticationError
-)
+class NoSessionError(Error): ...
 
-ReplacedSessionError: TypeAlias = (
-    Account.ReplacedSessionForSecondaryAuthenticationError
-)
 
-Error: TypeAlias = _authenticate.Error | Account.SecondaryAuthenticationError
+class ExpiredSessionError(Error): ...
+
+
+class CancelledSessionError(Error): ...
+
+
+class ReplacedSessionError(Error): ...
 
 
 async def perform(
@@ -78,4 +74,22 @@ async def perform(
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    return Output(user_id=result.account_id, session_id=result.session_id)
+    if is_ok(result):
+        value = result.ok()
+        return Output(user_id=value.account_id, session_id=value.session_id)
+
+    error = result.err()
+
+    if error in {"no_account", "no_session_for_secondary_authentication"}:
+        raise NoSessionError
+
+    if error == "expired_session_for_secondary_authentication":
+        raise ExpiredSessionError
+
+    if error == "cancelled_session_for_secondary_authentication":
+        raise CancelledSessionError
+
+    if error == "replaced_session_for_secondary_authentication":
+        raise ReplacedSessionError
+
+    raise Error

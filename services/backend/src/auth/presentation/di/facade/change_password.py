@@ -1,15 +1,13 @@
 from dataclasses import dataclass
-from typing import TypeAlias
 from uuid import UUID
 
+from result import Err, Ok
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from auth.application import ports
 from auth.application.usecases import (
     change_account_password as _change_password,
 )
-from auth.domain.models.access import vos
-from auth.domain.models.access.aggregates.account.root import Account
 from auth.infrastructure.adapters import (
     mappers,
     repos,
@@ -28,17 +26,16 @@ class Output:
     username: str
 
 
-NoSessionError: TypeAlias = Account.NoSessionForPasswordChangeError
+class Error(Exception): ...
 
-NoUserError: TypeAlias = _change_password.NoAccountError
 
-WeekPasswordError: TypeAlias = vos.password.Password.WeekError
+class NoSessionError(Error): ...
 
-Error: TypeAlias = (
-    _change_password.Error
-    | vos.password.Password.WeekError
-    | Account.NoSessionForPasswordChangeError
-)
+
+class NoUserError(Error): ...
+
+
+class WeekPasswordError(Error): ...
 
 
 async def perform(
@@ -81,8 +78,16 @@ async def perform(
             logger=await container.get(ports.loggers.Logger, "loggers"),
         )
 
-    return Output(
-        user_id=result.account.id,
-        username=result.account.current_name.text,
-        session_id=result.session.id,
-    )
+    match result:
+        case Ok(output):
+            return Output(
+                user_id=output.account.id,
+                username=output.account.current_name.text,
+                session_id=output.session.id,
+            )
+        case Err("no_account"):
+            raise NoUserError
+        case Err("no_session_for_password_change"):
+            raise NoSessionError
+        case Err(_):
+            raise WeekPasswordError

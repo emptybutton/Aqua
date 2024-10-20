@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import TypeAlias, TypeVar
+from typing import Literal, TypeAlias
 from uuid import UUID
+
+from result import Err, Ok, Result
 
 from auth.application.output.log_effect import log_effect
 from auth.application.ports.loggers import Logger
@@ -12,6 +14,7 @@ from shared.application.output.map_effect import Mappers, map_effect
 from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+from shared.domain.framework.results import swap
 
 
 _Account: TypeAlias = _account.root.Account
@@ -25,52 +28,64 @@ class Output:
     session: _Session
 
 
-class Error(Exception): ...
-
-
-class NoAccountError(Error): ...
-
-
-_AccountsT = TypeVar("_AccountsT", bound=Accounts)
-
-
-async def change_account_password(
+async def change_account_password[AccountsT: Accounts](
     account_id: UUID,
     new_password_text: str,
     session_id: UUID,
     *,
     empty_index_factory: EmptyIndexFactory,
-    accounts: _AccountsT,
-    account_mapper_in: MapperFactory[_AccountsT, _Account],
-    account_name_mapper_in: MapperFactory[_AccountsT, _AccountName],
-    session_mapper_in: MapperFactory[_AccountsT, _Session],
-    transaction_for: TransactionFactory[_AccountsT],
+    accounts: AccountsT,
+    account_mapper_in: MapperFactory[AccountsT, _Account],
+    account_name_mapper_in: MapperFactory[AccountsT, _AccountName],
+    session_mapper_in: MapperFactory[AccountsT, _Session],
+    transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Output:
-    new_password = Password(text=new_password_text)
+) -> Result[
+    Output,
+    Literal[
+        "no_account",
+        "no_session_for_password_change",
+        "password_too_short",
+        "password_contains_only_small_letters",
+        "password_contains_only_capital_letters",
+        "password_contains_only_digits",
+        "password_has_no_numbers",
+    ],
+]:
+    match Password.with_(text=new_password_text):
+        case Ok(v):
+            new_password = v
+        case Err(v) as r:
+            return r
 
-    async with transaction_for(accounts):
+    async with transaction_for(accounts) as transaction:
         account = await accounts.account_with_id(account_id)
 
         if not account:
-            raise NoAccountError
+            await transaction.rollback()
+            return Err("no_account")
 
         effect = IndexedEffect(empty_index_factory=empty_index_factory)
-        session = account.change_password(
+        result = account.change_password(
             new_password=new_password,
             current_session_id=session_id,
             effect=effect,
         )
+        await swap(result).map_async(lambda _: transaction.rollback())
 
-        await logger.log_password_change(account=account)
-        await log_effect(effect, logger)
-        await map_effect(
+        await result.map_async(
+            lambda _: logger.log_password_change(account=account)
+        )
+        await result.map_async(lambda _: log_effect(effect, logger))
+        await result.map_async(lambda _: map_effect(
             effect,
             Mappers(
                 (_Account, account_mapper_in(accounts)),
                 (_AccountName, account_name_mapper_in(accounts)),
                 (_Session, session_mapper_in(accounts)),
             ),
-        )
+        ))
 
-        return Output(account=account, session=session)
+        return result.map(
+            lambda session: Output(account=account, session=session)
+        )
