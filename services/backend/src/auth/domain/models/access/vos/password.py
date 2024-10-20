@@ -23,7 +23,7 @@ class Password(SafeImmutable):
             "password_has_no_numbers",
         ],
     ]:
-        password = cls(text=text, safe=True)
+        password = cls(text=text, is_safe=True)
 
         if len(password.text) < 8:
             return Err("password_too_short")

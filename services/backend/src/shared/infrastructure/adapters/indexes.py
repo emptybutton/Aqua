@@ -1,7 +1,7 @@
 from typing import Any, Generic, TypeVar
 
 from shared.application.ports.indexes import EmptyIndexFactory, Index
-from shared.domain.framework.entity import Entity, EntityEvent
+from shared.domain.framework.entity import Entity, Event
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity[Any, Any])
@@ -26,7 +26,7 @@ class SortingIndex(Generic[_EntityT], Index[_EntityT]):
         )
 
     def entities_with_event(
-        self, *, event_type: type[EntityEvent[Any]]
+        self, *, event_type: type[Event[Any]]
     ) -> frozenset[_EntityT]:
         return frozenset(
             entity

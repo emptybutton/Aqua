@@ -267,9 +267,11 @@ class DBAccounts(ports.repos.Accounts):
             start_time = None
 
             if row.session_start_time is not None:
-                start_time = Time(datetime_=row.session_start_time)
+                start_time = (
+                    Time.with_(datetime_=row.session_start_time).unwrap()
+                )
 
-            end_time = Time(datetime_=row.session_end_time)
+            end_time = Time.with_(datetime_=row.session_end_time).unwrap()
             lifetime = SessionLifetime(
                 start_time=start_time, end_time=end_time
             )
@@ -288,20 +290,20 @@ class DBAccounts(ports.repos.Accounts):
         row = rows[0]
         taking_times = set(self.__current_name_taking_times_from(rows))
 
-        return _AccountName(
+        return _AccountName.with_(
             id=row.current_name_id,
             account_id=row.account_id,
             text=row.current_name_text,
             taking_times=taking_times,
             is_current=True,
             events=list(),
-        )
+        ).unwrap()
 
     def __current_name_taking_times_from(
         self, rows: Row[Any]
     ) -> Iterable[Time]:
         for row in rows:
-            yield Time(datetime_=row.current_name_taking_time)
+            yield Time.with_(datetime_=row.current_name_taking_time).unwrap()
 
     def __prevous_names_from(self, rows: Row[Any]) -> Iterable[_AccountName]:
         row = rows[0]
@@ -316,14 +318,14 @@ class DBAccounts(ports.repos.Accounts):
                 )
             )
 
-            yield _AccountName(
+            yield _AccountName.with_(
                 id=row.prevous_name_id,
                 account_id=row.account_id,
                 text=row.prevous_name_text,
                 taking_times=taking_times,
                 is_current=False,
                 events=list(),
-            )
+            ).unwrap()
 
     def __prevous_name_taking_times_from(
         self,
@@ -333,4 +335,6 @@ class DBAccounts(ports.repos.Accounts):
     ) -> Iterable[Time]:
         for row in rows:
             if row.prevous_name_id == prevous_name_id:
-                yield Time(datetime_=row.prevous_name_taking_time)
+                yield (
+                    Time.with_(datetime_=row.prevous_name_taking_time).unwrap()
+                )

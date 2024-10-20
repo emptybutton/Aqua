@@ -3,28 +3,14 @@ from datetime import timedelta
 from typing import ClassVar
 
 from auth.domain.models.access.vos import time as _time
-from shared.domain.framework.safe import SafeImmutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class SessionLifetime(SafeImmutable):
+class SessionLifetime:
     chunk: ClassVar[timedelta] = timedelta(days=60)
 
     start_time: _time.Time | None
     end_time: _time.Time
-
-    @classmethod
-    def with_(
-        cls,
-        *,
-        start_time: _time.Time | None = None,
-        end_time: _time.Time,
-    ) -> "SessionLifetime":
-        return SessionLifetime(
-            start_time=start_time,
-            end_time=end_time,
-            safe=True,
-        )
 
     @classmethod
     def starting_from(cls, start_time: _time.Time) -> "SessionLifetime":
@@ -33,7 +19,6 @@ class SessionLifetime(SafeImmutable):
         return SessionLifetime(
             start_time=start_time,
             end_time=end_time,
-            safe=True,
         )
 
     def is_expired_when(self, *, current_time: _time.Time) -> bool:
@@ -59,5 +44,4 @@ def extended(
     return SessionLifetime(
         start_time=lifetime.start_time,
         end_time=extended_end_time,
-        safe=True,
     )

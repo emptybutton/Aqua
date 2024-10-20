@@ -1,38 +1,33 @@
 from dataclasses import dataclass
-from typing import Generic, Iterable, Self, TypeVar
+from typing import Iterable, Self
 
 from shared.domain.framework.ports.effect import Effect
 
 
-_EntityT = TypeVar("_EntityT")
-_IDT = TypeVar("_IDT")
-_EventTypeT = TypeVar("_EventTypeT")
+@dataclass(kw_only=True, frozen=True, slots=True)
+class Event[EntityT]:
+    entity: EntityT
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class EntityEvent(Generic[_EntityT]):
-    entity: _EntityT
+class MutationEvent[EntityT](Event[EntityT]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class MutationEvent(Generic[_EntityT], EntityEvent[_EntityT]): ...
+class CommentingEvent[EntityT](Event[EntityT]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class CommentingEvent(Generic[_EntityT], EntityEvent[_EntityT]): ...
+class Created[EntityT](CommentingEvent[EntityT]): ...
 
 
-@dataclass(kw_only=True, frozen=True, slots=True)
-class Created(Generic[_EntityT], CommentingEvent[_EntityT]): ...
-
-
-_AdditionalEventT = TypeVar("_AdditionalEventT")
+type Events[EntityT, EventT] = list[Created[EntityT] | EventT]
 
 
 @dataclass(kw_only=True, eq=False)
-class Entity(Generic[_IDT, _AdditionalEventT]):
-    id: _IDT
-    events: list[Created[Self] | _AdditionalEventT]
+class Entity[IDT, AdditionalEventT]:
+    id: IDT
+    events: Events[Self, AdditionalEventT]
 
     @property
     def mutation_events(self) -> Iterable[MutationEvent[Self]]:
@@ -54,16 +49,16 @@ class Entity(Generic[_IDT, _AdditionalEventT]):
     def is_dirty(self) -> bool:
         return bool(tuple(self.mutation_events))
 
-    def events_with_type(
-        self, event_type: type[_EventTypeT]
-    ) -> tuple[_EventTypeT, ...]:
+    def events_with_type[EventT](
+        self, event_type: type[EventT]
+    ) -> tuple[EventT, ...]:
         return tuple(
             event for event in self.events if isinstance(event, event_type)
         )
 
-    def last_event_with_type(
-        self, event_type: type[_EventTypeT]
-    ) -> _EventTypeT | None:
+    def last_event_with_type[EventT](
+        self, event_type: type[EventT]
+    ) -> EventT | None:
         for event in self.events:
             if isinstance(event, event_type):
                 return event

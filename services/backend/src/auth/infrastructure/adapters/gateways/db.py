@@ -120,11 +120,11 @@ class DBGateway(_gateway.Gateway):
         start_time = None
 
         if row.start_time is not None:
-            start_time = Time(datetime_=row.start_time)
+            start_time = Time.with_(datetime_=row.start_time).unwrap()
 
         lifetime = SessionLifetime(
             start_time=start_time,
-            end_time=Time(datetime_=row.end_time),
+            end_time=Time.with_(datetime_=row.end_time).unwrap(),
         )
         return _Session(
             id=session_id,

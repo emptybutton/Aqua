@@ -15,7 +15,7 @@ class Time(SafeImmutable):
     def with_(cls, *, datetime_: datetime) -> Result[
         "Time", Literal["not_utc_time"]
     ]:
-        time = Time(datetime_=datetime_, safe=True)
+        time = Time(datetime_=datetime_, is_safe=True)
 
         if time.datetime_.tzinfo is not UTC:
             return Err("not_utc_time")
@@ -23,4 +23,4 @@ class Time(SafeImmutable):
         return Ok(time)
 
     def map(self, mapped: Callable[[datetime], datetime]) -> "Time":
-        return Time(datetime_=mapped(self.datetime_))
+        return Time(datetime_=mapped(self.datetime_), is_safe=True)

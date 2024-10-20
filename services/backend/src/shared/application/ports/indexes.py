@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
-from shared.domain.framework.entity import Entity, EntityEvent
+from shared.domain.framework.entity import Entity, Event
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity[Any, Any])
@@ -24,7 +24,7 @@ class Index(Generic[_EntityT], ABC):
     def entities_with_event(
         self,
         *,
-        event_type: type[EntityEvent[Any]],
+        event_type: type[Event[Any]],
     ) -> frozenset[_EntityT]: ...
 
     @abstractmethod

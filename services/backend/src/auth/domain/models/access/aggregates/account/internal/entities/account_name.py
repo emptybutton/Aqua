@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import Literal
 from uuid import UUID, uuid4
 
 from result import Err, Ok, Result
@@ -11,6 +11,7 @@ from auth.domain.models.access.vos.time import Time
 from shared.domain.framework.entity import (
     Created,
     Entity,
+    Events,
     MutationEvent,
 )
 from shared.domain.framework.ports.effect import Effect
@@ -26,7 +27,7 @@ class BecameCurrent(MutationEvent["AccountName"]):
 class BecamePrevious(MutationEvent["AccountName"]): ...
 
 
-AccountNameEvent: TypeAlias = BecameCurrent | BecamePrevious
+type AccountNameEvent = BecameCurrent | BecamePrevious
 
 
 @dataclass(kw_only=True, eq=False)
@@ -51,6 +52,30 @@ class AccountName(Entity[UUID, AccountNameEvent], SafeMutable):
         effect.consider(self)
 
     @classmethod
+    def with_(
+        cls,
+        *,
+        id: UUID,
+        account_id: UUID,
+        text: str,
+        taking_times: set[Time],
+        is_current: bool,
+        events: Events["AccountName", AccountNameEvent],
+    ) -> Result["AccountName", Literal["account_name_text_is_empty"]]:
+        if not text:
+            return Err("account_name_text_is_empty")
+
+        return Ok(AccountName(
+            id=id,
+            account_id=account_id,
+            text=text,
+            taking_times=taking_times,
+            is_current=is_current,
+            events=events,
+            is_safe=True,
+        ))
+
+    @classmethod
     async def create(
         cls,
         *,
@@ -63,22 +88,24 @@ class AccountName(Entity[UUID, AccountNameEvent], SafeMutable):
         "AccountName",
         Literal["account_name_text_is_empty", "account_name_is_taken"],
     ]:
-        if not text:
-            return Err("account_name_text_is_empty")
-
-        account_name = AccountName(
+        result = AccountName.with_(
             id=uuid4(),
             account_id=account_id,
             text=text,
             taking_times={current_time},
             is_current=True,
             events=[],
-            safe=True,
         )
-        account_name.events.append(Created(entity=account_name))
+        name = result.ok()
+        if name is None:
+            return result
 
-        if await is_account_name_taken(account_name):
+        name.events.append(Created(entity=name))
+
+        if await is_account_name_taken(name):
             return Err("account_name_is_taken")
 
-        effect.consider(account_name)
-        return Ok(account_name)
+        effect.consider(name)
+        return Ok(name)
+
+        return result

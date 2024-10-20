@@ -1,7 +1,7 @@
 from typing import Any, TypeAlias, TypeVar, cast
 
 from shared.application.ports.indexes import EmptyIndexFactory, Index
-from shared.domain.framework.entity import Entity, EntityEvent
+from shared.domain.framework.entity import Entity, Event
 from shared.domain.framework.ports.effect import Effect
 
 
@@ -50,7 +50,7 @@ class IndexedEffect(Effect):
     def entities_with_event(
         self,
         *,
-        event_type: type[EntityEvent[Any]],
+        event_type: type[Event[Any]],
         entity_type: type[_EntityT],
     ) -> frozenset[_EntityT]:
         index = self.__index_for(entity_type)

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(kw_only=True, frozen=True)
 class SafeImmutable:
-    safe: bool = False
+    is_safe: bool
 
     def __post_init__(self) -> None:
         _validate(self)
@@ -11,7 +11,7 @@ class SafeImmutable:
 
 @dataclass(kw_only=True)
 class SafeMutable:
-    safe: bool = False
+    is_safe: bool
 
     def __post_init__(self) -> None:
         _validate(self)
@@ -20,9 +20,13 @@ class SafeMutable:
 type Safe = SafeImmutable | SafeMutable
 
 
+class UnsafeValueError(Exception): ...
+
+
 def _validate(value: Safe) -> None:
     msg = (
         "create in safe ways: using other constructors or"
-        "specifying `safe=True`."
+        " specifying `is_safe=True`."
     )
-    assert value.safe, msg  # noqa: S101
+    if not value.is_safe:
+        raise UnsafeValueError(msg)
