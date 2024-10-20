@@ -30,8 +30,9 @@ class BecameLeader(_entity.CommentingEvent["Session"]):
     prevous_session: "Session"
 
 
-SessionEvent: TypeAlias = Replaced | BecameLeader | Cancelled | Extended
-
+SessionEvent: TypeAlias = (
+    _entity.Created["Session"] | Replaced | BecameLeader | Cancelled | Extended
+)
 
 SessionInactivityReasons: TypeAlias = (
     Literal["replaced"] | Literal["expired"] | Literal["cancelled"]

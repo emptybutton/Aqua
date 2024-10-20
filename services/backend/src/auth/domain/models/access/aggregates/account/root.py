@@ -24,7 +24,7 @@ class PasswordChange(_entity.MutationEvent["Account"]):
     new_password_hash: _password.PasswordHash
 
 
-AccountEvent: TypeAlias = PasswordChange
+AccountEvent: TypeAlias = _entity.Created["Account"] | PasswordChange
 
 
 @dataclass(kw_only=True, eq=False)
