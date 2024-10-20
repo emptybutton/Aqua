@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from entrypoint.presentation.di import facade
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
+from entrypoint.presentation.periphery.api.controllers.parsers import id_of
 from entrypoint.presentation.periphery.api.controllers.routers import router
 from entrypoint.presentation.periphery.api.controllers.tags import Tag
 
@@ -34,10 +35,10 @@ class RegisterUserRequestModel(BaseModel):
 )
 async def register_user(
     request_model: RegisterUserRequestModel,
-    session_id: cookies.optional_session_id_cookie,
+    session_id_hex: cookies.optional_session_id_cookie,
 ) -> Response:
     result = await facade.register_user.perform(
-        session_id,
+        id_of(session_id_hex),
         request_model.username,
         request_model.password,
         request_model.target_water_balance_milliliters,

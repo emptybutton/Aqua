@@ -1,5 +1,4 @@
 from typing import Annotated, TypeAlias
-from uuid import UUID
 
 from fastapi import Depends
 from fastapi.security import APIKeyCookie
@@ -12,7 +11,7 @@ _session_cookie_scheme = APIKeyCookie(
     scheme_name="Session id cookie",
     description="Scheme for authentication via web sessions.",
 )
-session_id_cookie: TypeAlias = Annotated[UUID, Depends(_session_cookie_scheme)]
+session_id_cookie: TypeAlias = Annotated[str, Depends(_session_cookie_scheme)]
 
 
 _optional_session_cookie_scheme = APIKeyCookie(
@@ -22,5 +21,5 @@ _optional_session_cookie_scheme = APIKeyCookie(
     auto_error=False,
 )
 optional_session_id_cookie: TypeAlias = Annotated[
-    UUID | None, Depends(_optional_session_cookie_scheme)
+    str | None, Depends(_optional_session_cookie_scheme)
 ]

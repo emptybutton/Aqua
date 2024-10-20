@@ -3,6 +3,7 @@ from fastapi import Response
 from entrypoint.presentation.di import facade
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
+from entrypoint.presentation.periphery.api.controllers.parsers import id_of
 from entrypoint.presentation.periphery.api.controllers.routers import router
 from entrypoint.presentation.periphery.api.controllers.tags import Tag
 
@@ -17,7 +18,12 @@ from entrypoint.presentation.periphery.api.controllers.tags import Tag
         views.responses.ok.user_view,
     ),
 )
-async def read_user(session_id: cookies.session_id_cookie) -> Response:
+async def read_user(session_id_hex: cookies.session_id_cookie) -> Response:
+    session_id = id_of(session_id_hex)
+
+    if session_id is None:
+        return views.responses.bad.not_authenticated_view.to_response()
+
     result = await facade.read_user.perform(session_id)
 
     if result == "not_working":
