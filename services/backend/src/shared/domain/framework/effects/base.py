@@ -3,17 +3,15 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from shared.domain.framework.entity import Entity
+    from shared.domain.framework.entity import AnyEntity
 
 
 class Effect(ABC):
     @abstractmethod
-    def consider(self, *entities: "Entity[Any, Any]") -> None: ...
+    def consider(self, *entities: "AnyEntity") -> None: ...
 
     @abstractmethod
-    def ignore(self, *entities: "Entity[Any, Any]") -> None: ...
+    def ignore(self, *entities: "AnyEntity") -> None: ...
 
     @abstractmethod
     def cancel(self) -> None: ...

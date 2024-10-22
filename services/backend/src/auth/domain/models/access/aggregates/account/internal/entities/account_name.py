@@ -8,18 +8,18 @@ from auth.domain.models.access.aggregates.account.internal.specs import (
     is_account_name_taken as _is_account_name_taken,
 )
 from auth.domain.models.access.vos.time import Time
-from shared.domain.framework.entity import Created, Entity, MutationEvent
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
+from shared.domain.framework.entity import Created, Entity, Mutated
 from shared.domain.framework.safe import SafeMutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecameCurrent(MutationEvent["AccountName"]):
+class BecameCurrent(Mutated["AccountName"]):
     new_taking_time: Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecamePrevious(MutationEvent["AccountName"]): ...
+class BecamePrevious(Mutated["AccountName"]): ...
 
 
 type AccountNameEvent = Created["AccountName"] | BecameCurrent | BecamePrevious

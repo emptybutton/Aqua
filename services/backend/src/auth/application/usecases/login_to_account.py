@@ -12,11 +12,10 @@ from auth.application.ports.repos import Accounts
 from auth.domain.models.access.aggregates import account as _account
 from auth.domain.models.access.vos.password import Password
 from auth.domain.models.access.vos.time import Time
-from shared.application.adapters.effects import IndexedEffect
 from shared.application.output.map_effect import Mappers, map_effect
-from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
+from shared.domain.framework.effects.searchable import SearchableEffect
 
 
 _Account: TypeAlias = _account.root.Account
@@ -35,7 +34,6 @@ async def login_to_account[AccountsT: Accounts](
     name_text: str,
     password_text: str,
     *,
-    empty_index_factory: EmptyIndexFactory,
     accounts: AccountsT,
     account_mapper_in: MapperFactory[AccountsT, _Account],
     account_name_mapper_in: MapperFactory[AccountsT, _AccountName],
@@ -71,7 +69,7 @@ async def login_to_account[AccountsT: Accounts](
             await transaction.rollback()
             return Err("no_account")
 
-        effect = IndexedEffect(empty_index_factory=empty_index_factory)
+        effect = SearchableEffect()
         result = _account.root.login_to(
             account,
             password=password,

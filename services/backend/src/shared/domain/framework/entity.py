@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Iterable, Self
+from typing import Any, Iterable, Iterator
 
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -10,19 +10,15 @@ class Event[EntityT]:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class MutationEvent[EntityT](Event[EntityT]): ...
+class Mutated[EntityT](Event[EntityT]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class CommentingEvent[EntityT](Event[EntityT]): ...
+class Created[EntityT](Event[EntityT]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Created[EntityT](CommentingEvent[EntityT]): ...
-
-
-@dataclass(kw_only=True, frozen=True, slots=True)
-class Translated[EntityT, OriginalT](CommentingEvent[EntityT]):
+class Translated[EntityT, OriginalT](Event[EntityT]):
     from_: OriginalT
 
 
@@ -31,26 +27,6 @@ class Entity[IDT, EventT]:
     id: IDT
     events: list[EventT]
 
-    @property
-    def mutation_events(self) -> Iterable[MutationEvent[Self]]:
-        for event in self.events:
-            if isinstance(event, MutationEvent):
-                yield event
-
-    @property
-    def commenting_events(self) -> Iterable[MutationEvent[Self]]:
-        for event in self.events:
-            if isinstance(event, MutationEvent):
-                yield event
-
-    @property
-    def is_new(self) -> bool:
-        return any(isinstance(event, Created) for event in self.events)
-
-    @property
-    def is_dirty(self) -> bool:
-        return bool(tuple(self.mutation_events))
-
     def events_with_type[OtherEventT](
         self, event_type: type[OtherEventT]
     ) -> tuple[OtherEventT, ...]:
@@ -58,16 +34,7 @@ class Entity[IDT, EventT]:
             event for event in self.events if isinstance(event, event_type)
         )
 
-    def last_event_with_type[OtherEventT](
-        self, event_type: type[OtherEventT]
-    ) -> OtherEventT | None:
-        for event in self.events:
-            if isinstance(event, event_type):
-                return event
-
-        return None
-
-    def reset_events(self, effect: Effect) -> None:
+    def reset_events(self, *, effect: Effect) -> None:
         self.events = list()
         effect.ignore(self)
 
@@ -76,3 +43,31 @@ class Entity[IDT, EventT]:
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, type(self)) and self.id == other.id
+
+
+type AnyEntity = Entity[Any, Any]
+
+
+class Entities[EntityT: AnyEntity]:
+    def __init__(self, entities: Iterable[EntityT] = tuple()) -> None:
+        self.__entities: set[EntityT] = set(entities)
+
+    def __iter__(self) -> Iterator[EntityT]:
+        return iter(self.__entities)
+
+    def with_event[EventT](
+        self, event_type: type[EventT]
+    ) -> "Entities[EntityT]":
+        return Entities(
+            entity
+            for entity in self.__entities
+            if len(entity.events_with_type(event_type)) > 0
+        )
+
+    def add(self, entity: EntityT) -> None:
+        self.remove(entity)
+        self.__entities.add(entity)
+
+    def remove(self, entity: EntityT) -> None:
+        if entity in self.__entities:
+            self.__entities.remove(entity)

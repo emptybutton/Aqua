@@ -14,7 +14,6 @@ from auth.infrastructure.adapters import (
     repos,
 )
 from auth.presentation.di.containers import async_container
-from shared.infrastructure.adapters import indexes
 from shared.infrastructure.adapters.transactions import (
     DBConnectionTransactionFactory,
 )
@@ -62,9 +61,6 @@ async def perform(
         result = await change_account_name.change_account_name(
             user_id,
             new_username,
-            empty_index_factory=await container.get(
-                indexes.EmptySortingIndexFactory, "indexes"
-            ),
             accounts=await container.get(repos.db.DBAccounts, "repos"),
             account_mapper_in=await container.get(
                 mappers.db.account.DBAccountMapperFactory, "mappers"

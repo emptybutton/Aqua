@@ -16,6 +16,6 @@ class Mapper(Generic[_EntityT_co], ABC):
     async def update_all(self, entities: frozenset[_EntityT_co]) -> None: ...
 
 
-class MapperFactory(ABC, Generic[_RepoT, _EntityT_co]):
+class MapperFactory(Generic[_RepoT, _EntityT_co], ABC):
     @abstractmethod
     def __call__(self, repo: _RepoT) -> Mapper[_EntityT_co]: ...

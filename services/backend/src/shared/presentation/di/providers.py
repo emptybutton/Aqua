@@ -95,11 +95,3 @@ class ConnectionTransactionProvider(Provider):
         self, connection: Annotated[AsyncConnection, FromComponent("periphery")]
     ) -> adapters.transactions.DBConnectionTransactionFactory:
         return adapters.transactions.DBConnectionTransactionFactory(connection)
-
-
-class IndexProvider(Provider):
-    component = "indexes"
-
-    @provide(scope=Scope.APP)
-    def get_index_factory(self) -> adapters.indexes.EmptySortingIndexFactory:
-        return adapters.indexes.EmptySortingIndexFactory()

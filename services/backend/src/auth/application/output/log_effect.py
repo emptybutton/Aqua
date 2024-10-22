@@ -1,22 +1,21 @@
 from auth.application.ports.loggers import Logger
 from auth.domain.models.access.aggregates import account as _account
-from shared.application.adapters.effects import IndexedEffect
+from shared.domain.framework.effects.searchable import SearchableEffect
 
 
-async def log_effect(effect: IndexedEffect, logger: Logger) -> None:
-    extended_sessions = effect.entities_with_event(
-        entity_type=_account.internal.entities.session.Session,
-        event_type=_account.internal.entities.session.Extended,
+async def log_effect(effect: SearchableEffect, logger: Logger) -> None:
+    sessoins = effect.entities_that(_account.internal.entities.session.Session)
+
+    extended_sessions = sessoins.with_event(
+        _account.internal.entities.session.Extended
     )
 
-    replaced_sessions = effect.entities_with_event(
-        entity_type=_account.internal.entities.session.Session,
-        event_type=_account.internal.entities.session.Replaced,
+    replaced_sessions = sessoins.with_event(
+        _account.internal.entities.session.Replaced
     )
 
-    cancelled_sessions = effect.entities_with_event(
-        entity_type=_account.internal.entities.session.Session,
-        event_type=_account.internal.entities.session.Cancelled,
+    cancelled_sessions = sessoins.with_event(
+        _account.internal.entities.session.Cancelled
     )
 
     for extended_session in extended_sessions:
