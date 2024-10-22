@@ -9,12 +9,12 @@ from aqua.domain.model.core.vos.target import Result, Target, result_of
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
-from shared.domain.framework.entity import Created, Entity, MutationEvent
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
+from shared.domain.framework.entity import Created, Entity, Mutated
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class NewWaterBalance(MutationEvent["Day"]):
+class NewWaterBalance(Mutated["Day"]):
     new_water_balance: WaterBalance
 
 

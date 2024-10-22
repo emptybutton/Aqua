@@ -9,12 +9,12 @@ from result import Err, Ok, Result
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
-from shared.domain.framework.entity import Created, Entity, MutationEvent
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.entity import Created, Entity, Mutated
+from shared.domain.framework.effects.base import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Cancelled(MutationEvent["Record"]): ...
+class Cancelled(Mutated["Record"]): ...
 
 
 type RecordEvent = Created["Record"] | Cancelled

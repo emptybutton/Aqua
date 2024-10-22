@@ -18,16 +18,25 @@ from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
 from aqua.domain.model.primitives.vos.weight import Weight
 from shared.domain.framework.entity import Entity, Translated
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
 
 
-type UserEvent = Translated["User", "AccessUser"]
+class TranslatedFromAccess(Translated["User", "AccessUser"]): ...
+
+
+type UserEvent = TranslatedFromAccess
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class WritingOutput:
-    record: _record.Record
+    new_record: _record.Record
+    previous_records: frozenset[_record.Record]
     day: _day.Day
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class CancellationOutput:
+    cancelled_record: _record.Record
 
 
 @dataclass(kw_only=True)
@@ -91,7 +100,7 @@ class User(Entity[UUID, UserEvent]):
             events=list(),
         ))
         user_result.map(lambda user: user.events.append(
-            Translated(entity=user, from_=access_user)
+            TranslatedFromAccess(entity=user, from_=access_user)
         ))
         user_result.map(effect.consider)
 
@@ -124,16 +133,18 @@ class User(Entity[UUID, UserEvent]):
             current_time=current_time,
             effect=effect,
         )
+        previous_records = frozenset(self.records)
         self.records.add(new_record)
         current_day.take_into_consideration(new_record, effect=effect)
 
         return WritingOutput(
             day=current_day,
-            record=new_record,
+            new_record=new_record,
+            previous_records=previous_records,
         )
 
     def cancel_record(self, *, record_id: UUID, effect: Effect) -> Result[
-        None,
+        CancellationOutput,
         Literal[
             "no_record_to_cancel",
             "cancelled_record_to_cancel",
@@ -151,7 +162,9 @@ class User(Entity[UUID, UserEvent]):
             raise Err("no_record_day_to_cancel")
 
         result = _record.cancel(record, effect=effect)
-        return result.map(lambda _: day.ignore(record, effect=effect))
+        result.map(lambda _: day.ignore(record, effect=effect))
+
+        return result.map(lambda _: CancellationOutput(cancelled_record=record))
 
     def __day_of(self, time: Time) -> _day.Day | None:
         for day in self.days:

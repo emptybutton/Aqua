@@ -1,36 +1,31 @@
 from abc import ABC, abstractmethod
 
-from aqua.domain import entities
+from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
+from aqua.domain.model.core.aggregates.user.internal.entities.record import (
+    Record,
+)
+from aqua.domain.model.core.aggregates.user.root import User
 
 
 class Logger(ABC):
     @abstractmethod
-    async def log_registered_user(self, user: entities.User) -> None: ...
+    async def log_registered_user(self, user: User) -> None: ...
 
     @abstractmethod
-    async def log_registered_user_registration(
-        self, user: entities.User
-    ) -> None: ...
+    async def log_registered_user_registration(self, user: User) -> None: ...
 
     @abstractmethod
-    async def log_record_without_day(self, record: entities.Record) -> None: ...
+    async def log_record_without_day(self, record: Record) -> None: ...
 
     @abstractmethod
-    async def log_day_without_records(self, day: entities.Day) -> None: ...
+    async def log_new_day(self, day: Day) -> None: ...
 
     @abstractmethod
-    async def log_new_day(self, day: entities.Day) -> None: ...
+    async def log_new_day_state(self, day: Day) -> None:
+        ...
 
     @abstractmethod
-    async def log_new_day_state(self, day: entities.Day) -> None: ...
+    async def log_new_record(self, record: Record) -> None: ...
 
     @abstractmethod
-    async def log_new_record(self, record: entities.Record) -> None: ...
-
-    @abstractmethod
-    async def log_record_cancellation(
-        self,
-        *,
-        record: entities.Record,
-        day: entities.Day,
-    ) -> None: ...
+    async def log_record_cancellation(self, *, record: Record) -> None: ...
