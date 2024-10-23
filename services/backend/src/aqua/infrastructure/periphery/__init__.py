@@ -1,1 +1,1 @@
-from aqua.infrastructure.periphery import logs as logs
+from aqua.infrastructure.periphery import serializing as serializing

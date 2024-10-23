@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from enum import Enum, auto
 
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 
@@ -9,7 +9,10 @@ class Target:
     water_balance: WaterBalance
 
 
-type Result = Literal["good", "not_enough_water", "excess_water"]
+class Result(Enum):
+    good = auto()
+    not_enough_water = auto()
+    excess_water = auto()
 
 
 def result_of(target: Target, *, water_balance: WaterBalance) -> Result:
@@ -17,9 +20,9 @@ def result_of(target: Target, *, water_balance: WaterBalance) -> Result:
     max_required_quantity = target.water_balance.water.milliliters + 150
 
     if water_balance.water.milliliters < min_required_quantity:
-        return "not_enough_water"
+        return Result.not_enough_water
 
-    if max_required_quantity < water_balance.water.milliliters:
-        return "excess_water"
+    if water_balance.water.milliliters > max_required_quantity:
+        return Result.excess_water
 
-    return "good"
+    return Result.good
