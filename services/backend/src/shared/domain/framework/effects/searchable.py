@@ -55,6 +55,9 @@ class SearchableEffect(Effect):
         return None if entities is None else cast(Entities[EntityT], entities)
 
     def __casted[EntityT: AnyEntity](
-        self, entities: Entities[AnyEntity], *, entity: EntityT  # noqa: ARG002
+        self,
+        entities: Entities[AnyEntity],
+        *,
+        entity: EntityT,  # noqa: ARG002
     ) -> Entities[EntityT]:
         return cast(Entities[EntityT], entities)

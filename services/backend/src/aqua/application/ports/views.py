@@ -24,15 +24,12 @@ class DayViewFrom[UsersT: Users, ViewT](ABC):
 
 class WritingViewOf[ViewT](ABC):
     @abstractmethod
-    def __call__(self, *, user: User, output: WritingOutput) -> ViewT:
-        ...
+    def __call__(self, *, user: User, output: WritingOutput) -> ViewT: ...
 
 
 class CancellationViewOf[ViewT](ABC):
     @abstractmethod
-    def __call__(
-        self, *, user: User, output: CancellationOutput
-    ) -> ViewT: ...
+    def __call__(self, *, user: User, output: CancellationOutput) -> ViewT: ...
 
 
 class RegistrationViewOf[ViewT](ABC):

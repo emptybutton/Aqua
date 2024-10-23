@@ -78,12 +78,14 @@ class User(Entity[UUID, UserEvent]):
     records: set[_record.Record]
 
     @property
-    def suitable_water_balance(self) -> Result[
+    def suitable_water_balance(
+        self,
+    ) -> Result[
         WaterBalance,
         (
             ExtremeWeightForSuitableWaterBalanceError
             | NoWeightForSuitableWaterBalanceError
-        )
+        ),
     ]:
         if self.weight is None:
             return Err(NoWeightForSuitableWaterBalanceError())
@@ -120,18 +122,22 @@ class User(Entity[UUID, UserEvent]):
         if glass is None:
             glass = Glass(capacity=Water.with_(milliliters=200).unwrap())
 
-        user_result = target_result.map(lambda target: User(
-            id=access_user.id,
-            weight=weight,
-            glass=glass,
-            target=target,
-            days=set(),
-            records=set(),
-            events=list(),
-        ))
-        user_result.map(lambda user: user.events.append(
-            TranslatedFromAccess(entity=user, from_=access_user)
-        ))
+        user_result = target_result.map(
+            lambda target: User(
+                id=access_user.id,
+                weight=weight,
+                glass=glass,
+                target=target,
+                days=set(),
+                records=set(),
+                events=list(),
+            )
+        )
+        user_result.map(
+            lambda user: user.events.append(
+                TranslatedFromAccess(entity=user, from_=access_user)
+            )
+        )
         user_result.map(effect.consider)
 
         return user_result
@@ -173,13 +179,15 @@ class User(Entity[UUID, UserEvent]):
             previous_records=previous_records,
         )
 
-    def cancel_record(self, *, record_id: UUID, effect: Effect) -> Result[
+    def cancel_record(
+        self, *, record_id: UUID, effect: Effect
+    ) -> Result[
         CancellationOutput,
         (
             Just[NoRecordToCancelError]
             | Env[RecordContext, NoRecordDayToCancelError]
             | Env[RecordAndDayContext, _record.CancelledRecordToCancelError]
-        )
+        ),
     ]:
         record = self.__record_with(record_id)
 
@@ -192,9 +200,8 @@ class User(Entity[UUID, UserEvent]):
             error = NoRecordDayToCancelError()
             return Err(Env(RecordContext(record), error))
 
-        result = (
-            _record.cancel(record, effect=effect)
-            .map_err(env(RecordAndDayContext(record, day)))
+        result = _record.cancel(record, effect=effect).map_err(
+            env(RecordAndDayContext(record, day))
         )
         result.map(lambda _: day.ignore(record, effect=effect))
 

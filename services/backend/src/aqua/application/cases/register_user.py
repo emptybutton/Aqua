@@ -62,7 +62,7 @@ async def register_user[UsersT: repos.Users, ViewT](
         | NegativeTargetWaterBalanceMillilitersError
         | NegativeGlassMillilitersError
         | NegativeWeightKilogramsError
-    )
+    ),
 ]:
     target_result: Result[
         Target | None, NegativeTargetWaterBalanceMillilitersError
@@ -74,8 +74,7 @@ async def register_user[UsersT: repos.Users, ViewT](
         target_result = Ok(None)
     else:
         target_result = (
-            Water
-            .with_(milliliters=target_water_balance_milliliters)
+            Water.with_(milliliters=target_water_balance_milliliters)
             .map_err(lambda _: NegativeTargetWaterBalanceMillilitersError())
             .map(lambda water: Target(water_balance=WaterBalance(water=water)))
         )
@@ -83,17 +82,15 @@ async def register_user[UsersT: repos.Users, ViewT](
     if weight_kilograms is None:
         weight_result = Ok(None)
     else:
-        weight_result = (
-            Weight.with_(kilograms=weight_kilograms)
-            .map_err(lambda _: NegativeWeightKilogramsError())
+        weight_result = Weight.with_(kilograms=weight_kilograms).map_err(
+            lambda _: NegativeWeightKilogramsError()
         )
 
     if glass_milliliters is None:
         glass_result = Ok(None)
     else:
         glass_result = (
-            Water
-            .with_(milliliters=glass_milliliters)
+            Water.with_(milliliters=glass_milliliters)
             .map_err(lambda _: NegativeGlassMillilitersError())
             .map(lambda water: Glass(capacity=water))
         )
@@ -131,12 +128,14 @@ async def register_user[UsersT: repos.Users, ViewT](
                 effect=effect,
             )
 
-        await result.map_async(lambda _: output_effect(
-            effect,
-            user_mapper=user_mapper_to(users),
-            day_mapper=day_mapper_to(users),
-            record_mapper=record_mapper_to(users),
-            logger=logger,
-        ))
+        await result.map_async(
+            lambda _: output_effect(
+                effect,
+                user_mapper=user_mapper_to(users),
+                day_mapper=day_mapper_to(users),
+                record_mapper=record_mapper_to(users),
+                logger=logger,
+            )
+        )
 
         return result.map(view_of)

@@ -53,9 +53,9 @@ class Record(Entity[UUID, RecordEvent]):
 class CancelledRecordToCancelError: ...
 
 
-def cancel(record: Record, *, effect: Effect) -> Result[
-    None, CancelledRecordToCancelError
-]:
+def cancel(
+    record: Record, *, effect: Effect
+) -> Result[None, CancelledRecordToCancelError]:
     if record.is_cancelled:
         return Err(CancelledRecordToCancelError())
 

@@ -15,9 +15,9 @@ class WaterBalance:
     water: Water
 
     @classmethod
-    def suitable_when(cls, *, weight: Weight) -> Result[
-        "WaterBalance", ExtremeWeightForSuitableWaterBalanceError
-    ]:
+    def suitable_when(
+        cls, *, weight: Weight
+    ) -> Result["WaterBalance", ExtremeWeightForSuitableWaterBalanceError]:
         if weight.kilograms < 30 or weight.kilograms > 150:
             return Err(ExtremeWeightForSuitableWaterBalanceError())
 

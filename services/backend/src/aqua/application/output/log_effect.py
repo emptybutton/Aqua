@@ -13,8 +13,8 @@ from shared.domain.framework.entity import Created, Mutated
 
 
 async def log_effect(effect: SearchableEffect, logger: Logger) -> None:
-    translated_users = (
-        effect.entities_that(User).with_event(TranslatedFromAccess)
+    translated_users = effect.entities_that(User).with_event(
+        TranslatedFromAccess
     )
 
     created_days = effect.entities_that(Day).with_event(Created)

@@ -19,7 +19,10 @@ async def output_effect(
 ) -> None:
     await aqua.log_effect.log_effect(effect, logger)
     await aqua.map_effect.map_effect(effect, user_mapper)
-    await shared.map_effect.map_effect(effect, shared.map_effect.Mappers(
-        (Day, day_mapper),
-        (Record, record_mapper),
-    ))
+    await shared.map_effect.map_effect(
+        effect,
+        shared.map_effect.Mappers(
+            (Day, day_mapper),
+            (Record, record_mapper),
+        ),
+    )

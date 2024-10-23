@@ -9,9 +9,9 @@ class Env[ContextT, ValueT]:
     value: ValueT
 
 
-def env[ContextT, ValueT](context: ContextT) -> Callable[
-    [ValueT], Env[ContextT, ValueT]
-]:
+def env[ContextT, ValueT](
+    context: ContextT,
+) -> Callable[[ValueT], Env[ContextT, ValueT]]:
     act = partial(Env, context)
     return cast(Callable[[ValueT], Env[ContextT, ValueT]], act)
 

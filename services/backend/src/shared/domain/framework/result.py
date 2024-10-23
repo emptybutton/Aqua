@@ -12,7 +12,7 @@ def swap[V, E](result: Result[V, E]) -> Result[E, V]:
 
 
 def ok[**Params, ValueT](
-    act: Callable[Params, ValueT]
+    act: Callable[Params, ValueT],
 ) -> Callable[Params, Ok[ValueT]]:
     @wraps(act)
     def wrapper(*args: Params.args, **kwargs: Params.kwargs) -> Ok[ValueT]:
@@ -21,14 +21,8 @@ def ok[**Params, ValueT](
     return wrapper
 
 
-def frm[
-    AValueT,
-    AErrorT,
-    BValueT,
-    BErrorT,
-    **Params
-](
-    result: Result[AValueT, AErrorT]
+def frm[AValueT, AErrorT, BValueT, BErrorT, **Params](
+    result: Result[AValueT, AErrorT],
 ) -> Callable[
     [Callable[Concatenate[AValueT, Params], Result[BValueT, BErrorT]]],
     Callable[Params, Result[BValueT, BErrorT]],

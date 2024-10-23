@@ -60,16 +60,16 @@ async def cancel_record[UsersT: repos.Users, ViewT](
             case Err(Env(RecordContext(record), NoRecordDayToCancelError())):
                 await logger.log_record_without_day(record)
 
-        await result.map_async(lambda _: output_effect(
-            effect,
-            user_mapper=user_mapper_to(users),
-            day_mapper=day_mapper_to(users),
-            record_mapper=record_mapper_to(users),
-            logger=logger,
-        ))
-
-        return (
-            result
-            .map(lambda output: view_of(user=user, output=output))
-            .map_err(lambda env: env.value)
+        await result.map_async(
+            lambda _: output_effect(
+                effect,
+                user_mapper=user_mapper_to(users),
+                day_mapper=day_mapper_to(users),
+                record_mapper=record_mapper_to(users),
+                logger=logger,
+            )
         )
+
+        return result.map(
+            lambda output: view_of(user=user, output=output)
+        ).map_err(lambda env: env.value)

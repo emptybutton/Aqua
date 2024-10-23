@@ -14,9 +14,9 @@ class Water(SafeImmutable):
     milliliters: int
 
     @classmethod
-    def with_(cls, *, milliliters: int) -> Result[
-        "Water", NegativeWaterAmountError
-    ]:
+    def with_(
+        cls, *, milliliters: int
+    ) -> Result["Water", NegativeWaterAmountError]:
         if milliliters < 0:
             return Err(NegativeWaterAmountError())
 
@@ -28,7 +28,7 @@ class Water(SafeImmutable):
             is_safe=True,
         )
 
-    def __sub__(self, water: "Water") -> Result[
-        "Water", NegativeWaterAmountError
-    ]:
+    def __sub__(
+        self, water: "Water"
+    ) -> Result["Water", NegativeWaterAmountError]:
         return Water.with_(milliliters=self.milliliters - water.milliliters)

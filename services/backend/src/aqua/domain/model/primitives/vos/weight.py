@@ -14,9 +14,9 @@ class Weight(SafeImmutable):
     kilograms: int
 
     @classmethod
-    def with_(cls, *, kilograms: int) -> Result[
-        "Weight", NegativeWeightAmountError
-    ]:
+    def with_(
+        cls, *, kilograms: int
+    ) -> Result["Weight", NegativeWeightAmountError]:
         if kilograms < 0:
             return Err(NegativeWeightAmountError())
 
