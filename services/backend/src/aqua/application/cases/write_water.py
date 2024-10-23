@@ -1,5 +1,5 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -7,15 +7,21 @@ from result import Err, Ok, Result
 from aqua.application.output.output_effect import output_effect
 from aqua.application.ports import loggers, repos, views
 from aqua.application.ports.mappers import (
-    DayMapper,
-    RecordMapper,
-    UserMapeperFactory,
+    DayMapperTo,
+    RecordMapperTo,
+    UserMapeperTo,
 )
-from aqua.domain.primitives.vos.time import Time
-from aqua.domain.primitives.vos.water import Water
-from shared.application.ports.mappers import MapperFactory
+from aqua.domain.model.primitives.vos.time import Time
+from aqua.domain.model.primitives.vos.water import (
+    NegativeWaterAmountError,
+    Water,
+)
 from shared.application.ports.transactions import TransactionFactory
 from shared.domain.framework.effects.searchable import SearchableEffect
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoUserError: ...
 
 
 async def write_water[UsersT: repos.Users, ViewT](
@@ -26,16 +32,16 @@ async def write_water[UsersT: repos.Users, ViewT](
     users: UsersT,
     transaction_for: TransactionFactory[UsersT],
     logger: loggers.Logger,
-    user_mapper_in: UserMapeperFactory[UsersT],
-    day_mapper_in: MapperFactory[UsersT, DayMapper],
-    record_mapper_in: MapperFactory[UsersT, RecordMapper],
-) -> Result[ViewT, Literal["no_user", "negative_water_amount"]]:
+    user_mapper_to: UserMapeperTo[UsersT],
+    day_mapper_to: DayMapperTo[UsersT],
+    record_mapper_to: RecordMapperTo[UsersT],
+) -> Result[ViewT, NoUserError | NegativeWaterAmountError]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     if milliliters is None:
         water = None
     else:
-        match Water(milliliters=milliliters):
+        match Water.with_(milliliters=milliliters):
             case Ok(value):
                 water = value
             case Err(_) as result:
@@ -45,7 +51,7 @@ async def write_water[UsersT: repos.Users, ViewT](
         user = await users.user_with_id(user_id)
 
         if user is None:
-            return Err("no_user")
+            return Err(NoUserError())
 
         effect = SearchableEffect()
         output = user.write_water(
@@ -54,10 +60,10 @@ async def write_water[UsersT: repos.Users, ViewT](
 
         await output_effect(
             effect,
-            user_mapper=user_mapper_in(users),
-            day_mapper=day_mapper_in(users),
-            record_mapper=record_mapper_in(users),
+            user_mapper=user_mapper_to(users),
+            day_mapper=day_mapper_to(users),
+            record_mapper=record_mapper_to(users),
             logger=logger,
         )
 
-        return view_of(user=user, output=output)
+        return Ok(view_of(user=user, output=output))

@@ -1,4 +1,4 @@
-from typing import Literal
+from dataclasses import dataclass
 from uuid import UUID
 
 from result import Err, Result
@@ -6,13 +6,25 @@ from result import Err, Result
 from aqua.application.output.output_effect import output_effect
 from aqua.application.ports import loggers, repos, views
 from aqua.application.ports.mappers import (
-    DayMapper,
-    RecordMapper,
-    UserMapeperFactory,
+    DayMapperTo,
+    RecordMapperTo,
+    UserMapeperTo,
 )
-from shared.application.ports.mappers import MapperFactory
+from aqua.domain.model.core.aggregates.user.internal.entities.record import (
+    CancelledRecordToCancelError,
+)
+from aqua.domain.model.core.aggregates.user.root import (
+    NoRecordDayToCancelError,
+    NoRecordToCancelError,
+    RecordContext,
+)
 from shared.application.ports.transactions import TransactionFactory
 from shared.domain.framework.effects.searchable import SearchableEffect
+from shared.domain.framework.env import Env
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoUserError: ...
 
 
 async def cancel_record[UsersT: repos.Users, ViewT](
@@ -23,36 +35,41 @@ async def cancel_record[UsersT: repos.Users, ViewT](
     users: UsersT,
     transaction_for: TransactionFactory[UsersT],
     logger: loggers.Logger,
-    user_mapper_in: UserMapeperFactory[UsersT],
-    day_mapper_in: MapperFactory[UsersT, DayMapper],
-    record_mapper_in: MapperFactory[UsersT, RecordMapper],
+    user_mapper_to: UserMapeperTo[UsersT],
+    day_mapper_to: DayMapperTo[UsersT],
+    record_mapper_to: RecordMapperTo[UsersT],
 ) -> Result[
     ViewT,
-    Literal[
-        "no_user",
-        "no_record_to_cancel",
-        "cancelled_record_to_cancel",
-        "no_record_day_to_cancel",
-    ],
+    (
+        NoUserError
+        | NoRecordToCancelError
+        | CancelledRecordToCancelError
+        | NoRecordDayToCancelError
+    ),
 ]:
     async with transaction_for(users):
         user = await users.user_with_id(user_id)
 
         if not user:
-            return Err("no_user")
+            return Err(NoUserError())
 
         effect = SearchableEffect()
         result = user.cancel_record(record_id=record_id, effect=effect)
 
-        if result.err() == "no_record_day_to_cancel":
-            await logger.log_record_without_day()
+        match result:
+            case Err(Env(RecordContext(record), NoRecordDayToCancelError())):
+                await logger.log_record_without_day(record)
 
         await result.map_async(lambda _: output_effect(
             effect,
-            user_mapper=user_mapper_in(users),
-            day_mapper=day_mapper_in(users),
-            record_mapper=record_mapper_in(users),
+            user_mapper=user_mapper_to(users),
+            day_mapper=day_mapper_to(users),
+            record_mapper=record_mapper_to(users),
             logger=logger,
         ))
 
-        return result.map(lambda output: view_of(user=user, output=output))
+        return (
+            result
+            .map(lambda output: view_of(user=user, output=output))
+            .map_err(lambda env: env.value)
+        )

@@ -36,4 +36,4 @@ async def log_effect(effect: SearchableEffect, logger: Logger) -> None:
         await logger.log_new_record(created_record)
 
     for cancelled_record in cancelled_records:
-        await logger.log_record_cancellation(cancelled_record)
+        await logger.log_record_cancellation(record=cancelled_record)

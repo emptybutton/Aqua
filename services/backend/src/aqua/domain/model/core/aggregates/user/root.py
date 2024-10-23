@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Literal
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -13,12 +12,16 @@ from aqua.domain.model.core.aggregates.user.internal.entities import (
 )
 from aqua.domain.model.core.vos.glass import Glass
 from aqua.domain.model.core.vos.target import Target
-from aqua.domain.model.core.vos.water_balance import WaterBalance
+from aqua.domain.model.core.vos.water_balance import (
+    ExtremeWeightForSuitableWaterBalanceError,
+    WaterBalance,
+)
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
 from aqua.domain.model.primitives.vos.weight import Weight
-from shared.domain.framework.entity import Entity, Translated
 from shared.domain.framework.effects.base import Effect
+from shared.domain.framework.entity import Entity, Translated
+from shared.domain.framework.env import Env, Just, env, just
 
 
 class TranslatedFromAccess(Translated["User", "AccessUser"]): ...
@@ -39,6 +42,33 @@ class CancellationOutput:
     cancelled_record: _record.Record
 
 
+@dataclass(frozen=True, slots=True)
+class RecordContext:
+    record: _record.Record
+
+
+@dataclass(frozen=True, slots=True)
+class RecordAndDayContext:
+    record: _record.Record
+    day: _day.Day
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoWeightForSuitableWaterBalanceError: ...
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoRecordToCancelError: ...
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class CancelledRecordToCancelError: ...
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoRecordDayToCancelError: ...
+
+
 @dataclass(kw_only=True)
 class User(Entity[UUID, UserEvent]):
     weight: Weight | None
@@ -50,13 +80,13 @@ class User(Entity[UUID, UserEvent]):
     @property
     def suitable_water_balance(self) -> Result[
         WaterBalance,
-        Literal[
-            "extreme_weight_for_suitable_water_balance",
-            "no_weight_for_suitable_water_balance"
-        ],
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+        )
     ]:
         if self.weight is None:
-            return Err("no_weight_for_suitable_water_balance")
+            return Err(NoWeightForSuitableWaterBalanceError())
 
         return WaterBalance.suitable_when(weight=self.weight)
 
@@ -71,14 +101,14 @@ class User(Entity[UUID, UserEvent]):
         effect: Effect,
     ) -> Result[
         "User",
-        Literal[
-            "extreme_weight_for_suitable_water_balance",
-            "no_weight_for_suitable_water_balance"
-        ],
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+        ),
     ]:
         if target is None:
             if weight is None:
-                return Err("no_weight_for_suitable_water_balance")
+                return Err(NoWeightForSuitableWaterBalanceError())
 
             balance_result = WaterBalance.suitable_when(weight=weight)
             target_result = balance_result.map(
@@ -145,23 +175,27 @@ class User(Entity[UUID, UserEvent]):
 
     def cancel_record(self, *, record_id: UUID, effect: Effect) -> Result[
         CancellationOutput,
-        Literal[
-            "no_record_to_cancel",
-            "cancelled_record_to_cancel",
-            "no_record_day_to_cancel",
-        ],
+        (
+            Just[NoRecordToCancelError]
+            | Env[RecordContext, NoRecordDayToCancelError]
+            | Env[RecordAndDayContext, _record.CancelledRecordToCancelError]
+        )
     ]:
         record = self.__record_with(record_id)
 
         if not record:
-            return Err("no_record_to_cancel")
+            return Err(just(NoRecordToCancelError()))
 
         day = self.__day_of(record.recording_time)
 
         if day is None:
-            raise Err("no_record_day_to_cancel")
+            error = NoRecordDayToCancelError()
+            return Err(Env(RecordContext(record), error))
 
-        result = _record.cancel(record, effect=effect)
+        result = (
+            _record.cancel(record, effect=effect)
+            .map_err(env(RecordAndDayContext(record, day)))
+        )
         result.map(lambda _: day.ignore(record, effect=effect))
 
         return result.map(lambda _: CancellationOutput(cancelled_record=record))

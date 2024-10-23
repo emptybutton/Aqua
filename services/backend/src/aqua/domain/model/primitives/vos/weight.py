@@ -1,9 +1,12 @@
 from dataclasses import dataclass
-from typing import Literal
 
 from result import Err, Ok, Result
 
 from shared.domain.framework.safe import SafeImmutable
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NegativeWeightAmountError: ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -12,9 +15,9 @@ class Weight(SafeImmutable):
 
     @classmethod
     def with_(cls, *, kilograms: int) -> Result[
-        "Weight", Literal["negative_weight_amount"]
+        "Weight", NegativeWeightAmountError
     ]:
         if kilograms < 0:
-            return Err("negative_weight_amount")
+            return Err(NegativeWeightAmountError())
 
         return Ok(Weight(kilograms=kilograms, is_safe=True))

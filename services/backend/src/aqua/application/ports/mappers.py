@@ -8,6 +8,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
 )
 from aqua.domain.model.core.aggregates.user.root import User
 from shared.application.ports import mappers
+from shared.domain.framework.act import Act
 
 
 class DayMapper(mappers.Mapper[Day]): ...
@@ -21,6 +22,10 @@ class UserMapeper(ABC):
     async def add_all(self, users: Iterable[User]) -> None: ...
 
 
-class UserMapeperFactory[UsersT: Users](ABC):
-    @abstractmethod
-    async def __call__(self, users: UsersT) -> UserMapeper: ...
+class UserMapeperTo[UsersT: Users](Act[UsersT, UserMapeper]): ...
+
+
+class RecordMapperTo[UsersT: Users](Act[UsersT, RecordMapper]): ...
+
+
+class DayMapperTo[UsersT: Users](Act[UsersT, DayMapper]): ...

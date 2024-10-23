@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from functools import reduce
 from operator import add
-from typing import Literal
 from uuid import UUID, uuid4
 
 from result import Err, Ok, Result
@@ -9,8 +8,8 @@ from result import Err, Ok, Result
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
-from shared.domain.framework.entity import Created, Entity, Mutated
 from shared.domain.framework.effects.base import Effect
+from shared.domain.framework.entity import Created, Entity, Mutated
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -50,11 +49,15 @@ class Record(Entity[UUID, RecordEvent]):
         return record
 
 
+@dataclass(kw_only=True, frozen=True, slots=True)
+class CancelledRecordToCancelError: ...
+
+
 def cancel(record: Record, *, effect: Effect) -> Result[
-    None, Literal["cancelled_record_to_cancel"]
+    None, CancelledRecordToCancelError
 ]:
     if record.is_cancelled:
-        return Err("cancelled_record_to_cancel")
+        return Err(CancelledRecordToCancelError())
 
     record.is_cancelled = True
     record.events.append(Cancelled(entity=record))
