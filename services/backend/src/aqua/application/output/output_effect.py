@@ -1,6 +1,6 @@
 from aqua.application import output as aqua
 from aqua.application.ports.loggers import Logger
-from aqua.application.ports.mappers import DayMapper, RecordMapper, UserMapeper
+from aqua.application.ports.mappers import DayMapper, RecordMapper, UserMapper
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
@@ -12,7 +12,7 @@ from shared.domain.framework.effects.searchable import SearchableEffect
 async def output_effect(
     effect: SearchableEffect,
     *,
-    user_mapper: UserMapeper,
+    user_mapper: UserMapper,
     day_mapper: DayMapper,
     record_mapper: RecordMapper,
     logger: Logger,

@@ -9,7 +9,7 @@ from aqua.application.ports import loggers, repos, views
 from aqua.application.ports.mappers import (
     DayMapperTo,
     RecordMapperTo,
-    UserMapeperTo,
+    UserMapperTo,
 )
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import (
@@ -32,7 +32,7 @@ async def write_water[UsersT: repos.Users, ViewT](
     users: UsersT,
     transaction_for: TransactionFactory[UsersT],
     logger: loggers.Logger,
-    user_mapper_to: UserMapeperTo[UsersT],
+    user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
 ) -> Result[ViewT, NoUserError | NegativeWaterAmountError]:

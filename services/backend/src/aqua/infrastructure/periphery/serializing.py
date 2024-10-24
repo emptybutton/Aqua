@@ -20,7 +20,7 @@ def user_dict_of(user: User, *, name: str = "user") -> dict[str, Any]:
         f"{name}_weight_kilograms": kilograms,
         f"{name}_glass_capacity_milliliters": user.glass.capacity.milliliters,
         f"{name}_target_water_balance_milliliters": (
-            user.target.water_balance.milliliters
+            user.target.water_balance.water.milliliters
         ),
         f"{name}_suitable_water_balance_milliliters": suitable_milliliters,
     }

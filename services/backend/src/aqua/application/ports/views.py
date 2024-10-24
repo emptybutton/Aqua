@@ -35,10 +35,3 @@ class CancellationViewOf[ViewT](ABC):
 class RegistrationViewOf[ViewT](ABC):
     @abstractmethod
     def __call__(self, user: User) -> ViewT: ...
-
-
-class DayViewOf[UsersT: Users, ViewT](ABC):
-    @abstractmethod
-    async def __call__(
-        self, user: User, *, users: UsersT, date_: date
-    ) -> ViewT: ...

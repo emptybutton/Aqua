@@ -8,7 +8,7 @@ from aqua.application.ports import loggers, repos, views
 from aqua.application.ports.mappers import (
     DayMapperTo,
     RecordMapperTo,
-    UserMapeperTo,
+    UserMapperTo,
 )
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     CancelledRecordToCancelError,
@@ -35,7 +35,7 @@ async def cancel_record[UsersT: repos.Users, ViewT](
     users: UsersT,
     transaction_for: TransactionFactory[UsersT],
     logger: loggers.Logger,
-    user_mapper_to: UserMapeperTo[UsersT],
+    user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
 ) -> Result[

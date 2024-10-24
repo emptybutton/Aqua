@@ -34,9 +34,7 @@ class StructlogProdLogger(loggers.Logger):
         await prod_logger.ainfo(logs.new_record_log, **record_dict_of(record))
 
     async def log_registered_user(self, user: User) -> None:
-        await prod_logger.ainfo(
-            logs.registered_user_log, **record_dict_of(user)
-        )
+        await prod_logger.ainfo(logs.registered_user_log, **user_dict_of(user))
 
     async def log_record_cancellation(self, *, record: Record) -> None:
         await prod_logger.ainfo(

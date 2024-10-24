@@ -9,7 +9,7 @@ from aqua.application.ports import loggers, repos, views
 from aqua.application.ports.mappers import (
     DayMapperTo,
     RecordMapperTo,
-    UserMapeperTo,
+    UserMapperTo,
 )
 from aqua.domain.model.access.entities.user import User as AccessUser
 from aqua.domain.model.core.aggregates.user.root import (
@@ -51,7 +51,7 @@ async def register_user[UsersT: repos.Users, ViewT](
     users: UsersT,
     transaction_for: TransactionFactory[UsersT],
     logger: loggers.Logger,
-    user_mapper_to: UserMapeperTo[UsersT],
+    user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
 ) -> Result[
