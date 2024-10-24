@@ -26,7 +26,7 @@ from aqua.domain.model.primitives.vos.water import Water
 from aqua.domain.model.primitives.vos.weight import Weight
 from shared.application.ports.transactions import TransactionFactory
 from shared.domain.framework.effects.searchable import SearchableEffect
-from shared.domain.framework.result import frm
+from shared.domain.framework.result import async_from
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -95,47 +95,47 @@ async def register_user[UsersT: repos.Users, ViewT](
             .map(lambda water: Glass(capacity=water))
         )
 
-    async with transaction_for(users):
-        user = await users.user_with_id(user_id)
-
-        if user is not None:
-            await logger.log_registered_user_registration(user)
-            return Ok(view_of(user))
-
+    @call
+    @async_from(target_result)
+    @async_from(glass_result)
+    @async_from(weight_result)
+    async def async_view_result(
+        weight: Weight | None,
+        glass: Glass | None,
+        target: Target | None,
+        /,
+    ) -> Result[
+        ViewT,
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+        ),
+    ]:
         effect = SearchableEffect()
 
-        @call
-        @frm(target_result)
-        @frm(glass_result)
-        @frm(weight_result)
-        def result(
-            weight: Weight | None,
-            glass: Glass | None,
-            target: Target | None,
-            /,
-        ) -> Result[
-            User,
-            (
-                ExtremeWeightForSuitableWaterBalanceError
-                | NoWeightForSuitableWaterBalanceError
-            ),
-        ]:
-            return User.translated_from(
-                access_user=AccessUser(id=user_id, events=list()),
+        async with transaction_for(users):
+            user = await users.user_with_id(user_id)
+
+            if user is not None:
+                await logger.log_registered_user_registration(user)
+                return Ok(view_of(user))
+
+            user_result = User.translated_from(
+                AccessUser(id=user_id, events=list()),
                 weight=weight,
                 glass=glass,
                 target=target,
                 effect=effect,
             )
 
-        await result.map_async(
-            lambda _: output_effect(
+            await user_result.map_async(lambda _: output_effect(
                 effect,
                 user_mapper=user_mapper_to(users),
                 day_mapper=day_mapper_to(users),
                 record_mapper=record_mapper_to(users),
                 logger=logger,
-            )
-        )
+            ))
 
-        return result.map(view_of)
+            return user_result.map(lambda user: view_of(user))
+
+    return await async_view_result
