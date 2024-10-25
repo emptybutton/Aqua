@@ -43,5 +43,7 @@ day_table = Table(
     Column("target", Integer, nullable=False),
     Column("date_", Date, nullable=False),
     Column("pinned_result", Integer, nullable=True),
+    Column("correct_result", Integer, nullable=False),
+    Column("result", Integer, nullable=False),
     schema="aqua",
 )

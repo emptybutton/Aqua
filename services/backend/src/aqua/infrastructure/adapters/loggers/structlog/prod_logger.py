@@ -8,7 +8,7 @@ from aqua.infrastructure.periphery.loggers.structlog.prod_logger import (
     prod_logger,
 )
 from aqua.infrastructure.periphery.logs import text_logs as logs
-from aqua.infrastructure.periphery.serializing import (
+from aqua.infrastructure.periphery.serializing.from_model.to_dict import (
     day_dict_of,
     record_dict_of,
     user_dict_of,
