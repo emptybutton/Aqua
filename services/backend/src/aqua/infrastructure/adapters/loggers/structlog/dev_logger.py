@@ -4,14 +4,14 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
+from aqua.infrastructure.periphery.loggers.structlog.dev_logger import (
+    dev_logger,
+)
 from aqua.infrastructure.periphery.logs import text_logs as logs
-from shared.infrastructure.periphery.structlog import dev_logger
 
 
 class StructlogDevLogger(loggers.Logger):
-    async def log_registered_user_registration(
-        self, user: User
-    ) -> None:
+    async def log_registered_user_registration(self, user: User) -> None:
         log = logs.registered_user_registration_log
         await dev_logger.awarning(log, user=user)
 

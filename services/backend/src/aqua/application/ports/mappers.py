@@ -2,19 +2,28 @@ from abc import ABC, abstractmethod
 from typing import Iterable
 
 from aqua.application.ports.repos import Users
+from aqua.domain.framework.fp.act import Act
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from shared.application.ports import mappers
-from shared.domain.framework.act import Act
 
 
-class DayMapper(mappers.Mapper[Day]): ...
+class DayMapper(ABC):
+    @abstractmethod
+    async def add_all(self, days: Iterable[Day]) -> None: ...
+
+    @abstractmethod
+    async def update_all(self, days: Iterable[Day]) -> None: ...
 
 
-class RecordMapper(mappers.Mapper[Record]): ...
+class RecordMapper(ABC):
+    @abstractmethod
+    async def add_all(self, records: Iterable[Record]) -> None: ...
+
+    @abstractmethod
+    async def update_all(self, records: Iterable[Record]) -> None: ...
 
 
 class UserMapper(ABC):

@@ -20,9 +20,9 @@ from aqua.infrastructure.periphery.logs.in_memory_logs import (
 class InMemoryLogger(loggers.Logger):
     def __init__(self) -> None:
         self.__registred_user_logs = list[RegistredUserLog]()
-        self.__registered_user_registration_logs = (
-            list[RegisteredUserRegistrationLog]()
-        )
+        self.__registered_user_registration_logs = list[
+            RegisteredUserRegistrationLog
+        ]()
         self.__record_without_day_logs = list[RecordWithoutDayLog]()
         self.__new_day_logs = list[NewDayLog]()
         self.__new_day_state_logs = list[NewDayStateLog]()
@@ -46,9 +46,9 @@ class InMemoryLogger(loggers.Logger):
         return tuple(self.__registred_user_logs)
 
     @property
-    def registered_user_registration_logs(self) -> tuple[
-        RegisteredUserRegistrationLog, ...
-    ]:
+    def registered_user_registration_logs(
+        self,
+    ) -> tuple[RegisteredUserRegistrationLog, ...]:
         return tuple(self.__registered_user_registration_logs)
 
     @property

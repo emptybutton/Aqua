@@ -11,13 +11,13 @@ from aqua.application.ports.mappers import (
     RecordMapperTo,
     UserMapperTo,
 )
+from aqua.application.ports.transactions import TransactionFor
+from aqua.domain.framework.effects.searchable import SearchableEffect
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import (
     NegativeWaterAmountError,
     Water,
 )
-from shared.application.ports.transactions import TransactionFactory
-from shared.domain.framework.effects.searchable import SearchableEffect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -30,7 +30,7 @@ async def write_water[UsersT: repos.Users, ViewT](
     *,
     view_of: views.WritingViewOf[ViewT],
     users: UsersT,
-    transaction_for: TransactionFactory[UsersT],
+    transaction_for: TransactionFor[UsersT],
     logger: loggers.Logger,
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],

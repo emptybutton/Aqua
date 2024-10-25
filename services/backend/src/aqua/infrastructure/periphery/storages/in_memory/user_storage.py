@@ -85,7 +85,8 @@ class InMemoryUserStorage:
     def records_with_user_id(self, user_id: UUID) -> Iterable[Record]:
         return (
             deepcopy(record)
-            for record in self.__records if record.user_id == user_id
+            for record in self.__records
+            if record.user_id == user_id
         )
 
     def user_with_id(self, user_id: UUID) -> User | None:

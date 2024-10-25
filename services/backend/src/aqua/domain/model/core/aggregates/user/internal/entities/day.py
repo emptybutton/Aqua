@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import date
 from uuid import UUID, uuid4
 
+from aqua.domain.framework.effects.base import Effect
+from aqua.domain.framework.entity import Created, Entity, Mutated
 from aqua.domain.model.core.aggregates.user.internal.entities import (
     record as _record,
 )
@@ -9,8 +11,6 @@ from aqua.domain.model.core.vos.target import Result, Target, result_of
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
-from shared.domain.framework.effects.base import Effect
-from shared.domain.framework.entity import Created, Entity, Mutated
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

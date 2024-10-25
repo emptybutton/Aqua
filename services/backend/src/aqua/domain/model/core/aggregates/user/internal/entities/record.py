@@ -5,11 +5,11 @@ from uuid import UUID, uuid4
 
 from result import Err, Ok, Result
 
+from aqua.domain.framework.effects.base import Effect
+from aqua.domain.framework.entity import Created, Entity, Mutated
 from aqua.domain.model.core.vos.water_balance import WaterBalance
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
-from shared.domain.framework.effects.base import Effect
-from shared.domain.framework.entity import Created, Entity, Mutated
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

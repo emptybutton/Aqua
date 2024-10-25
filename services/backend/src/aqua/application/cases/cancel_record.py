@@ -10,6 +10,9 @@ from aqua.application.ports.mappers import (
     RecordMapperTo,
     UserMapperTo,
 )
+from aqua.application.ports.transactions import TransactionFor
+from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.framework.fp.env import Env
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     CancelledRecordToCancelError,
 )
@@ -18,9 +21,6 @@ from aqua.domain.model.core.aggregates.user.root import (
     NoRecordToCancelError,
     RecordContext,
 )
-from shared.application.ports.transactions import TransactionFactory
-from shared.domain.framework.effects.searchable import SearchableEffect
-from shared.domain.framework.env import Env
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -33,7 +33,7 @@ async def cancel_record[UsersT: repos.Users, ViewT](
     *,
     view_of: views.CancellationViewOf[ViewT],
     users: UsersT,
-    transaction_for: TransactionFactory[UsersT],
+    transaction_for: TransactionFor[UsersT],
     logger: loggers.Logger,
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],

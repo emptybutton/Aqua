@@ -8,13 +8,18 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
+from aqua.infrastructure.periphery.storages.in_memory import (
+    transactional_storage as _transactional_storage,
+)
 from aqua.infrastructure.periphery.storages.in_memory.user_storage import (
     InMemoryUserStorage,
 )
-from shared.infrastructure.periphery.containers import TransactionalContainer
 
 
-class InMemoryUsers(Users, TransactionalContainer[InMemoryUserStorage]):
+class InMemoryUsers(
+    Users,
+    _transactional_storage.TransactionalInMemoryStorage[InMemoryUserStorage],
+):
     def __init__(self, storage: InMemoryUserStorage | None = None) -> None:
         super().__init__()
         self._storage = (

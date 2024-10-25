@@ -11,6 +11,9 @@ from aqua.application.ports.mappers import (
     RecordMapperTo,
     UserMapperTo,
 )
+from aqua.application.ports.transactions import TransactionFor
+from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.framework.fp.result import async_from
 from aqua.domain.model.access.entities.user import User as AccessUser
 from aqua.domain.model.core.aggregates.user.root import (
     NoWeightForSuitableWaterBalanceError,
@@ -24,9 +27,6 @@ from aqua.domain.model.core.vos.water_balance import (
 )
 from aqua.domain.model.primitives.vos.water import Water
 from aqua.domain.model.primitives.vos.weight import Weight
-from shared.application.ports.transactions import TransactionFactory
-from shared.domain.framework.effects.searchable import SearchableEffect
-from shared.domain.framework.result import async_from
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -49,7 +49,7 @@ async def register_user[UsersT: repos.Users, ViewT](
     *,
     view_of: views.RegistrationViewOf[ViewT],
     users: UsersT,
-    transaction_for: TransactionFactory[UsersT],
+    transaction_for: TransactionFor[UsersT],
     logger: loggers.Logger,
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
@@ -128,13 +128,15 @@ async def register_user[UsersT: repos.Users, ViewT](
                 effect=effect,
             )
 
-            await user_result.map_async(lambda _: output_effect(
-                effect,
-                user_mapper=user_mapper_to(users),
-                day_mapper=day_mapper_to(users),
-                record_mapper=record_mapper_to(users),
-                logger=logger,
-            ))
+            await user_result.map_async(
+                lambda _: output_effect(
+                    effect,
+                    user_mapper=user_mapper_to(users),
+                    day_mapper=day_mapper_to(users),
+                    record_mapper=record_mapper_to(users),
+                    logger=logger,
+                )
+            )
 
             return user_result.map(lambda user: view_of(user))
 

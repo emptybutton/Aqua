@@ -3,6 +3,9 @@ from uuid import UUID
 
 from result import Err, Ok, Result
 
+from aqua.domain.framework.effects.base import Effect
+from aqua.domain.framework.entity import Entity, Translated
+from aqua.domain.framework.fp.env import Env, Just, env, just
 from aqua.domain.model.access.entities.user import User as AccessUser
 from aqua.domain.model.core.aggregates.user.internal.entities import (
     day as _day,
@@ -19,9 +22,6 @@ from aqua.domain.model.core.vos.water_balance import (
 from aqua.domain.model.primitives.vos.time import Time
 from aqua.domain.model.primitives.vos.water import Water
 from aqua.domain.model.primitives.vos.weight import Weight
-from shared.domain.framework.effects.base import Effect
-from shared.domain.framework.entity import Entity, Translated
-from shared.domain.framework.env import Env, Just, env, just
 
 
 class TranslatedFromAccess(Translated["User", "AccessUser"]): ...
