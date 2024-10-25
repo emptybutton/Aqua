@@ -2,7 +2,7 @@ from datetime import date
 from uuid import UUID
 
 from aqua.application.ports.views import DayViewFrom
-from aqua.infrastructure.adapters.repos.in_memory.user import InMemoryUsers
+from aqua.infrastructure.adapters.repos.in_memory.users import InMemoryUsers
 from aqua.infrastructure.periphery.views.in_memory.day_view import (
     InMemoryDayView,
 )

@@ -2,7 +2,7 @@ from aqua.application.ports.mappers import RecordMapper, RecordMapperTo
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
-from aqua.infrastructure.adapters.repos.in_memory.user import InMemoryUsers
+from aqua.infrastructure.adapters.repos.in_memory.users import InMemoryUsers
 
 
 class InMemoryRecordMapper(RecordMapper):

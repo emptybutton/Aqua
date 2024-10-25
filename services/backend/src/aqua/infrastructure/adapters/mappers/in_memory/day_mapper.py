@@ -1,6 +1,6 @@
 from aqua.application.ports.mappers import DayMapper, DayMapperTo
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
-from aqua.infrastructure.adapters.repos.in_memory.user import InMemoryUsers
+from aqua.infrastructure.adapters.repos.in_memory.users import InMemoryUsers
 
 
 class InMemoryDayMapper(DayMapper):

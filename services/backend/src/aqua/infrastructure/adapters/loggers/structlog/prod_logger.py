@@ -4,7 +4,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.logs import text as logs
+from aqua.infrastructure.periphery.logs import text_logs as logs
 from aqua.infrastructure.periphery.serializing import (
     day_dict_of,
     record_dict_of,

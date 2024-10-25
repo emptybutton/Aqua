@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from aqua.application.ports.views import UserViewFrom
-from aqua.infrastructure.adapters.repos.in_memory.user import InMemoryUsers
+from aqua.infrastructure.adapters.repos.in_memory.users import InMemoryUsers
 from aqua.infrastructure.periphery.views.in_memory.user_view import (
     InMemoryUserView,
 )

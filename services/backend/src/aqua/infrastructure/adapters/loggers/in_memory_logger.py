@@ -6,7 +6,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.logs.in_memory import (
+from aqua.infrastructure.periphery.logs.in_memory_logs import (
     NewDayLog,
     NewDayStateLog,
     NewRecordLog,

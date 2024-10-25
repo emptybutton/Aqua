@@ -8,7 +8,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.storages.in_memory.user import (
+from aqua.infrastructure.periphery.storages.in_memory.user_storage import (
     InMemoryUserStorage,
 )
 from shared.infrastructure.periphery.containers import TransactionalContainer

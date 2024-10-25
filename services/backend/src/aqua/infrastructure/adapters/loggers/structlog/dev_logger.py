@@ -4,7 +4,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.logs import text as logs
+from aqua.infrastructure.periphery.logs import text_logs as logs
 from shared.infrastructure.periphery.structlog import dev_logger
 
 
@@ -31,7 +31,4 @@ class StructlogDevLogger(loggers.Logger):
         await dev_logger.ainfo(logs.registered_user_log, user=user)
 
     async def log_record_cancellation(self, *, record: Record) -> None:
-        await dev_logger.ainfo(
-            logs.record_cancellation_log,
-            record=record,
-        )
+        await dev_logger.ainfo(logs.record_cancellation_log, record=record)

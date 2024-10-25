@@ -2,7 +2,7 @@ from typing import Iterable
 
 from aqua.application.ports.mappers import UserMapper, UserMapperTo
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.adapters.repos.in_memory.user import InMemoryUsers
+from aqua.infrastructure.adapters.repos.in_memory.users import InMemoryUsers
 
 
 class InMemoryUserMapper(UserMapper):
