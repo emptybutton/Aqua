@@ -70,7 +70,7 @@ class CancelledRecordToCancelError: ...
 class NoRecordDayToCancelError: ...
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, eq=False)
 class User(Entity[UUID, UserEvent]):
     weight: Weight | None
     glass: Glass
@@ -212,7 +212,7 @@ class User(Entity[UUID, UserEvent]):
 
     def __day_of(self, time: Time) -> _day.Day | None:
         for day in self.days:
-            if day.date_ == time.datetime_.date:
+            if day.date_ == time.datetime_.date():
                 return day
 
         return None
