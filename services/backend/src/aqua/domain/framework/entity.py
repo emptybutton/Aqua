@@ -61,7 +61,7 @@ class Entities[EntityT: AnyEntity]:
         return Entities(
             entity
             for entity in self.__entities
-            if len(entity.events_with_type(event_type)) > 0
+            if entity.events_with_type(event_type)
         )
 
     def add(self, entity: EntityT) -> None:

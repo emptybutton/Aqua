@@ -11,15 +11,6 @@ def swap[V, E](result: Result[V, E]) -> Result[E, V]:
             return Ok(e)
 
 
-def ok[**Params, ValueT](
-    act: Callable[Params, ValueT],
-) -> Callable[Params, Ok[ValueT]]:
-    def wrapper(*args: Params.args, **kwargs: Params.kwargs) -> Ok[ValueT]:
-        return Ok(act(*args, **kwargs))
-
-    return wrapper
-
-
 def from_[AValueT, AErrorT, BValueT, BErrorT, **Params](
     result: Result[AValueT, AErrorT],
 ) -> Callable[
