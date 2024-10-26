@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import TypeAlias
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from aqua.application import ports
-from aqua.application.cases import read_day
-from aqua.infrastructure.adapters import repos
+from aqua.application.cases.view_day import view_day
+from aqua.infrastructure.adapters.repos.db.users import DBUsers
+from aqua.infrastructure.adapters.views.db.day_view_from import (
+    DBDayViewFrom,
+)
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -30,40 +31,39 @@ class Output:
     records: tuple[RecordData, ...]
 
 
-Error: TypeAlias = read_day.Error
+class Error(Exception): ...
 
-NoUserError: TypeAlias = read_day.NoUserError
+
+class NoUserError(Error): ...
 
 
 async def perform(
     user_id: UUID, date_: date, *, session: AsyncSession
 ) -> Output:
     async with adapter_container(context={AsyncSession: session}) as container:
-        result = await read_day.perform(
+        view = await view_day(
             user_id,
             date_,
-            users=await container.get(repos.DBUsers, "repos"),
-            days=await container.get(repos.DBDays, "repos"),
-            records=await container.get(repos.DBRecords, "repos"),
-            logger=await container.get(ports.loggers.Logger, "loggers"),
+            view_from=await container.get(DBDayViewFrom, "views"),
+            users=await container.get(DBUsers, "repos"),
         )
 
     records = tuple(
         Output.RecordData(
-            record_id=record.id,
-            drunk_water_milliliters=record.drunk_water.milliliters,
-            recording_time=record.recording_time,
+            record_id=record_view.id,
+            drunk_water_milliliters=record_view.drunk_water_milliliters,
+            recording_time=record_view.recording_time,
         )
-        for record in result.records
+        for record_view in view.records
     )
 
     return Output(
-        user_id=result.day.user_id,
-        target_water_balance_milliliters=result.day.target.water.milliliters,
-        date_=result.day.date_,
-        water_balance_milliliters=result.day.water_balance.water.milliliters,
-        result_code=result.day.result.value,
-        real_result_code=result.day.correct_result.value,
-        is_result_pinned=result.day.is_result_pinned,
+        user_id=view.user_id,
+        date_=view.date_,
+        target_water_balance_milliliters=view.target_water_balance_milliliters,
+        water_balance_milliliters=view.water_balance_milliliters,
+        result_code=view.result_code,
+        real_result_code=view.correct_result_code,
+        is_result_pinned=view.pinned_result_code is not None,
         records=records,
     )

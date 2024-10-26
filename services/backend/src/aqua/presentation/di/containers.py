@@ -4,7 +4,10 @@ from aqua.presentation.di import providers
 
 
 adapter_container = make_async_container(
-    providers.MultilevelPeripheryProvider(),
-    providers.RepoProvider(),
+    providers.ConnectionProvider(),
     providers.LoggerProvider(),
+    providers.MapperProvider(),
+    providers.RepoProvider(),
+    providers.TransactionProvider(),
+    providers.ViewProvider(),
 )

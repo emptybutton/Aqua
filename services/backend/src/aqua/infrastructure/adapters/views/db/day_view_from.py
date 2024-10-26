@@ -2,7 +2,7 @@ from datetime import date
 from typing import Any, Iterable
 from uuid import UUID
 
-from sqlalchemy import Row, func, select
+from sqlalchemy import Row, desc, func, select
 
 from aqua.application.ports.views import DayViewFrom
 from aqua.infrastructure.adapters.repos.db.users import DBUsers
@@ -41,7 +41,7 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
             (tables.day_table.c.user_id == user_id)
             & (tables.day_table.c.date_ == date_)
         ).order_by(
-            tables.record_table.c.recording_time
+            desc(tables.record_table.c.recording_time)
         )
 
         result = await db_users.connection.execute(stmt)

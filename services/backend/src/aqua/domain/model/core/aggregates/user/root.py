@@ -39,6 +39,7 @@ class WritingOutput:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class CancellationOutput:
+    day: _day.Day
     cancelled_record: _record.Record
 
 
@@ -205,7 +206,9 @@ class User(Entity[UUID, UserEvent]):
         )
         result.map(lambda _: day.ignore(record, effect=effect))
 
-        return result.map(lambda _: CancellationOutput(cancelled_record=record))
+        return result.map(lambda _:
+            CancellationOutput(day=day, cancelled_record=record)
+        )
 
     def __day_of(self, time: Time) -> _day.Day | None:
         for day in self.days:
