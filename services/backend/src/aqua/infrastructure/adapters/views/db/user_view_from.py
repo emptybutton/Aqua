@@ -45,6 +45,7 @@ class DBUserViewFrom(DayViewFrom[DBUsers, DBUserView]):
             (
                 (tables.record_table.c.user_id == user_id)
                 & (func.date(tables.record_table.c.recording_time) == date_)
+                & (~tables.record_table.c.is_cancelled)
             ),
         ).order_by(
             desc(tables.record_table.c.recording_time)

@@ -36,6 +36,7 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
             (
                 (tables.record_table.c.user_id == user_id)
                 & (func.date(tables.record_table.c.recording_time) == date_)
+                & (~tables.record_table.c.is_cancelled)
             )
         ).where(
             (tables.day_table.c.user_id == user_id)
