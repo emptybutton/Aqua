@@ -1,7 +1,7 @@
 from aqua.domain.model.core.vos.target import Result
 
 
-class UnhandledResultError: ...
+class UnhandledResultError(Exception): ...
 
 
 def new_result_view_of(result: Result) -> str:

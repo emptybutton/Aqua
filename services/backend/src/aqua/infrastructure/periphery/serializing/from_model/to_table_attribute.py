@@ -39,19 +39,17 @@ def result_value_of(result: Result) -> int:
 
 
 def maybe_result_of(result_value: int | None) -> Result | None:
-    match result_value:
-        case None:
-            return None
-        case _:
-            return result_value_of(result_value)
+    if result_value is None:
+        return None
+
+    return result_of(result_value)
 
 
 def maybe_result_value_of(result: Result | None) -> int | None:
-    match result:
-        case None:
-            return None
-        case _:
-            return result_value_of(result)
+    if result is None:
+        return None
+
+    return result_value_of(result)
 
 
 def water_of(milliliters: int) -> Water:
@@ -62,25 +60,25 @@ def water_value_of(water: Water) -> int:
     return water.milliliters
 
 
-def weight_of(killograms: int | None) -> Weight | None:
-    if killograms is None:
+def maybe_weight_of(kilograms: int | None) -> Weight | None:
+    if kilograms is None:
         return None
 
-    return Weight.with_(killograms=killograms).unwrap()
+    return Weight.with_(kilograms=kilograms).unwrap()
 
 
-def weight_value_of(weight: Weight | None) -> int | None:
+def maybe_weight_value_of(weight: Weight | None) -> int | None:
     if weight is None:
         return None
 
-    return weight.killograms
+    return weight.kilograms
 
 
 def glass_of(milliliters: int) -> Glass:
     return Glass(capacity=water_of(milliliters))
 
 
-def glass_value_of(glass: Glass) -> Glass:
+def glass_value_of(glass: Glass) -> int:
     return glass.capacity.milliliters
 
 
@@ -88,7 +86,7 @@ def water_balance_of(milliliters: int) -> WaterBalance:
     return WaterBalance(water=water_of(milliliters))
 
 
-def water_balance_value_of(water_balance: WaterBalance) -> WaterBalance:
+def water_balance_value_of(water_balance: WaterBalance) -> int:
     return water_balance.water.milliliters
 
 
@@ -115,7 +113,7 @@ def maybe_target_value_of(target: Target | None) -> int | None:
 
 
 def time_of(datetime_: datetime) -> Time:
-    return Time(datetime_=datetime_).unwrap()
+    return Time.with_(datetime_=datetime_).unwrap()
 
 
 def time_value_of(time: Time) -> datetime:

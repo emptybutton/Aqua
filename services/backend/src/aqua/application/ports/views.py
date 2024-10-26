@@ -12,7 +12,9 @@ from aqua.domain.model.core.aggregates.user.root import (
 
 class UserViewFrom[UsersT: Users, ViewT](ABC):
     @abstractmethod
-    async def __call__(self, users: UsersT, *, user_id: UUID) -> ViewT: ...
+    async def __call__(
+        self, users: UsersT, *, user_id: UUID, date_: date
+    ) -> ViewT: ...
 
 
 class DayViewFrom[UsersT: Users, ViewT](ABC):

@@ -9,19 +9,21 @@ from aqua.infrastructure.adapters.repos.db.users import DBUsers
 from aqua.infrastructure.periphery.serializing.from_table_attribute.to_view import (  # noqa: E501
     old_result_view_of,
 )
-from aqua.infrastructure.periphery.views.db.day_view import (
-    DBDayView,
-    DBDayViewRecordData,
-    empty_db_day_view_with,
+from aqua.infrastructure.periphery.views.db.user_view import (
+    DBUserView,
+    DBUserViewData,
+    DBUserViewRecordData,
 )
 from shared.infrastructure.periphery.db.tables import aqua as tables
 
 
-class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
+class DBUserViewFrom(DayViewFrom[DBUsers, DBUserView]):
     async def __call__(
         self, db_users: DBUsers, *, user_id: UUID, date_: date
-    ) -> DBDayView:
+    ) -> DBUserView:
         stmt = select(
+            tables.user_table.c.glass.label("user_glass"),
+            tables.user_table.c.weight.label("user_weight"),
             tables.day_table.c.target.label("day_target"),
             tables.day_table.c.water_balance.label("day_water_balance"),
             tables.day_table.c.result.label("day_result"),
@@ -30,16 +32,20 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
             tables.record_table.c.id.label("record_id"),
             tables.record_table.c.drunk_water.label("record_drunk_water"),
             tables.record_table.c.recording_time.label("record_recording_time"),
-        ).outerjoin_from(
+        ).join_from(
+            tables.user_table,
             tables.day_table,
+            (
+                (tables.user_table.c.id == user_id)
+                & (tables.day_table.c.user_id == user_id)
+                & (tables.day_table.c.date_ == date_)
+            )
+        ).outerjoin(
             tables.record_table,
             (
                 (tables.record_table.c.user_id == user_id)
                 & (func.date(tables.record_table.c.recording_time) == date_)
-            )
-        ).where(
-            (tables.day_table.c.user_id == user_id)
-            & (tables.day_table.c.date_ == date_)
+            ),
         ).order_by(
             tables.record_table.c.recording_time
         )
@@ -48,12 +54,14 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
         rows = result.all()
 
         if len(rows) == 0:
-            return empty_db_day_view_with(user_id=user_id, date_=date_)
+            return None
 
         row = rows[0]
 
-        return DBDayView(
+        return DBUserViewData(
             user_id=user_id,
+            glass_milliliters=row.user_glass,
+            weight_kilograms=row.user_weight,
             date_=date_,
             target_water_balance_milliliters=row.day_target,
             water_balance_milliliters=row.day_water_balance,
@@ -64,9 +72,9 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
         )
 
 
-def _records_from(rows: Iterable[Row[Any]]) -> Iterable[DBDayViewRecordData]:
+def _records_from(rows: Iterable[Row[Any]]) -> Iterable[DBUserViewRecordData]:
     for row in rows:
-        yield DBDayViewRecordData(
+        yield DBUserViewRecordData(
             record_id=row.record_id,
             drunk_water_milliliters=row.record_drunk_water,
             recording_time=row.record_recording_time,
