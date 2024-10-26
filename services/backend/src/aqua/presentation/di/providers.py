@@ -37,11 +37,6 @@ from aqua.infrastructure.adapters.views.in_memory.writing_view_of import (
 from shared.infrastructure.periphery.envs import Env
 
 
-type _ConncetionFromDishka = Annotated[
-    AsyncConnection, FromComponent("db_connections")
-]
-
-
 class NoConncetionError(Exception): ...
 
 
@@ -99,7 +94,10 @@ class RepoProvider(Provider):
     component = "repos"
 
     @provide(scope=Scope.REQUEST)
-    def get_users(self, connection: _ConncetionFromDishka) -> DBUsers:
+    def get_users(
+        self,
+        connection: Annotated[AsyncConnection, FromComponent("db_connections")],
+    ) -> DBUsers:
         return DBUsers(connection)
 
 
