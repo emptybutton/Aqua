@@ -17,9 +17,9 @@ def test_with_err() -> None:
     @from_(Ok(3))
     @from_(Err(2))
     @from_(Ok(1))
-    def act(a: int, b: int, c: int, d: int, e: int) -> Ok[
-        tuple[int, int, int, int, int]
-    ]:
+    def act(
+        a: int, b: int, c: int, d: int, e: int
+    ) -> Ok[tuple[int, int, int, int, int]]:
         return Ok((a, b, c, d, e))
 
     assert act(3) == Err(4)

@@ -9,7 +9,7 @@ class X(Entity[int, int | str | float]):
 
 
 def test_events_with_type() -> None:
-    x = X(id=0, x=4, events=[0, 1, 2., "3", 4, 5., "6"])
+    x = X(id=0, x=4, events=[0, 1, 2.0, "3", 4, 5.0, "6"])
 
     events = x.events_with_type(str)
 

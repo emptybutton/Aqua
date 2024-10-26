@@ -79,9 +79,7 @@ async def perform(
             ),
             logger=await container.get(Logger, "loggers"),
             user_mapper_to=await container.get(DBUserMapperTo, "mappers"),
-            record_mapper_to=await container.get(
-                DBRecordMapperTo, "mappers"
-            ),
+            record_mapper_to=await container.get(DBRecordMapperTo, "mappers"),
             day_mapper_to=await container.get(DBDayMapperTo, "mappers"),
         )
 

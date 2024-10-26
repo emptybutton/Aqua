@@ -21,9 +21,11 @@ def test_valid() -> None:
         id=uuid4(),
         events=list(),
         weight=Weight.with_(kilograms=70).unwrap(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         glass=Glass(capacity=Water.with_(milliliters=200).unwrap()),
         days=set(),
         records=set(),
@@ -41,9 +43,11 @@ def test_without_weight() -> None:
         events=list(),
         weight=None,
         glass=Glass(capacity=Water.with_(milliliters=200).unwrap()),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         days=set(),
         records=set(),
     )
@@ -59,9 +63,11 @@ def test_with_extreme_weight() -> None:
         events=list(),
         weight=Weight.with_(kilograms=2000).unwrap(),
         glass=Glass(capacity=Water.with_(milliliters=200).unwrap()),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         days=set(),
         records=set(),
     )

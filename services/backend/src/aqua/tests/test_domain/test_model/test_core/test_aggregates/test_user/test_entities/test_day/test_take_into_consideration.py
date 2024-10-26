@@ -22,9 +22,11 @@ def test_day() -> None:
         user_id=UUID(int=0),
         events=list(),
         date_=current_time.datetime_.date(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         water_balance=WaterBalance(water=Water.with_(milliliters=300).unwrap()),
         pinned_result=None,
     )
@@ -54,9 +56,11 @@ def test_effect() -> None:
         user_id=UUID(int=0),
         events=list(),
         date_=current_time.datetime_.date(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         water_balance=WaterBalance(water=Water.with_(milliliters=300).unwrap()),
         pinned_result=None,
     )

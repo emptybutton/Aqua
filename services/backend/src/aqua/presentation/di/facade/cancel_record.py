@@ -66,18 +66,14 @@ async def perform(
         view_result = await cancel_record(
             user_id,
             record_id,
-            view_of=await container.get(
-                InMemoryCancellationViewOf, "views"
-            ),
+            view_of=await container.get(InMemoryCancellationViewOf, "views"),
             users=await container.get(DBUsers, "repos"),
             transaction_for=await container.get(
                 DBTransactionForDBUsers, "transactions"
             ),
             logger=await container.get(Logger, "loggers"),
             user_mapper_to=await container.get(DBUserMapperTo, "mappers"),
-            record_mapper_to=await container.get(
-                DBRecordMapperTo, "mappers"
-            ),
+            record_mapper_to=await container.get(DBRecordMapperTo, "mappers"),
             day_mapper_to=await container.get(DBDayMapperTo, "mappers"),
         )
 

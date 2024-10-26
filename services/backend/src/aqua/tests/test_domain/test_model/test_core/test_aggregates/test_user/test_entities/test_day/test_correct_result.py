@@ -32,7 +32,9 @@ def test_excess_water_status() -> None:
         events=list(),
         date_=datetime.now().date(),
         target=Target(water_balance=WaterBalance(water=target_water)),
-        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap()),
+        water_balance=WaterBalance(
+            water=Water.with_(milliliters=2000).unwrap()
+        ),
         pinned_result=Result.good,
     )
 
@@ -47,7 +49,9 @@ def test_not_enough_water_status() -> None:
         events=list(),
         date_=datetime.now().date(),
         target=Target(water_balance=WaterBalance(water=target_water)),
-        water_balance=WaterBalance(water=Water.with_(milliliters=1000).unwrap()),
+        water_balance=WaterBalance(
+            water=Water.with_(milliliters=1000).unwrap()
+        ),
         pinned_result=Result.good,
     )
 

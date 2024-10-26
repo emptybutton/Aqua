@@ -21,28 +21,33 @@ class DBDayViewFrom(DayViewFrom[DBUsers, DBDayView]):
     async def __call__(
         self, db_users: DBUsers, *, user_id: UUID, date_: date
     ) -> DBDayView:
-        stmt = select(
-            tables.day_table.c.target.label("day_target"),
-            tables.day_table.c.water_balance.label("day_water_balance"),
-            tables.day_table.c.result.label("day_result"),
-            tables.day_table.c.correct_result.label("day_correct_result"),
-            tables.day_table.c.pinned_result.label("day_pinned_result"),
-            tables.record_table.c.id.label("record_id"),
-            tables.record_table.c.drunk_water.label("record_drunk_water"),
-            tables.record_table.c.recording_time.label("record_recording_time"),
-        ).outerjoin_from(
-            tables.day_table,
-            tables.record_table,
-            (
-                (tables.record_table.c.user_id == user_id)
-                & (func.date(tables.record_table.c.recording_time) == date_)
-                & (~tables.record_table.c.is_cancelled)
+        stmt = (
+            select(
+                tables.day_table.c.target.label("day_target"),
+                tables.day_table.c.water_balance.label("day_water_balance"),
+                tables.day_table.c.result.label("day_result"),
+                tables.day_table.c.correct_result.label("day_correct_result"),
+                tables.day_table.c.pinned_result.label("day_pinned_result"),
+                tables.record_table.c.id.label("record_id"),
+                tables.record_table.c.drunk_water.label("record_drunk_water"),
+                tables.record_table.c.recording_time.label(
+                    "record_recording_time"
+                ),
             )
-        ).where(
-            (tables.day_table.c.user_id == user_id)
-            & (tables.day_table.c.date_ == date_)
-        ).order_by(
-            desc(tables.record_table.c.recording_time)
+            .outerjoin_from(
+                tables.day_table,
+                tables.record_table,
+                (
+                    (tables.record_table.c.user_id == user_id)
+                    & (func.date(tables.record_table.c.recording_time) == date_)
+                    & (~tables.record_table.c.is_cancelled)
+                ),
+            )
+            .where(
+                (tables.day_table.c.user_id == user_id)
+                & (tables.day_table.c.date_ == date_)
+            )
+            .order_by(desc(tables.record_table.c.recording_time))
         )
 
         result = await db_users.connection.execute(stmt)

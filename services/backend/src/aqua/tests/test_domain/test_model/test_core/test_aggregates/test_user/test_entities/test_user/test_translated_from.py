@@ -47,9 +47,9 @@ def test_without_target_and_with_extreme_weight() -> None:
 
 def test_target_without_weight() -> None:
     access_user = AccessUser(id=UUID(int=4), events=list())
-    target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=2000).unwrap()
-    ))
+    target = Target(
+        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap())
+    )
     user = User.translated_from(
         access_user,
         weight=None,
@@ -63,9 +63,9 @@ def test_target_without_weight() -> None:
 
 def test_target() -> None:
     access_user = AccessUser(id=UUID(int=4), events=list())
-    target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=2000).unwrap()
-    ))
+    target = Target(
+        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap())
+    )
     user = User.translated_from(
         access_user,
         weight=Weight.with_(kilograms=100).unwrap(),
@@ -106,9 +106,9 @@ def test_glass_without_glass() -> None:
 
 def test_events() -> None:
     access_user = AccessUser(id=UUID(int=4), events=list())
-    target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=2000).unwrap()
-    ))
+    target = Target(
+        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap())
+    )
     user = User.translated_from(
         access_user,
         weight=Weight.with_(kilograms=100).unwrap(),
@@ -123,9 +123,9 @@ def test_events() -> None:
 def test_effect() -> None:
     effect = SearchableEffect()
     access_user = AccessUser(id=UUID(int=4), events=list())
-    target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=2000).unwrap()
-    ))
+    target = Target(
+        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap())
+    )
     user = User.translated_from(
         access_user,
         weight=Weight.with_(kilograms=100).unwrap(),

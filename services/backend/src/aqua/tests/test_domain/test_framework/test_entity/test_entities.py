@@ -61,7 +61,7 @@ def test_remove_from_empty_entities() -> None:
 
 def test_with_event() -> None:
     a = X(id=0, events=[1])
-    b = X(id=1, events=[1.])
+    b = X(id=1, events=[1.0])
     c = X(id=2, events=["1"])
     d = X(id=3, events=[4])
 

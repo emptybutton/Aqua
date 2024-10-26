@@ -30,7 +30,5 @@ class InMemoryWritingViewOf(WritingViewOf[InMemoryWritingView]):
         )
 
         return tuple(
-            record
-            for record in sorted_records
-            if not record.is_cancelled
+            record for record in sorted_records if not record.is_cancelled
         )

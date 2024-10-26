@@ -35,29 +35,33 @@ class DBUsers(Users):
         return self.__stmt_builder
 
     async def user_with_id(self, user_id: UUID) -> User | None:
-        stmt = self.__stmt_builder.select(
-            tables.user_table.c.target.label("user_target"),
-            tables.user_table.c.glass.label("user_glass"),
-            tables.user_table.c.weight.label("user_weight"),
-            tables.record_table.c.id.label("record_id"),
-            tables.record_table.c.drunk_water.label("record_drunk_water"),
-            tables.record_table.c.recording_time.label("record_recording_time"),
-            tables.record_table.c.is_cancelled.label("is_record_cancelled"),
-            tables.day_table.c.id.label("day_id"),
-            tables.day_table.c.water_balance.label("day_water_balance"),
-            tables.day_table.c.target.label("day_target"),
-            tables.day_table.c.date_.label("day_date"),
-            tables.day_table.c.pinned_result.label("day_pinned_result"),
-        ).build().join_from(
-            tables.user_table,
-            tables.record_table,
-            (
-                (tables.user_table.c.id == user_id)
-                & (tables.record_table.c.user_id == user_id)
-            ),
-        ).join(
-            tables.day_table,
-            tables.day_table.c.user_id == user_id
+        stmt = (
+            self.__stmt_builder.select(
+                tables.user_table.c.target.label("user_target"),
+                tables.user_table.c.glass.label("user_glass"),
+                tables.user_table.c.weight.label("user_weight"),
+                tables.record_table.c.id.label("record_id"),
+                tables.record_table.c.drunk_water.label("record_drunk_water"),
+                tables.record_table.c.recording_time.label(
+                    "record_recording_time"
+                ),
+                tables.record_table.c.is_cancelled.label("is_record_cancelled"),
+                tables.day_table.c.id.label("day_id"),
+                tables.day_table.c.water_balance.label("day_water_balance"),
+                tables.day_table.c.target.label("day_target"),
+                tables.day_table.c.date_.label("day_date"),
+                tables.day_table.c.pinned_result.label("day_pinned_result"),
+            )
+            .build()
+            .join_from(
+                tables.user_table,
+                tables.record_table,
+                (
+                    (tables.user_table.c.id == user_id)
+                    & (tables.record_table.c.user_id == user_id)
+                ),
+            )
+            .join(tables.day_table, tables.day_table.c.user_id == user_id)
         )
 
         result = await self.__connection.execute(stmt)

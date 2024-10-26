@@ -42,9 +42,11 @@ def test_effect() -> None:
     day = Day.create(
         user_id=UUID(int=4),
         current_time=Time.with_(datetime_=datetime.now(UTC)).unwrap(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         effect=effect,
     )
 

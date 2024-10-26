@@ -25,9 +25,9 @@ from aqua.domain.model.primitives.vos.water import Water
 
 @fixture
 def user() -> User:
-    target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=2000).unwrap()
-    ))
+    target = Target(
+        water_balance=WaterBalance(water=Water.with_(milliliters=2000).unwrap())
+    )
 
     return User(
         id=uuid4(),
@@ -94,9 +94,7 @@ def test_previous_records_with_multiple_call(
     assert set(d.previous_records) == {a.new_record, b.new_record, c.new_record}
 
 
-def test_effect_days_with_multiple_call(
-    user: User, current_time: Time
-) -> None:
+def test_effect_days_with_multiple_call(user: User, current_time: Time) -> None:
     effect = SearchableEffect()
     a = user.write_water(current_time=current_time, effect=effect)
     b = user.write_water(current_time=current_time, effect=effect)
