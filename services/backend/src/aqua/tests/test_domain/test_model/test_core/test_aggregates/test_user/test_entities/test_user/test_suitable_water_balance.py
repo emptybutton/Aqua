@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from result import Err, Ok
 
+from aqua.domain.framework.entity import Entities
 from aqua.domain.model.core.aggregates.user.root import (
     NoWeightForSuitableWaterBalanceError,
     User,
@@ -27,8 +28,8 @@ def test_valid() -> None:
             )
         ),
         glass=Glass(capacity=Water.with_(milliliters=200).unwrap()),
-        days=set(),
-        records=set(),
+        days=Entities(),
+        records=Entities(),
     )
 
     result = user.suitable_water_balance
@@ -48,8 +49,8 @@ def test_without_weight() -> None:
                 water=Water.with_(milliliters=2000).unwrap()
             )
         ),
-        days=set(),
-        records=set(),
+        days=Entities(),
+        records=Entities(),
     )
 
     result = user.suitable_water_balance
@@ -68,8 +69,8 @@ def test_with_extreme_weight() -> None:
                 water=Water.with_(milliliters=2000).unwrap()
             )
         ),
-        days=set(),
-        records=set(),
+        days=Entities(),
+        records=Entities(),
     )
 
     result = user.suitable_water_balance

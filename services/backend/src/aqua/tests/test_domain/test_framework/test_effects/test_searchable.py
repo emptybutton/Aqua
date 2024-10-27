@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from aqua.domain.framework.effects.searchable import SearchableEffect
-from aqua.domain.framework.entity import Entity
+from aqua.domain.framework.entity import Entity, FrozenEntities
 
 
 @dataclass(kw_only=True, eq=False)
@@ -31,7 +31,7 @@ def test_entities_that() -> None:
 
     xs = effect.entities_that(X)
 
-    assert set(xs) == {x1, x2}
+    assert xs == FrozenEntities([x1, x2])
 
 
 def test_ignore() -> None:
@@ -46,9 +46,9 @@ def test_ignore() -> None:
 
     effect.ignore(x1, x2, y1)
 
-    assert set(effect.entities_that(X)) == set()
-    assert set(effect.entities_that(Y)) == {y2}
-    assert set(effect.entities_that(Z)) == {z1, z2}
+    assert not effect.entities_that(X)
+    assert effect.entities_that(Y) == FrozenEntities([y2])
+    assert effect.entities_that(Z) == FrozenEntities([z1, z2])
 
 
 def test_cancel() -> None:
@@ -63,6 +63,6 @@ def test_cancel() -> None:
 
     effect.cancel()
 
-    assert set(effect.entities_that(X)) == set()
-    assert set(effect.entities_that(Y)) == set()
-    assert set(effect.entities_that(Z)) == set()
+    assert not effect.entities_that(X)
+    assert not effect.entities_that(Y)
+    assert not effect.entities_that(Z)

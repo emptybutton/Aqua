@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.framework.entity import FrozenEntities
 from aqua.domain.model.core.aggregates.user.internal.entities.day import (
     Day,
     NewWaterBalance,
@@ -76,5 +77,5 @@ def test_effect() -> None:
 
     day.take_into_consideration(record, effect=effect)
 
-    assert set(effect.entities_that(Day)) == {day}
-    assert set(effect.entities_that(Record)) == set()
+    assert effect.entities_that(Day) == FrozenEntities([day])
+    assert not effect.entities_that(Record)

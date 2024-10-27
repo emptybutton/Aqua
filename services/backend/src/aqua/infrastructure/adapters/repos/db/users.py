@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aqua.application.ports.repos import Users
+from aqua.domain.framework.entity import Entities
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
@@ -70,8 +71,8 @@ class DBUsers(Users):
         if len(rows) == 0:
             return None
 
-        days = set[Day]()
-        records = set[Record]()
+        days = Entities[Day]()
+        records = Entities[Record]()
 
         for row in rows:
             day = Day(

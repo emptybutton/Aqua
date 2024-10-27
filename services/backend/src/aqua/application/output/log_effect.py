@@ -17,11 +17,13 @@ async def log_effect(effect: SearchableEffect, logger: Logger) -> None:
         TranslatedFromAccess
     )
 
-    created_days = effect.entities_that(Day).with_event(Created)
-    mutated_days = effect.entities_that(Day).with_event(Mutated)
+    days = effect.entities_that(Day)
+    created_days = days.with_event(Created)
+    mutated_days = days.with_event(Mutated).without_event(Created)
 
-    created_records = effect.entities_that(Record).with_event(Created)
-    cancelled_records = effect.entities_that(Record).with_event(Cancelled)
+    records = effect.entities_that(Record)
+    created_records = records.with_event(Created)
+    cancelled_records = records.with_event(Cancelled).without_event(Created)
 
     for translated_user in translated_users:
         await logger.log_registered_user(translated_user)

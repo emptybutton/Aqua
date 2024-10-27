@@ -1,54 +1,32 @@
 from uuid import uuid4
 
-from pytest import mark, raises
+from pytest import mark
+from result import Err
 
-from aqua.application.cases import write_water
-from aqua.domain import entities
-from aqua.infrastructure import adapters
-from shared.infrastructure.adapters.transactions import (
-    InMemoryUoWTransactionFactory,
+from aqua.application.cases.write_water import (
+    NoUserError,
+)
+from aqua.tests.test_application.test_cases.test_write_water.conftest import (
+    Context,
 )
 
 
 @mark.asyncio
-async def test_empty_storage() -> None:
-    users = adapters.repos.InMemoryUsers()
-    records = adapters.repos.InMemoryRecords()
-    days = adapters.repos.InMemoryDays()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    logger = adapters.loggers.InMemoryStorageLogger()
+async def test_result(context: Context) -> None:
+    result = await context.write_water(uuid4(), None)
 
-    with raises(write_water.NoUserError):
-        await write_water.perform(
-            user_id=uuid4(),
-            milliliters=None,
-            users=users,
-            records=records,
-            days=days,
-            record_transaction_for=transaction_factory,
-            day_transaction_for=transaction_factory,
-            user_transaction_for=transaction_factory,
-            logger=logger,
-        )
+    assert result == Err(NoUserError())
 
 
 @mark.asyncio
-async def test_full_storage(user1: entities.User) -> None:
-    users = adapters.repos.InMemoryUsers([user1])
-    records = adapters.repos.InMemoryRecords()
-    days = adapters.repos.InMemoryDays()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    logger = adapters.loggers.InMemoryStorageLogger()
+async def test_storage(context: Context) -> None:
+    await context.write_water(uuid4(), None)
 
-    with raises(write_water.NoUserError):
-        await write_water.perform(
-            user_id=uuid4(),
-            milliliters=None,
-            users=users,
-            records=records,
-            days=days,
-            record_transaction_for=transaction_factory,
-            day_transaction_for=transaction_factory,
-            user_transaction_for=transaction_factory,
-            logger=logger,
-        )
+    assert not context.users
+
+
+@mark.asyncio
+async def test_logs(context: Context) -> None:
+    await context.write_water(uuid4(), None)
+
+    assert context.logger.is_empty

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from aqua.domain.framework.entity import Entities, Entity
+from aqua.domain.framework.entity import Entities, Entity, FrozenEntities
 
 
 @dataclass(kw_only=True, eq=False)
@@ -17,7 +17,7 @@ def test_add() -> None:
     entities.add(b)
     entities.add(c)
 
-    assert frozenset(entities) == frozenset({a, b, c})
+    assert entities == Entities([a, b, c])
 
 
 def test_add_with_conflict() -> None:
@@ -30,11 +30,7 @@ def test_add_with_conflict() -> None:
     entities.add(b)
     entities.add(c)
 
-    stored_entities = tuple(entities)
-
-    for stored_entity in stored_entities:
-        if stored_entity == c:
-            assert stored_entity.events == [2, 3]
+    assert entities == Entities([a, c])
 
 
 def test_remove() -> None:
@@ -47,7 +43,7 @@ def test_remove() -> None:
     entities.remove(b)
     entities.remove(c)
 
-    assert frozenset(entities) == frozenset({a})
+    assert entities == Entities([a])
 
 
 def test_remove_from_empty_entities() -> None:
@@ -56,7 +52,7 @@ def test_remove_from_empty_entities() -> None:
     entities = Entities[X]()
     entities.remove(x)
 
-    assert frozenset(entities) == frozenset()
+    assert not entities
 
 
 def test_with_event() -> None:
@@ -69,4 +65,4 @@ def test_with_event() -> None:
 
     entities_with_event = entities.with_event(int)
 
-    assert frozenset(entities_with_event) == frozenset({a, d})
+    assert entities_with_event == FrozenEntities([a, d])

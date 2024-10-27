@@ -4,7 +4,7 @@ from uuid import uuid4
 from pytest import fixture
 
 from aqua.domain.framework.effects.searchable import SearchableEffect
-from aqua.domain.framework.entity import Created
+from aqua.domain.framework.entity import Created, Entities, FrozenEntities
 from aqua.domain.model.core.aggregates.user.internal.entities.day import (
     Day,
 )
@@ -35,8 +35,8 @@ def user() -> User:
         weight=None,
         target=target,
         glass=Glass(capacity=Water.with_(milliliters=400).unwrap()),
-        days=set(),
-        records=set(),
+        days=Entities(),
+        records=Entities(),
     )
 
 
@@ -89,9 +89,11 @@ def test_previous_records_with_multiple_call(
     d = user.write_water(current_time=current_time, effect=effect)
 
     assert not a.previous_records
-    assert set(b.previous_records) == {a.new_record}
-    assert set(c.previous_records) == {a.new_record, b.new_record}
-    assert set(d.previous_records) == {a.new_record, b.new_record, c.new_record}
+    assert b.previous_records == FrozenEntities([a.new_record])
+    assert c.previous_records == FrozenEntities([a.new_record, b.new_record])
+    assert d.previous_records == FrozenEntities(
+        [a.new_record, b.new_record, c.new_record]
+    )
 
 
 def test_effect_days_with_multiple_call(user: User, current_time: Time) -> None:
@@ -101,9 +103,9 @@ def test_effect_days_with_multiple_call(user: User, current_time: Time) -> None:
     c = user.write_water(current_time=current_time, effect=effect)
     d = user.write_water(current_time=current_time, effect=effect)
 
-    days = set(effect.entities_that(Day))
+    days = effect.entities_that(Day)
 
-    excepted_days = {a.day, b.day, c.day, d.day}
+    excepted_days = FrozenEntities([a.day, b.day, c.day, d.day])
     assert len(excepted_days) == 1
     assert days == excepted_days
 
@@ -117,8 +119,10 @@ def test_effect_records_with_multiple_call(
     c = user.write_water(current_time=current_time, effect=effect)
     d = user.write_water(current_time=current_time, effect=effect)
 
-    records = set(effect.entities_that(Record))
+    records = effect.entities_that(Record)
 
-    excepted_days = {a.new_record, b.new_record, c.new_record, d.new_record}
+    excepted_days = FrozenEntities(
+        [a.new_record, b.new_record, c.new_record, d.new_record]
+    )
     assert len(excepted_days) == 4
     assert records == excepted_days

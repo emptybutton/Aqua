@@ -19,7 +19,7 @@ class Cancelled(Mutated["Record"]): ...
 type RecordEvent = Created["Record"] | Cancelled
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True)
 class Record(Entity[UUID, RecordEvent]):
     user_id: UUID
     drunk_water: Water

@@ -25,8 +25,10 @@ async def map_effect(
 
     days = effect.entities_that(Day)
     await day_mapper.add_all(days.with_event(Created))
-    await day_mapper.update_all(days.with_event(Mutated))
+    await day_mapper.update_all(days.with_event(Mutated).without_event(Created))
 
     records = effect.entities_that(Record)
     await record_mapper.add_all(records.with_event(Created))
-    await record_mapper.update_all(records.with_event(Mutated))
+    await record_mapper.update_all(
+        records.with_event(Mutated).without_event(Created)
+    )

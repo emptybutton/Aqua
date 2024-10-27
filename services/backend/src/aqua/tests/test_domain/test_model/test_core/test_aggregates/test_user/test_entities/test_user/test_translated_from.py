@@ -134,5 +134,5 @@ def test_effect() -> None:
         effect=effect,
     ).unwrap()
 
-    assert set(effect.entities_that(User)) == {user}
-    assert set(effect.entities_that(AccessUser)) == set()
+    assert list(effect.entities_that(User)) == [user]
+    assert not tuple(effect.entities_that(AccessUser))

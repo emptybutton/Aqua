@@ -1,9 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(kw_only=True, frozen=True)
 class SafeImmutable:
-    is_safe: bool
+    is_safe: bool = field(repr=False)
 
     def __post_init__(self) -> None:
         _validate(self)
@@ -11,7 +11,7 @@ class SafeImmutable:
 
 @dataclass(kw_only=True)
 class SafeMutable:
-    is_safe: bool
+    is_safe: bool = field(repr=False)
 
     def __post_init__(self) -> None:
         _validate(self)

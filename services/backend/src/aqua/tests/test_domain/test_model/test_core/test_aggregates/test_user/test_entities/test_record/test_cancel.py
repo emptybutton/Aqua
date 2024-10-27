@@ -5,6 +5,7 @@ from pytest import fixture
 from result import Err, Ok
 
 from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.framework.entity import FrozenEntities
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Cancelled,
     CancelledRecordToCancelError,
@@ -62,7 +63,8 @@ def test_effect_with_not_cancelled(not_cancelled_record: Record) -> None:
     effect = SearchableEffect()
     cancel(not_cancelled_record, effect=effect)
 
-    assert set(effect.entities_that(Record)) == {not_cancelled_record}
+    entities = effect.entities_that(Record)
+    assert entities == FrozenEntities([not_cancelled_record])
 
 
 def test_result_with_cancelled(cancelled_record: Record) -> None:

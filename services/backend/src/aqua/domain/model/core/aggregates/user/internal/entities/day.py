@@ -21,7 +21,7 @@ class NewWaterBalance(Mutated["Day"]):
 type DayEvent = Created["Day"] | NewWaterBalance
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True)
 class Day(Entity[UUID, DayEvent]):
     user_id: UUID
     date_: date

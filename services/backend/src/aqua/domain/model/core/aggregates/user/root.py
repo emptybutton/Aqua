@@ -1,10 +1,17 @@
 from dataclasses import dataclass
+from datetime import date
+from typing import Iterable
 from uuid import UUID
 
 from result import Err, Ok, Result
 
 from aqua.domain.framework.effects.base import Effect
-from aqua.domain.framework.entity import Entity, Translated
+from aqua.domain.framework.entity import (
+    Entities,
+    Entity,
+    FrozenEntities,
+    Translated,
+)
 from aqua.domain.framework.fp.env import Env, Just, env, just
 from aqua.domain.model.access.entities.user import User as AccessUser
 from aqua.domain.model.core.aggregates.user.internal.entities import (
@@ -33,7 +40,7 @@ type UserEvent = TranslatedFromAccess
 @dataclass(kw_only=True, frozen=True, slots=True)
 class WritingOutput:
     new_record: _record.Record
-    previous_records: frozenset[_record.Record]
+    previous_records: FrozenEntities[_record.Record]
     day: _day.Day
 
 
@@ -70,13 +77,13 @@ class CancelledRecordToCancelError: ...
 class NoRecordDayToCancelError: ...
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True)
 class User(Entity[UUID, UserEvent]):
     weight: Weight | None
     glass: Glass
     target: Target
-    days: set[_day.Day]
-    records: set[_record.Record]
+    days: Entities[_day.Day]
+    records: Entities[_record.Record]
 
     @property
     def suitable_water_balance(
@@ -129,8 +136,8 @@ class User(Entity[UUID, UserEvent]):
                 weight=weight,
                 glass=glass,
                 target=target,
-                days=set(),
-                records=set(),
+                days=Entities(),
+                records=Entities(),
                 events=list(),
             )
         )
@@ -170,7 +177,7 @@ class User(Entity[UUID, UserEvent]):
             current_time=current_time,
             effect=effect,
         )
-        previous_records = frozenset(self.records)
+        previous_records = FrozenEntities(self.__records_on(current_day.date_))
         self.records.add(new_record)
         current_day.take_into_consideration(new_record, effect=effect)
 
@@ -216,6 +223,11 @@ class User(Entity[UUID, UserEvent]):
                 return day
 
         return None
+
+    def __records_on(self, date_: date) -> Iterable[_record.Record]:
+        for record in self.records:
+            if record.recording_time.datetime_.date() == date_:
+                yield record
 
     def __record_with(self, record_id: UUID) -> _record.Record | None:
         for record in self.records:

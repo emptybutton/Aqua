@@ -1,7 +1,7 @@
 from typing import Iterable, cast
 
 from aqua.domain.framework.effects.base import Effect
-from aqua.domain.framework.entity import AnyEntity, Entities
+from aqua.domain.framework.entity import AnyEntity, Entities, FrozenEntities
 
 
 type _EntityMap = dict[type[AnyEntity], Entities[AnyEntity]]
@@ -14,10 +14,13 @@ class SearchableEffect(Effect):
 
     def entities_that[EntityT: AnyEntity](
         self, entity_type: type[EntityT]
-    ) -> Entities[EntityT]:
+    ) -> FrozenEntities[EntityT]:
         entities = self.__entities_of(entity_type)
 
-        return Entities() if entities is None else Entities(entities)
+        if entities is None:
+            return FrozenEntities()
+
+        return FrozenEntities(entities)
 
     def consider(self, *entities: AnyEntity) -> None:
         for entity in entities:

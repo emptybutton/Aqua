@@ -1,32 +1,32 @@
 from uuid import uuid4
 
-from pytest import mark, raises
+from pytest import mark
+from result import Err
 
-from aqua.application.cases import write_water
-from aqua.domain import value_objects as vos
-from aqua.infrastructure import adapters
-from shared.infrastructure.adapters.transactions import (
-    InMemoryUoWTransactionFactory,
+from aqua.domain.model.primitives.vos.water import (
+    NegativeWaterAmountError,
+)
+from aqua.tests.test_application.test_cases.test_write_water.conftest import (
+    Context,
 )
 
 
 @mark.asyncio
-async def test() -> None:
-    users = adapters.repos.InMemoryUsers()
-    records = adapters.repos.InMemoryRecords()
-    days = adapters.repos.InMemoryDays()
-    transaction_factory = InMemoryUoWTransactionFactory()
-    logger = adapters.loggers.InMemoryStorageLogger()
+async def test_result(context: Context) -> None:
+    result = await context.write_water(uuid4(), -500)
 
-    with raises(vos.Water.IncorrectAmountError):
-        await write_water.perform(
-            user_id=uuid4(),
-            milliliters=-500,
-            users=users,
-            records=records,
-            days=days,
-            record_transaction_for=transaction_factory,
-            day_transaction_for=transaction_factory,
-            user_transaction_for=transaction_factory,
-            logger=logger,
-        )
+    assert result == Err(NegativeWaterAmountError())
+
+
+@mark.asyncio
+async def test_storage(context: Context) -> None:
+    await context.write_water(uuid4(), -500)
+
+    assert not context.users
+
+
+@mark.asyncio
+async def test_logs(context: Context) -> None:
+    await context.write_water(uuid4(), -500)
+
+    assert context.logger.is_empty

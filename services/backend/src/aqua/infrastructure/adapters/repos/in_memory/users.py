@@ -1,8 +1,10 @@
 from copy import deepcopy
 from datetime import date
+from typing import Iterator
 from uuid import UUID
 
 from aqua.application.ports.repos import Users
+from aqua.domain.framework.entity import Entities
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
@@ -26,24 +28,18 @@ class InMemoryUsers(
             InMemoryUserStorage() if storage is None else deepcopy(storage)
         )
 
+    def __iter__(self) -> Iterator[User]:
+        return map(self.__with_aggregation, self._storage.users)
+
+    def __bool__(self) -> bool:
+        return bool(
+            self._storage.users or self._storage.days or self._storage.records
+        )
+
     async def user_with_id(self, user_id: UUID) -> User | None:
         root = self._storage.user_with_id(user_id)
 
-        if root is None:
-            return None
-
-        days = set(self._storage.days_with_user_id(user_id))
-        records = set(self._storage.records_with_user_id(user_id))
-
-        return User(
-            id=root.id,
-            weight=root.weight,
-            glass=root.glass,
-            target=root.target,
-            events=list(),
-            days=days,
-            records=records,
-        )
+        return None if root is None else self.__with_aggregation(root)
 
     def day_with_user_id_and_date(
         self, *, user_id: UUID, date_: date
@@ -69,3 +65,17 @@ class InMemoryUsers(
 
     def update_record(self, record: Record) -> None:
         self._storage.update_record(record)
+
+    def __with_aggregation(self, root: User) -> User:
+        days = Entities(self._storage.days_with_user_id(root.id))
+        records = Entities(self._storage.records_with_user_id(root.id))
+
+        return User(
+            id=root.id,
+            weight=root.weight,
+            glass=root.glass,
+            target=root.target,
+            events=root.events,
+            days=days,
+            records=records,
+        )

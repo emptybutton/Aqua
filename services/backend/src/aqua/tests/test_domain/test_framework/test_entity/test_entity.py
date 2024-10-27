@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from aqua.domain.framework.entity import Entity
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True)
 class X(Entity[int, int | str | float]):
     x: int
 
@@ -18,20 +18,13 @@ def test_events_with_type() -> None:
 
 def test_true_eq() -> None:
     a = X(id=0, x=4, events=[])
-    b = X(id=0, x=5, events=[])
+    b = X(id=0, x=4, events=[])
 
     assert a == b
 
 
 def test_false_eq_with_x() -> None:
     a = X(id=0, x=4, events=[])
-    b = X(id=1, x=4, events=[])
-
-    assert a != b
-
-
-def test_false_eq_without_x() -> None:
-    a = X(id=0, x=4, events=[])
-    b = 5
+    b = X(id=1, x=5, events=[])
 
     assert a != b
