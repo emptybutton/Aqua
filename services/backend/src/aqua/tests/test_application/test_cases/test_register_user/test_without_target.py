@@ -66,7 +66,7 @@ async def test_logs(context: Context, expected_user: User) -> None:
 
     log = RegistredUserLog(user=expected_user)
 
-    assert context.logger.registred_user_logs == (log, )
+    assert context.logger.registred_user_logs == (log,)
     assert context.logger.registered_user_registration_logs == tuple()
     assert context.logger.record_without_day_logs == tuple()
     assert context.logger.new_day_logs == tuple()

@@ -81,18 +81,14 @@ class _BaseEntities[EntityT: AnyEntity]:
         self, event_type: type[EventT]
     ) -> "FrozenEntities[EntityT]":
         return FrozenEntities(
-            entity
-            for entity in self
-            if entity.events_with_type(event_type)
+            entity for entity in self if entity.events_with_type(event_type)
         )
 
     def without_event[EventT](
         self, event_type: type[EventT]
     ) -> "FrozenEntities[EntityT]":
         return FrozenEntities(
-            entity
-            for entity in self
-            if not entity.events_with_type(event_type)
+            entity for entity in self if not entity.events_with_type(event_type)
         )
 
     def without_aggregation(self) -> "FrozenEntities[EntityT]":
@@ -104,9 +100,7 @@ class Entities[EntityT: AnyEntity](_BaseEntities[EntityT]):
         self, event_type: type[EventT]
     ) -> "FrozenEntities[EntityT]":
         return FrozenEntities(
-            entity
-            for entity in self
-            if entity.events_with_type(event_type)
+            entity for entity in self if entity.events_with_type(event_type)
         )
 
     def add(self, entity: EntityT) -> None:
@@ -134,7 +128,5 @@ type SearchableEntities[EntityT: AnyEntity] = (
 type _Map[EntityT: AnyEntity] = dict[Any, EntityT]
 
 
-def _map_of[EntityT: AnyEntity](entities: Iterable[EntityT]) -> dict[
-    Any, EntityT
-]:
+def _map_of[EntityT: AnyEntity](entities: Iterable[EntityT]) -> _Map[EntityT]:
     return {entity.id: entity for entity in entities}

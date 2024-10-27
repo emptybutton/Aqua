@@ -70,7 +70,7 @@ async def test_logs(active_context: Context, stored_user: User) -> None:
     log = RegisteredUserRegistrationLog(user=stored_user)
 
     assert active_context.logger.registred_user_logs == tuple()
-    assert active_context.logger.registered_user_registration_logs == (log, )
+    assert active_context.logger.registered_user_registration_logs == (log,)
     assert active_context.logger.record_without_day_logs == tuple()
     assert active_context.logger.new_day_logs == tuple()
     assert active_context.logger.new_day_state_logs == tuple()

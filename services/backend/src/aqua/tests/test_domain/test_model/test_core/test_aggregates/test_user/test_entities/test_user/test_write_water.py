@@ -91,9 +91,11 @@ def test_previous_records_with_multiple_call(
     assert not a.previous_records
     assert b.previous_records == FrozenEntities([a.new_record])
     assert c.previous_records == FrozenEntities([a.new_record, b.new_record])
-    assert d.previous_records == FrozenEntities(
-        [a.new_record, b.new_record, c.new_record]
-    )
+    assert d.previous_records == FrozenEntities([
+        a.new_record,
+        b.new_record,
+        c.new_record,
+    ])
 
 
 def test_effect_days_with_multiple_call(user: User, current_time: Time) -> None:
@@ -121,8 +123,11 @@ def test_effect_records_with_multiple_call(
 
     records = effect.entities_that(Record)
 
-    excepted_days = FrozenEntities(
-        [a.new_record, b.new_record, c.new_record, d.new_record]
-    )
+    excepted_days = FrozenEntities([
+        a.new_record,
+        b.new_record,
+        c.new_record,
+        d.new_record,
+    ])
     assert len(excepted_days) == 4
     assert records == excepted_days

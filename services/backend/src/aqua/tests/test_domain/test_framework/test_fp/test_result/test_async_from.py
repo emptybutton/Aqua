@@ -22,9 +22,7 @@ async def test_with_err() -> None:
     @async_from(Ok(1))
     async def act(  # noqa: RUF029
         a: int, b: int, c: int, d: int, e: int
-    ) -> Ok[
-        tuple[int, int, int, int, int]
-    ]:
+    ) -> Ok[tuple[int, int, int, int, int]]:
         return Ok((a, b, c, d, e))
 
     assert await act(3) == Err(4)

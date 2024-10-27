@@ -184,9 +184,11 @@ def user1(
         ),
         glass=Glass(capacity=Water.with_(milliliters=300).unwrap()),
         days=Entities([user1_day1, user1_day2]),
-        records=Entities(
-            [user1_day1_record1, user1_day2_record1, user1_day2_record2]
-        ),
+        records=Entities([
+            user1_day1_record1,
+            user1_day2_record1,
+            user1_day2_record2,
+        ]),
     )
 
 

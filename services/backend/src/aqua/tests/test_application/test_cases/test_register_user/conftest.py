@@ -51,16 +51,18 @@ _InMemoryStorageTransactionFor: TypeAlias = (
 
 type RegisterUser = Callable[
     [UUID, int | None, int | None, int | None],
-    Awaitable[Result[
-        InMemoryRegistrationView,
-        (
-            ExtremeWeightForSuitableWaterBalanceError
-            | NoWeightForSuitableWaterBalanceError
-            | NegativeTargetWaterBalanceMillilitersError
-            | NegativeGlassMillilitersError
-            | NegativeWeightKilogramsError
-        ),
-    ]]
+    Awaitable[
+        Result[
+            InMemoryRegistrationView,
+            (
+                ExtremeWeightForSuitableWaterBalanceError
+                | NoWeightForSuitableWaterBalanceError
+                | NegativeTargetWaterBalanceMillilitersError
+                | NegativeGlassMillilitersError
+                | NegativeWeightKilogramsError
+            ),
+        ]
+    ],
 ]
 
 
