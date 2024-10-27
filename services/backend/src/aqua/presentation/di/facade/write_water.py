@@ -1,17 +1,41 @@
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import TypeAlias
 from uuid import UUID
 
+from result import Err, Ok
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from aqua.application import ports
-from aqua.application.cases import write_water
-from aqua.domain import entities
-from aqua.domain import value_objects as vos
-from aqua.infrastructure.adapters import repos
+from aqua.application.cases.write_water import (
+    NoUserError as _NoUserApplicationError,
+)
+from aqua.application.cases.write_water import (
+    write_water,
+)
+from aqua.application.ports.loggers import Logger
+from aqua.domain.model.core.aggregates.user.internal.entities.record import (
+    Record,
+)
+from aqua.domain.model.primitives.vos.water import NegativeWaterAmountError
+from aqua.infrastructure.adapters.mappers.db.day_mapper import DBDayMapperTo
+from aqua.infrastructure.adapters.mappers.db.record_mapper import (
+    DBRecordMapperTo,
+)
+from aqua.infrastructure.adapters.mappers.db.user_mapper import DBUserMapperTo
+from aqua.infrastructure.adapters.repos.db.users import DBUsers
+from aqua.infrastructure.adapters.transactions.db.transaction import (
+    DBTransactionForDBUsers,
+)
+from aqua.infrastructure.adapters.views.in_memory.writing_view_of import (
+    InMemoryWritingViewOf,
+)
+from aqua.infrastructure.periphery.serializing.from_model.to_view import (
+    old_result_view_of,
+    target_view_of,
+    time_view_of,
+    water_balance_view_of,
+    water_view_of,
+)
 from aqua.presentation.di.containers import adapter_container
-from shared.infrastructure.adapters.transactions import DBTransactionFactory
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -34,51 +58,60 @@ class Output:
     new_record: RecordData
 
 
-IncorrectWaterAmountError: TypeAlias = vos.Water.IncorrectAmountError
+class Error(Exception): ...
 
-NoUserError: TypeAlias = write_water.NoUserError
 
-Error: TypeAlias = write_water.Error | IncorrectWaterAmountError
+class IncorrectWaterAmountError(Error): ...
+
+
+class NoUserError(Error): ...
 
 
 async def perform(
     user_id: UUID, milliliters: int | None, *, session: AsyncSession
 ) -> Output:
     async with adapter_container(context={AsyncSession: session}) as container:
-        result = await write_water.perform(
+        view_result = await write_water(
             user_id,
             milliliters,
-            users=await container.get(repos.DBUsers, "repos"),
-            records=await container.get(repos.DBRecords, "repos"),
-            days=await container.get(repos.DBDays, "repos"),
-            record_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
+            view_of=await container.get(InMemoryWritingViewOf, "views"),
+            users=await container.get(DBUsers, "repos"),
+            transaction_for=await container.get(
+                DBTransactionForDBUsers, "transactions"
             ),
-            day_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
-            ),
-            user_transaction_for=await container.get(
-                DBTransactionFactory, "transactions"
-            ),
-            logger=await container.get(ports.loggers.Logger, "loggers"),
+            logger=await container.get(Logger, "loggers"),
+            user_mapper_to=await container.get(DBUserMapperTo, "mappers"),
+            record_mapper_to=await container.get(DBRecordMapperTo, "mappers"),
+            day_mapper_to=await container.get(DBDayMapperTo, "mappers"),
         )
 
+    match view_result:
+        case Err(_NoUserApplicationError()):
+            raise NoUserError
+        case Err(NegativeWaterAmountError()):
+            raise IncorrectWaterAmountError
+        case Ok(view):
+            user = view.user
+            day = view.day
+            new_record = view.new_record
+            previous_records = view.previous_records
+
     return Output(
-        user_id=result.new_record.user_id,
-        date_=result.day.date_,
-        target_water_balance_milliliters=result.day.target.water.milliliters,
-        water_balance_milliliters=result.day.water_balance.water.milliliters,
-        result_code=result.day.result.value,
-        real_result_code=result.day.correct_result.value,
-        is_result_pinned=result.day.is_result_pinned,
-        new_record=_record_data_of(result.new_record),
-        previous_records=tuple(map(_record_data_of, result.previous_records)),
+        user_id=user.id,
+        date_=day.date_,
+        target_water_balance_milliliters=target_view_of(day.target),
+        water_balance_milliliters=water_balance_view_of(day.water_balance),
+        result_code=old_result_view_of(day.result),
+        real_result_code=old_result_view_of(day.correct_result),
+        is_result_pinned=day.is_result_pinned,
+        new_record=_record_data_of(new_record),
+        previous_records=tuple(map(_record_data_of, previous_records)),
     )
 
 
-def _record_data_of(record: entities.Record) -> RecordData:
+def _record_data_of(record: Record) -> RecordData:
     return RecordData(
         record_id=record.id,
-        drunk_water_milliliters=record.drunk_water.milliliters,
-        recording_time=record.recording_time,
+        drunk_water_milliliters=water_view_of(record.drunk_water),
+        recording_time=time_view_of(record.recording_time),
     )

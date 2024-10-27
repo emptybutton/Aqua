@@ -7,31 +7,32 @@ from auth.domain.models.access.vos import (
 )
 from auth.domain.models.access.vos import time as _time
 from shared.domain.framework import entity as _entity
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Extended(_entity.MutationEvent["Session"]):
+class Extended(_entity.Mutated["Session"]):
     new_lifetime: _session_lifetime.SessionLifetime
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Cancelled(_entity.MutationEvent["Session"]): ...
+class Cancelled(_entity.Mutated["Session"]): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Replaced(_entity.MutationEvent["Session"]):
+class Replaced(_entity.Mutated["Session"]):
     new_leader_session_id: UUID
     leader_session: "Session"
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class BecameLeader(_entity.CommentingEvent["Session"]):
+class BecameLeader(_entity.Event["Session"]):
     prevous_session: "Session"
 
 
-SessionEvent: TypeAlias = Replaced | BecameLeader | Cancelled | Extended
-
+SessionEvent: TypeAlias = (
+    _entity.Created["Session"] | Replaced | BecameLeader | Cancelled | Extended
+)
 
 SessionInactivityReasons: TypeAlias = (
     Literal["replaced"] | Literal["expired"] | Literal["cancelled"]

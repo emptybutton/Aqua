@@ -1,86 +1,69 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeVar
 from uuid import UUID
 
-from aqua.application.ports import loggers, repos
-from aqua.domain import entities
-from aqua.domain import value_objects as vos
-from shared.application.ports.transactions import TransactionFactory
+from result import Err, Ok, Result
+
+from aqua.application.output.output_effect import output_effect
+from aqua.application.ports import loggers, repos, views
+from aqua.application.ports.mappers import (
+    DayMapperTo,
+    RecordMapperTo,
+    UserMapperTo,
+)
+from aqua.application.ports.transactions import TransactionFor
+from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.model.primitives.vos.time import Time
+from aqua.domain.model.primitives.vos.water import (
+    NegativeWaterAmountError,
+    Water,
+)
 
 
-@dataclass(kw_only=True)
-class Output:
-    new_record: entities.Record
-    previous_records: tuple[entities.Record, ...]
-    day: entities.Day
-    user: entities.User
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NoUserError: ...
 
 
-class Error(Exception): ...
-
-
-class NoUserError(Error): ...
-
-
-_UsersT = TypeVar("_UsersT", bound=repos.Users)
-_RecordsT = TypeVar("_RecordsT", bound=repos.Records)
-_DaysT = TypeVar("_DaysT", bound=repos.Days)
-
-
-async def perform(
+async def write_water[UsersT: repos.Users, ViewT](
     user_id: UUID,
     milliliters: int | None,
     *,
-    users: _UsersT,
-    records: _RecordsT,
-    days: _DaysT,
-    record_transaction_for: TransactionFactory[_RecordsT],
-    day_transaction_for: TransactionFactory[_DaysT],
-    user_transaction_for: TransactionFactory[_UsersT],
+    view_of: views.WritingViewOf[ViewT],
+    users: UsersT,
+    transaction_for: TransactionFor[UsersT],
     logger: loggers.Logger,
-) -> Output:
-    water = None if milliliters is None else vos.Water(milliliters=milliliters)
-    today = datetime.now(UTC).date()
+    user_mapper_to: UserMapperTo[UsersT],
+    day_mapper_to: DayMapperTo[UsersT],
+    record_mapper_to: RecordMapperTo[UsersT],
+) -> Result[ViewT, NoUserError | NegativeWaterAmountError]:
+    current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
-    async with user_transaction_for(users):
-        user = await users.find_with_id(user_id)
+    if milliliters is None:
+        water = None
+    else:
+        match Water.with_(milliliters=milliliters):
+            case Ok(value):
+                water = value
+            case Err(_) as result:
+                return result
 
-        if not user:
-            raise NoUserError
+    async with transaction_for(users):
+        user = await users.user_with_id(user_id)
 
-        async with record_transaction_for(records), day_transaction_for(days):
-            found_day = await days.find_from(today, user_id=user.id)
-            found_records = await records.find_not_accidental_from(
-                today, user_id=user.id
-            )
+        if user is None:
+            return Err(NoUserError())
 
-            if found_day and not found_records:
-                await logger.log_day_without_records(found_day)
-            elif not found_day and found_records:
-                for record in found_records:
-                    await logger.log_record_without_day(record)
+        effect = SearchableEffect()
+        output = user.write_water(
+            water, current_time=current_time, effect=effect
+        )
 
-            new_record, day = user.write_water(
-                water,
-                day_prevous_records=found_records,
-                current_day=found_day,
-                current_time=datetime.now(UTC),
-            )
+        await output_effect(
+            effect,
+            user_mapper=user_mapper_to(users),
+            day_mapper=day_mapper_to(users),
+            record_mapper=record_mapper_to(users),
+            logger=logger,
+        )
 
-            await records.add(new_record)
-            await logger.log_new_record(new_record)
-
-            if found_day:
-                await days.update(day)
-                await logger.log_new_day_state(day)
-            else:
-                await days.add(day)
-                await logger.log_new_day(day)
-
-    return Output(
-        previous_records=found_records,
-        new_record=new_record,
-        day=day,
-        user=user,
-    )
+        return Ok(view_of(user=user, output=output))

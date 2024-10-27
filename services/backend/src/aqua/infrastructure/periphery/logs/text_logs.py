@@ -1,0 +1,7 @@
+registered_user_registration_log = "attempt to register a registered user"
+record_without_day_log = "record exists without day"
+new_day_log = "new day"
+new_day_state_log = "new day state"
+new_record_log = "new record"
+registered_user_log = "new user in aqua module"
+record_cancellation_log = "record was cancelled"

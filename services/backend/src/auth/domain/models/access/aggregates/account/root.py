@@ -16,15 +16,15 @@ from auth.domain.models.access.aggregates.account.internal.specs import (
 from auth.domain.models.access.vos import password as _password
 from auth.domain.models.access.vos import time as _time
 from shared.domain.framework import entity as _entity
-from shared.domain.framework.ports.effect import Effect
+from shared.domain.framework.effects.base import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class PasswordChange(_entity.MutationEvent["Account"]):
+class PasswordChange(_entity.Mutated["Account"]):
     new_password_hash: _password.PasswordHash
 
 
-AccountEvent: TypeAlias = PasswordChange
+AccountEvent: TypeAlias = _entity.Created["Account"] | PasswordChange
 
 
 @dataclass(kw_only=True, eq=False)

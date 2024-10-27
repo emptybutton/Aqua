@@ -18,12 +18,11 @@ from auth.domain.models.access.aggregates.account.internal.specs import (
     is_account_name_taken as _is_account_name_taken,
 )
 from auth.domain.models.access.vos.time import Time
-from shared.application.adapters.effects import IndexedEffect
 from shared.application.output.map_effect import Mappers, map_effect
-from shared.application.ports.indexes import EmptyIndexFactory
 from shared.application.ports.mappers import MapperFactory
 from shared.application.ports.transactions import TransactionFactory
-from shared.domain.framework.results import swap
+from shared.domain.framework.effects.searchable import SearchableEffect
+from shared.domain.framework.result import swap
 
 
 _Account: TypeAlias = _account.root.Account
@@ -41,7 +40,6 @@ async def change_account_name[AccountsT: Accounts](
     account_id: UUID,
     account_name_text: str,
     *,
-    empty_index_factory: EmptyIndexFactory,
     accounts: AccountsT,
     gateway_to: GatewayFactory[AccountsT],
     account_mapper_in: MapperFactory[AccountsT, _Account],
@@ -74,7 +72,7 @@ async def change_account_name[AccountsT: Accounts](
             await transaction.rollback()
             return Err("no_account")
 
-        effect = IndexedEffect(empty_index_factory=empty_index_factory)
+        effect = SearchableEffect()
         result = await account.change_name(
             new_name_text=account_name_text,
             current_time=current_time,

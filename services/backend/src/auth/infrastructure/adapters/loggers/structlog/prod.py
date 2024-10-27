@@ -4,6 +4,7 @@ from typing import Any, TypeAlias
 from auth.application.ports import loggers
 from auth.domain.models.access.aggregates import account as _account
 from auth.infrastructure.periphery import logs
+from shared.domain.framework.iterable.last_among import last_among
 from shared.infrastructure.periphery.structlog import prod_logger
 
 
@@ -84,9 +85,9 @@ class StructlogProdLogger(loggers.Logger):
         current_account_name: _AccountName,
         previous_account_name: _AccountName,
     ) -> None:
-        event = current_account_name.last_event_with_type(
+        event = last_among(current_account_name.events_with_type(
             _account.internal.entities.account_name.BecameCurrent
-        )
+        ))
         taking_time = None if event is None else event.new_taking_time
         await prod_logger.ainfo(
             logs.renaming_log,

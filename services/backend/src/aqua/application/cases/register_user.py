@@ -1,53 +1,143 @@
-from typing import TypeVar
+from dataclasses import dataclass
+from operator import call
 from uuid import UUID
 
-from aqua.application.ports import loggers, repos
-from aqua.domain import entities
-from aqua.domain import value_objects as vos
-from shared.application.ports.transactions import TransactionFactory
+from result import Ok, Result
+
+from aqua.application.output.output_effect import output_effect
+from aqua.application.ports import loggers, repos, views
+from aqua.application.ports.mappers import (
+    DayMapperTo,
+    RecordMapperTo,
+    UserMapperTo,
+)
+from aqua.application.ports.transactions import TransactionFor
+from aqua.domain.framework.effects.searchable import SearchableEffect
+from aqua.domain.framework.fp.result import async_from
+from aqua.domain.model.access.entities.user import User as AccessUser
+from aqua.domain.model.core.aggregates.user.root import (
+    NoWeightForSuitableWaterBalanceError,
+    User,
+)
+from aqua.domain.model.core.vos.glass import Glass
+from aqua.domain.model.core.vos.target import Target
+from aqua.domain.model.core.vos.water_balance import (
+    ExtremeWeightForSuitableWaterBalanceError,
+    WaterBalance,
+)
+from aqua.domain.model.primitives.vos.water import Water
+from aqua.domain.model.primitives.vos.weight import Weight
 
 
-_UsersT = TypeVar("_UsersT", bound=repos.Users)
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NegativeTargetWaterBalanceMillilitersError: ...
 
 
-async def perform(
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NegativeGlassMillilitersError: ...
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class NegativeWeightKilogramsError: ...
+
+
+async def register_user[UsersT: repos.Users, ViewT](
     user_id: UUID,
-    water_balance_milliliters: int | None,
+    target_water_balance_milliliters: int | None,
     glass_milliliters: int | None,
     weight_kilograms: int | None,
     *,
-    users: _UsersT,
-    transaction_for: TransactionFactory[_UsersT],
+    view_of: views.RegistrationViewOf[ViewT],
+    users: UsersT,
+    transaction_for: TransactionFor[UsersT],
     logger: loggers.Logger,
-) -> entities.User:
-    if water_balance_milliliters is not None:
-        water = vos.Water(milliliters=water_balance_milliliters)
-        target = vos.WaterBalance(water=water)
+    user_mapper_to: UserMapperTo[UsersT],
+    day_mapper_to: DayMapperTo[UsersT],
+    record_mapper_to: RecordMapperTo[UsersT],
+) -> Result[
+    ViewT,
+    (
+        ExtremeWeightForSuitableWaterBalanceError
+        | NoWeightForSuitableWaterBalanceError
+        | NegativeTargetWaterBalanceMillilitersError
+        | NegativeGlassMillilitersError
+        | NegativeWeightKilogramsError
+    ),
+]:
+    target_result: Result[
+        Target | None, NegativeTargetWaterBalanceMillilitersError
+    ]
+    weight_result: Result[Weight | None, NegativeWeightKilogramsError]
+    glass_result: Result[Glass | None, NegativeGlassMillilitersError]
+
+    if target_water_balance_milliliters is None:
+        target_result = Ok(None)
     else:
-        target = None
-
-    if weight_kilograms is not None:
-        weight = vos.Weight(kilograms=weight_kilograms)
-    else:
-        weight = None
-
-    if glass_milliliters is None:
-        glass_milliliters = 200
-
-    glass = vos.Glass(capacity=vos.Water(milliliters=glass_milliliters))
-
-    async with transaction_for(users):
-        user = await users.find_with_id(user_id)
-
-        if user is not None:
-            await logger.log_registered_user_registration(user)
-            return user
-
-        user = entities.User(
-            id=user_id, glass=glass, weight=weight, _target=target
+        target_result = (
+            Water.with_(milliliters=target_water_balance_milliliters)
+            .map_err(lambda _: NegativeTargetWaterBalanceMillilitersError())
+            .map(lambda water: Target(water_balance=WaterBalance(water=water)))
         )
 
-        await users.add(user)
-        await logger.log_registered_user(user)
+    if weight_kilograms is None:
+        weight_result = Ok(None)
+    else:
+        weight_result = Weight.with_(kilograms=weight_kilograms).map_err(
+            lambda _: NegativeWeightKilogramsError()
+        )
 
-    return user
+    if glass_milliliters is None:
+        glass_result = Ok(None)
+    else:
+        glass_result = (
+            Water.with_(milliliters=glass_milliliters)
+            .map_err(lambda _: NegativeGlassMillilitersError())
+            .map(lambda water: Glass(capacity=water))
+        )
+
+    @call
+    @async_from(target_result)
+    @async_from(glass_result)
+    @async_from(weight_result)
+    async def async_view_result(
+        weight: Weight | None,
+        glass: Glass | None,
+        target: Target | None,
+        /,
+    ) -> Result[
+        ViewT,
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+        ),
+    ]:
+        effect = SearchableEffect()
+
+        async with transaction_for(users):
+            user = await users.user_with_id(user_id)
+
+            if user is not None:
+                await logger.log_registered_user_registration(user)
+                return Ok(view_of(user))
+
+            user_result = User.translated_from(
+                AccessUser(id=user_id, events=list()),
+                weight=weight,
+                glass=glass,
+                target=target,
+                effect=effect,
+            )
+
+            await user_result.map_async(
+                lambda _: output_effect(
+                    effect,
+                    user_mapper=user_mapper_to(users),
+                    day_mapper=day_mapper_to(users),
+                    record_mapper=record_mapper_to(users),
+                    logger=logger,
+                )
+            )
+
+            return user_result.map(lambda user: view_of(user))
+
+    return await async_view_result

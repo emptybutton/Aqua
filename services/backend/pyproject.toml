@@ -49,7 +49,9 @@ select = [
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
     "PERF", "INP", "I", "S", "FAST", "TID", "TCH", "INT"
 ]
-ignore = ["ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301", "PLR0913"]
+ignore = [
+    "ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301", "PLR0913", "PLW0108"
+]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["PLC0414"]

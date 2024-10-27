@@ -1,46 +1,49 @@
-from datetime import date, datetime
-from uuid import UUID
-
-from sqlalchemy import DateTime
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Integer,
+    Table,
+    Uuid,
+)
 
 from shared.infrastructure.periphery.db.tables.metadata import metadata
 
 
-class Base(DeclarativeBase):
-    __table_args__ = {"schema": "aqua"}  # noqa: RUF012
-    metadata = metadata
-
-    id: Mapped[UUID] = mapped_column(primary_key=True)
-
-    def __repr__(self) -> str:
-        return f"db.{type(self).__name__}(id={self.id!r})"
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[UUID] = mapped_column(primary_key=True)
-    water_balance: Mapped[int]
-    glass: Mapped[int]
-    weight: Mapped[int | None]
+user_table = Table(
+    "users",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("target", Integer, nullable=False),
+    Column("glass", Integer, nullable=False),
+    Column("weight", Integer, nullable=True),
+    schema="aqua",
+)
 
 
-class Record(Base):
-    __tablename__ = "records"
+record_table = Table(
+    "records",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("drunk_water", Integer, nullable=False),
+    Column("recording_time", DateTime(timezone=True), nullable=False),
+    Column("is_cancelled", Boolean, nullable=False),
+    schema="aqua",
+)
 
-    drunk_water: Mapped[int]
-    recording_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    user_id: Mapped[UUID]
-    is_accidental: Mapped[bool | None]
 
-
-class Day(Base):
-    __tablename__ = "days"
-
-    user_id: Mapped[UUID]
-    real_water_balance: Mapped[int]
-    target_water_balance: Mapped[int]
-    date_: Mapped[date]
-    result: Mapped[int]
-    is_result_pinned: Mapped[bool | None]
+day_table = Table(
+    "days",
+    metadata,
+    Column("id", Uuid, primary_key=True, nullable=False),
+    Column("user_id", Uuid, nullable=False),
+    Column("water_balance", Integer, nullable=False),
+    Column("target", Integer, nullable=False),
+    Column("date_", Date, nullable=False),
+    Column("pinned_result", Integer, nullable=True),
+    Column("correct_result", Integer, nullable=False),
+    Column("result", Integer, nullable=False),
+    schema="aqua",
+)
