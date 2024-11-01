@@ -39,10 +39,10 @@ class ArrayOperations:
 
     def to_map(self, document: Document, *, id: Any) -> Map:  # noqa: ANN401
         return UpdateOne(
-           {"_id": id},
-           {"$set": self.__for_iteration(document)},
-           array_filters=[{f"{self.__prefix}._id": document["_id"]}],
-           namespace=self.__namespace,
+            {"_id": id},
+            {"$set": self.__for_iteration(document)},
+            array_filters=[{f"{self.__prefix}._id": document["_id"]}],
+            namespace=self.__namespace,
         )
 
     def to_push(self, document: Document, *, id: Any) -> Push:  # noqa: ANN401
@@ -58,9 +58,7 @@ class ArrayOperations:
         if self.__sort is not None:
             params["$sort"] = self.__sort
 
-        return {
-            "$push": {f"{self.__prefix}s": params}
-        }
+        return {"$push": {f"{self.__prefix}s": params}}
 
     def __for_iteration(self, document: Document) -> Document:
         return {

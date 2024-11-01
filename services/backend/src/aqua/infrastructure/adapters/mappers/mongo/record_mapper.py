@@ -29,7 +29,8 @@ class MongoRecordMapper(RecordMapper):
     async def add_all(self, records: Iterable[Record]) -> None:
         operations = (
             self.__operations.to_push(
-                self._document_of(record), id=record.user_id,
+                self._document_of(record),
+                id=record.user_id,
             )
             for record in records
         )

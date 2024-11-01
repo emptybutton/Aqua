@@ -31,12 +31,12 @@ class DBUserViewFromMongoUsers(DayViewFrom[MongoUsers, DBUserView]):
                 "records": {
                     "$elemMatch": {
                         "is_cancelled": False,
-                        "recording_time": in_date_range(date_)
+                        "recording_time": in_date_range(date_),
                     }
                 },
                 "glass": True,
                 "weight": True,
-            }
+            },
         )
         document = cast(Document | None, document)
 

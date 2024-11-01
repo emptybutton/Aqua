@@ -158,7 +158,7 @@ class TransactionProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_mongo_transaction_for_mongo_users(
-        self
+        self,
     ) -> MongoTransactionForMongoUsers:
         return MongoTransactionForMongoUsers()
 

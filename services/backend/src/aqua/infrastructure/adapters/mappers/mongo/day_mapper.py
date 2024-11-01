@@ -49,14 +49,10 @@ class MongoDayMapper(DayMapper):
     def _document_of(self, day: Day) -> Document:
         return {
             "_id": day.id,
-            "water_balance": water_balance_value_of(
-                day.water_balance
-            ),
+            "water_balance": water_balance_value_of(day.water_balance),
             "target": target_value_of(day.target),
             "date": day.date_,
-            "pinned_result": maybe_result_value_of(
-                day.pinned_result
-            ),
+            "pinned_result": maybe_result_value_of(day.pinned_result),
             "correct_result": result_value_of(day.correct_result),
             "result": result_value_of(day.result),
         }

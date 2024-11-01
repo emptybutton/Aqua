@@ -31,19 +31,17 @@ class DBDayViewFromMongoUsers(DayViewFrom[MongoUsers, DBDayView]):
                 "records": {
                     "$elemMatch": {
                         "is_cancelled": False,
-                        "recording_time": in_date_range(date_)
+                        "recording_time": in_date_range(date_),
                     }
                 },
-            }
+            },
         )
         document = cast(Document | None, document)
 
         if document is None:
             return empty_db_day_view_with(user_id=user_id, date_=date_)
 
-        day_object = StrictValidationObject(
-            cast(Document, document["days"][0])
-        )
+        day_object = StrictValidationObject(cast(Document, document["days"][0]))
 
         return DBDayView(
             user_id=user_id,
