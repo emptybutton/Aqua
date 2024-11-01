@@ -17,8 +17,22 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_ECHO: true
+      MONGO_URI: mongodb://aqua:aqua@mongo:27017/
     depends_on:
+      - mongo
       - postgres
+
+  mongo:
+    image: mongo:8.0.3-noble
+    container_name: aqua-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - private-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: aqua
+      MONGO_INITDB_ROOT_PASSWORD: aqua
 
   postgres:
     image: postgres:16.3-alpine3.19
@@ -51,4 +65,5 @@ networks:
     driver: bridge
 
 volumes:
+  mongo_data: null
   postgres_data: null

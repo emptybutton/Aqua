@@ -14,3 +14,4 @@ class Env:
     postgres_host = _env.str("POSTGRES_HOST")
     postgres_port = _env.int("POSTGRES_PORT")
     postgres_echo = _env.bool("POSTGRES_ECHO")
+    mongo_uri = _env.str("MONGO_URI")
