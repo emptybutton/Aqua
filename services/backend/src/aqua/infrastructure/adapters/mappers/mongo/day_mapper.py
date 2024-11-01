@@ -1,17 +1,16 @@
 from typing import Iterable
 
-from pymongo import AsyncClientSession
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.mappers import DayMapper, DayMapperTo
 from aqua.domain.model.core.aggregates.user.internal.entities.day import (
     Day,
 )
-from aqua.infrastructure.adapters.repos.in_memory.users import MongoUsers
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.periphery.pymongo.document import Document
 from aqua.infrastructure.periphery.pymongo.operations import (
+    ArrayOperations,
     execute,
-    to_map,
-    to_push,
 )
 from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
     maybe_result_value_of,
@@ -22,33 +21,29 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
 
 
 class MongoDayMapper(DayMapper):
+    __operations = ArrayOperations(namespace="db.users", prefix="day")
+
     def __init__(self, session: AsyncClientSession) -> None:
         self.__session = session
 
     async def add_all(self, days: Iterable[Day]) -> None:
         operations = (
-            to_push(self._document_of(day), prefix="day", id=day.user_id)
+            self.__operations.to_push(self._document_of(day), id=day.user_id)
             for day in days
         )
 
         await execute(
-            operations,
-            session=self.__session,
-            comment="push user days",
-            namespace="db.users",
+            operations, session=self.__session, comment="push user days"
         )
 
     async def update_all(self, days: Iterable[Day]) -> None:
         operations = (
-            to_map(self._document_of(day), prefix="day", id=day.user_id)
+            self.__operations.to_map(self._document_of(day), id=day.user_id)
             for day in days
         )
 
         await execute(
-            operations,
-            session=self.__session,
-            comment="update user days",
-            namespace="db.users",
+            operations, session=self.__session, comment="update user days"
         )
 
     def _document_of(self, day: Day) -> Document:

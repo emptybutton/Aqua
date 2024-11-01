@@ -15,3 +15,11 @@ def new_result_view_of(result_value: int) -> str:
 
 def old_result_view_of(result_value: int) -> int:
     return result_value
+
+
+def new_maybe_result_view_of(result_value: int | None) -> str | None:
+    return None if result_value is None else new_result_view_of(result_value)
+
+
+def old_maybe_result_view_of(result_value: int | None) -> int | None:
+    return result_value

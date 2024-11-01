@@ -1,4 +1,4 @@
-from aqua.infrastructure.periphery.storages.mongodb.clients import client
+from aqua.infrastructure.periphery.storages.mongo.clients import client
 from aqua.presentation.di import containers
 
 

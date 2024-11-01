@@ -1,7 +1,6 @@
 from typing import Any, Iterable, Literal
 
 from pymongo import (
-    AsyncClientSession,
     DeleteMany,
     DeleteOne,
     InsertOne,
@@ -9,56 +8,85 @@ from pymongo import (
     UpdateMany,
     UpdateOne,
 )
+from pymongo.asynchronous.client_session import AsyncClientSession
 
-from aqua.infrastructure.periphery.pymongo.document import (
-    Document,
-    command_of,
-    for_iteration,
-)
+from aqua.infrastructure.periphery.pymongo.document import Document
 
 
 type Operation = (
-    InsertOne
-    | DeleteOne
-    | DeleteMany
-    | ReplaceOne
+    InsertOne[Document]
+    | ReplaceOne[Document]
     | UpdateOne
     | UpdateMany
+    | DeleteOne
+    | DeleteMany
 )
 type Put = UpdateOne
+type Map = UpdateOne
+type Push = UpdateOne
 
 
 type Sort = Literal[1, -1] | None
 
 
-def to_put(document: Document) -> Put:
-    filter_ = {"_id": document["_id"]}
-    command = {"$set": command_of(document)}
+class ArrayOperations:
+    def __init__(
+        self, *, namespace: str, prefix: str, sort: Sort = None
+    ) -> None:
+        self.__namespace = namespace
+        self.__prefix = prefix
+        self.__sort = sort
 
-    return UpdateOne(filter_, command, upsert=True)
+    def to_map(self, document: Document, *, id: Any) -> Map:  # noqa: ANN401
+        return UpdateOne(
+           {"_id": id},
+           {"$set": self.__for_iteration(document)},
+           array_filters=[{f"{self.__prefix}._id": document["_id"]}],
+           namespace=self.__namespace,
+        )
+
+    def to_push(self, document: Document, *, id: Any) -> Push:  # noqa: ANN401
+        pushing = self.__pushing_of(document)
+
+        return UpdateOne(
+            {"_id": id}, pushing, upsert=True, namespace=self.__namespace
+        )
+
+    def __pushing_of(self, document: Document) -> Document:
+        params: Document = {"$each": [document]}
+
+        if self.__sort is not None:
+            params["$sort"] = self.__sort
+
+        return {
+            "$push": {f"{self.__prefix}s": params}
+        }
+
+    def __for_iteration(self, document: Document) -> Document:
+        return {
+            f"{self.__prefix}s.$[{self.__prefix}].key": v
+            for k, v in document.items()
+            if k != "_id"
+        }
 
 
-def to_map(document: Document, *, prefix: str, id: Any) -> UpdateOne:  # noqa: ANN401
-    return UpdateOne(
-       {"_id": id},
-       {"$set": for_iteration(document, prefix=prefix)},
-       array_filters=[{f"{prefix}._id": document["_id"]}],
-    )
+class RootOperations:
+    def __init__(self, *, namespace: str) -> None:
+        self.__namespace = namespace
 
+    def to_put(self, document: Document) -> Put:
+        filter_ = {"_id": document["_id"]}
+        command = {"$set": _command_of(document)}
 
-def to_push(
-    document: Document, *, prefix: str, id: Any, sort: Sort = None  # noqa: ANN401
-) -> UpdateOne:
-    pushing = _pushing_of(document, prefix=prefix, sort=sort)
-
-    return UpdateOne({"_id": id}, pushing, upsert=True)
+        return UpdateOne(
+            filter_, command, upsert=True, namespace=self.__namespace
+        )
 
 
 async def execute(
     raw_operations: Iterable[Operation],
     *,
     session: AsyncClientSession,
-    namespace: str | None = None,
     comment: str | None = None,
 ) -> None:
     operations = tuple(raw_operations)
@@ -71,16 +99,11 @@ async def execute(
         session=session,
         ordered=False,
         comment=comment,
-        namespace=namespace,
     )
 
 
-def _pushing_of(document: Document, *, prefix: str, sort: Sort) -> Document:
-    params = {"$each": [document]}
+def _command_of(document: Document) -> Document:
+    command_document = dict(document.items())
+    del command_document["_id"]
 
-    if sort is not None:
-        params["$sort"] = sort
-
-    return {
-        "$push": {f"{prefix}s": params}
-    }
+    return command_document

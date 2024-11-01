@@ -1,7 +1,11 @@
-from typing import Annotated
+from typing import Annotated, AsyncIterable
 
 from dishka import FromComponent, Provider, Scope, from_context, provide
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from pymongo.asynchronous.client_session import (
+    AsyncClientSession as MongoSession,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection as SAConnection
+from sqlalchemy.ext.asyncio import AsyncSession as SASession
 
 from aqua.application.ports.loggers import Logger
 from aqua.infrastructure.adapters.loggers.structlog.dev_logger import (
@@ -15,9 +19,22 @@ from aqua.infrastructure.adapters.mappers.db.record_mapper import (
     DBRecordMapperTo,
 )
 from aqua.infrastructure.adapters.mappers.db.user_mapper import DBUserMapperTo
+from aqua.infrastructure.adapters.mappers.mongo.day_mapper import (
+    MongoDayMapperTo,
+)
+from aqua.infrastructure.adapters.mappers.mongo.record_mapper import (
+    MongoRecordMapperTo,
+)
+from aqua.infrastructure.adapters.mappers.mongo.user_mapper import (
+    MongoUserMapperTo,
+)
 from aqua.infrastructure.adapters.repos.db.users import DBUsers
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.adapters.transactions.db.transaction import (
     DBTransactionForDBUsers,
+)
+from aqua.infrastructure.adapters.transactions.mongo.transaction import (
+    MongoTransactionForMongoUsers,
 )
 from aqua.infrastructure.adapters.views.db.day_view_from import (
     DBDayViewFrom,
@@ -34,6 +51,15 @@ from aqua.infrastructure.adapters.views.in_memory.registration_view_of import (
 from aqua.infrastructure.adapters.views.in_memory.writing_view_of import (
     InMemoryWritingViewOf,
 )
+from aqua.infrastructure.adapters.views.mongo.day_view_from import (
+    DBDayViewFromMongoUsers,
+)
+from aqua.infrastructure.adapters.views.mongo.user_view_from import (
+    DBUserViewFromMongoUsers,
+)
+from aqua.infrastructure.periphery.storages.mongo.clients import (
+    client as mongo_client,
+)
 from shared.infrastructure.periphery.envs import Env
 
 
@@ -43,15 +69,13 @@ class NoConncetionError(Exception): ...
 class ConnectionProvider(Provider):
     component = "db_connections"
 
-    session = from_context(provides=AsyncSession | None, scope=Scope.REQUEST)
-    connection = from_context(
-        provides=AsyncConnection | None, scope=Scope.REQUEST
-    )
+    session = from_context(provides=SASession | None, scope=Scope.REQUEST)
+    connection = from_context(provides=SAConnection | None, scope=Scope.REQUEST)
 
     @provide(scope=Scope.REQUEST)
     def get_connection(
-        self, session: AsyncSession | None, connection: AsyncConnection | None
-    ) -> AsyncConnection:
+        self, session: SASession | None, connection: SAConnection | None
+    ) -> SAConnection:
         if connection is not None:
             return connection
 
@@ -60,10 +84,15 @@ class ConnectionProvider(Provider):
 
         bind = session.bind
 
-        if not isinstance(bind, AsyncConnection):
+        if not isinstance(bind, SAConnection):
             raise NoConncetionError
 
         return bind
+
+    @provide(scope=Scope.REQUEST)
+    async def get_session(self) -> AsyncIterable[MongoSession]:
+        async with mongo_client.start_session() as session:
+            yield session
 
 
 class LoggerProvider(Provider):
@@ -89,6 +118,18 @@ class MapperProvider(Provider):
     def get_record_mapper_to(self) -> DBRecordMapperTo:
         return DBRecordMapperTo()
 
+    @provide(scope=Scope.APP)
+    def get_mongo_day_mapper_to(self) -> MongoDayMapperTo:
+        return MongoDayMapperTo()
+
+    @provide(scope=Scope.APP)
+    def get_mongo_user_mapper_to(self) -> MongoUserMapperTo:
+        return MongoUserMapperTo()
+
+    @provide(scope=Scope.APP)
+    def get_mongo_record_mapper_to(self) -> MongoRecordMapperTo:
+        return MongoRecordMapperTo()
+
 
 class RepoProvider(Provider):
     component = "repos"
@@ -96,9 +137,16 @@ class RepoProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def get_users(
         self,
-        connection: Annotated[AsyncConnection, FromComponent("db_connections")],
+        connection: Annotated[SAConnection, FromComponent("db_connections")],
     ) -> DBUsers:
         return DBUsers(connection)
+
+    @provide(scope=Scope.REQUEST)
+    def get_mongo_users(
+        self,
+        session: Annotated[MongoSession, FromComponent("db_connections")],
+    ) -> MongoUsers:
+        return MongoUsers(session)
 
 
 class TransactionProvider(Provider):
@@ -107,6 +155,12 @@ class TransactionProvider(Provider):
     @provide(scope=Scope.APP)
     def get_transaction_for_users(self) -> DBTransactionForDBUsers:
         return DBTransactionForDBUsers()
+
+    @provide(scope=Scope.APP)
+    def get_mongo_transaction_for_mongo_users(
+        self
+    ) -> MongoTransactionForMongoUsers:
+        return MongoTransactionForMongoUsers()
 
 
 class ViewProvider(Provider):
@@ -119,6 +173,14 @@ class ViewProvider(Provider):
     @provide(scope=Scope.APP)
     def get_user_view_from(self) -> DBUserViewFrom:
         return DBUserViewFrom()
+
+    @provide(scope=Scope.APP)
+    def get_day_view_from_mongo_users(self) -> DBDayViewFromMongoUsers:
+        return DBDayViewFromMongoUsers()
+
+    @provide(scope=Scope.APP)
+    def get_user_view_from_mongo_users(self) -> DBUserViewFromMongoUsers:
+        return DBUserViewFromMongoUsers()
 
     @provide(scope=Scope.APP)
     def get_cancellation_view_of(self) -> InMemoryCancellationViewOf:

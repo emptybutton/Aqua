@@ -1,7 +1,7 @@
 from types import TracebackType
 from typing import Self, Type
 
-from pymongo import AsyncClientSession
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.transactions import Transaction, TransactionFor
 from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers

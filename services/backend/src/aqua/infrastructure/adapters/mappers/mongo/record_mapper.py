@@ -1,17 +1,16 @@
 from typing import Iterable
 
-from pymongo import AsyncClientSession
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.mappers import RecordMapper, RecordMapperTo
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
-from aqua.infrastructure.adapters.repos.in_memory.users import MongoUsers
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.periphery.pymongo.document import Document
 from aqua.infrastructure.periphery.pymongo.operations import (
+    ArrayOperations,
     execute,
-    to_map,
-    to_push,
 )
 from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
     time_value_of,
@@ -20,40 +19,35 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
 
 
 class MongoRecordMapper(RecordMapper):
+    __operations = ArrayOperations(
+        namespace="db.users", prefix="record", sort=-1
+    )
+
     def __init__(self, session: AsyncClientSession) -> None:
         self.__session = session
 
     async def add_all(self, records: Iterable[Record]) -> None:
         operations = (
-            to_push(
-                self._document_of(record),
-                prefix="record",
-                id=record.user_id,
-                sort=-1,
+            self.__operations.to_push(
+                self._document_of(record), id=record.user_id,
             )
             for record in records
         )
 
         await execute(
-            operations,
-            session=self.__session,
-            comment="push user records",
-            namespace="db.users",
+            operations, session=self.__session, comment="push user records"
         )
 
     async def update_all(self, records: Iterable[Record]) -> None:
         operations = (
-            to_map(
-                self._document_of(record), prefix="record", id=record.user_id
+            self.__operations.to_map(
+                self._document_of(record), id=record.user_id
             )
             for record in records
         )
 
         await execute(
-            operations,
-            session=self.__session,
-            comment="update user records",
-            namespace="db.users",
+            operations, session=self.__session, comment="update user records"
         )
 
     def _document_of(self, record: Record) -> Document:

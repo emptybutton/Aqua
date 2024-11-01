@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
-from pymongo import AsyncClientSession
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.repos import Users
 from aqua.domain.framework.entity import Entities
@@ -20,8 +20,8 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
     water_balance_of,
     water_of,
 )
-from aqua.infrastructure.periphery.serializing.object import (
-    StrictSerializingObject,
+from aqua.infrastructure.periphery.validation.objects import (
+    StrictValidationObject,
 )
 
 
@@ -31,7 +31,7 @@ class MongoUsers(Users):
 
     @property
     def session(self) -> AsyncClientSession:
-        return self.__session.client.db
+        return self.__session
 
     async def user_with_id(self, user_id: UUID) -> User | None:
         document = await self.session.client.db.users.find_one(user_id)
@@ -39,13 +39,13 @@ class MongoUsers(Users):
         return None if document is None else self.__loaded_user_from(document)
 
     def __loaded_user_from(self, document: dict[str, Any]) -> User:
-        user_object = StrictSerializingObject(document)
+        user_object = StrictValidationObject(document)
 
         days = Entities[Day]()
         records = Entities[Record]()
 
         for day_document in user_object["days", list]:
-            day_object = StrictSerializingObject(day_document)
+            day_object = StrictValidationObject(day_document)
             day = Day(
                 id=day_object["_id", UUID],
                 events=list(),
@@ -56,13 +56,13 @@ class MongoUsers(Users):
                     day_object["water_balance", int]
                 ),
                 pinned_result=maybe_result_of(
-                    day_object["pinned_result", int | None]
+                    day_object.n["pinned_result", int]
                 ),
             )
             days.add(day)
 
         for record_document in user_object["records", list]:
-            record_object = StrictSerializingObject(record_document)
+            record_object = StrictValidationObject(record_document)
             record = Record(
                 id=record_object["_id", UUID],
                 events=list(),

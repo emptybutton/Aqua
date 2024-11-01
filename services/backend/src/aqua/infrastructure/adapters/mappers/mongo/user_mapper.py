@@ -1,12 +1,15 @@
 from typing import Iterable
 
-from pymongo import AsyncClientSession
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.mappers import UserMapper, UserMapperTo
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.adapters.repos.in_memory.users import MongoUsers
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.periphery.pymongo.document import Document
-from aqua.infrastructure.periphery.pymongo.operations import execute, to_put
+from aqua.infrastructure.periphery.pymongo.operations import (
+    RootOperations,
+    execute,
+)
 from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
     glass_value_of,
     maybe_weight_value_of,
@@ -15,6 +18,8 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
 
 
 class MongoUserMapper(UserMapper):
+    __operations = RootOperations(namespace="db.users")
+
     def __init__(self, session: AsyncClientSession) -> None:
         self.__session = session
 
@@ -25,14 +30,11 @@ class MongoUserMapper(UserMapper):
         await self.__put(users)
 
     async def __put(self, users: Iterable[User]) -> None:
-        operations = (to_put(self.__document_of(user)) for user in users)
-
-        await execute(
-            operations,
-            session=self.__session,
-            comment="put users",
-            namespace="db.users",
+        operations = (
+            self.__operations.to_put(self.__document_of(user)) for user in users
         )
+
+        await execute(operations, session=self.__session, comment="put users")
 
     def __document_of(self, user: User) -> Document:
         return {
