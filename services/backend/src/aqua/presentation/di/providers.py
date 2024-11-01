@@ -1,7 +1,7 @@
-from typing import Annotated, Iterable
+from typing import Annotated
 
 from dishka import FromComponent, Provider, Scope, from_context, provide
-from pymongo import AsyncClientSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from aqua.application.ports.loggers import Logger
 from aqua.infrastructure.adapters.loggers.structlog.dev_logger import (
@@ -10,11 +10,11 @@ from aqua.infrastructure.adapters.loggers.structlog.dev_logger import (
 from aqua.infrastructure.adapters.loggers.structlog.prod_logger import (
     StructlogProdLogger,
 )
-from aqua.infrastructure.adapters.mappers.db.day_mapper import MongoDayMapperTo
+from aqua.infrastructure.adapters.mappers.db.day_mapper import DBDayMapperTo
 from aqua.infrastructure.adapters.mappers.db.record_mapper import (
     DBRecordMapperTo,
 )
-from aqua.infrastructure.adapters.mappers.db.user_mapper import MongoUserMapperTo
+from aqua.infrastructure.adapters.mappers.db.user_mapper import DBUserMapperTo
 from aqua.infrastructure.adapters.repos.db.users import DBUsers
 from aqua.infrastructure.adapters.transactions.db.transaction import (
     DBTransactionForDBUsers,
@@ -34,20 +34,36 @@ from aqua.infrastructure.adapters.views.in_memory.registration_view_of import (
 from aqua.infrastructure.adapters.views.in_memory.writing_view_of import (
     InMemoryWritingViewOf,
 )
-from aqua.infrastructure.periphery.storages import mongo
 from shared.infrastructure.periphery.envs import Env
 
 
 class NoConncetionError(Exception): ...
 
 
-class MongoSessionProvider(Provider):
-    component = "mongo_sessions"
+class ConnectionProvider(Provider):
+    component = "db_connections"
+
+    session = from_context(provides=AsyncSession | None, scope=Scope.REQUEST)
+    connection = from_context(
+        provides=AsyncConnection | None, scope=Scope.REQUEST
+    )
 
     @provide(scope=Scope.REQUEST)
-    def get_session(self) -> Iterable[AsyncClientSession]:
-        async with mongo.clients.client.start_session() as session:
-            yield session
+    def get_connection(
+        self, session: AsyncSession | None, connection: AsyncConnection | None
+    ) -> AsyncConnection:
+        if connection is not None:
+            return connection
+
+        if session is None:
+            raise NoConncetionError
+
+        bind = session.bind
+
+        if not isinstance(bind, AsyncConnection):
+            raise NoConncetionError
+
+        return bind
 
 
 class LoggerProvider(Provider):
@@ -62,7 +78,7 @@ class MapperProvider(Provider):
     component = "mappers"
 
     @provide(scope=Scope.APP)
-    def get_day_mapper_to(self) -> ЬщтпщDayMapperTo:
+    def get_day_mapper_to(self) -> DBDayMapperTo:
         return DBDayMapperTo()
 
     @provide(scope=Scope.APP)
