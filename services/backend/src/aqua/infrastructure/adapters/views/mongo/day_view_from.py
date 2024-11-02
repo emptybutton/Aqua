@@ -6,6 +6,9 @@ from aqua.application.ports.views import DayViewFrom
 from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.periphery.pymongo.document import Document
 from aqua.infrastructure.periphery.pymongo.operators import in_date_range
+from aqua.infrastructure.periphery.serializing.from_native.to_document import (  # noqa: E501
+    document_date_of,
+)
 from aqua.infrastructure.periphery.serializing.from_table_attribute.to_view import (  # noqa: E501
     old_maybe_result_view_of,
     old_result_view_of,
@@ -24,14 +27,15 @@ class DBDayViewFromMongoUsers(DayViewFrom[MongoUsers, DBDayView]):
     async def __call__(
         self, mongo_users: MongoUsers, *, user_id: UUID, date_: date
     ) -> DBDayView:
+        document_date = document_date_of(date_)
         document = await mongo_users.session.client.db.users.find_one(
-            {"_id": user_id, "days.date": date_},
+            {"_id": user_id, "days.date": document_date},
             {
-                "days": {"$elemMatch": {"date": date_}},
+                "days": {"$elemMatch": {"date": document_date}},
                 "records": {
                     "$elemMatch": {
                         "is_cancelled": False,
-                        "recording_time": in_date_range(date_),
+                        "recording_time": in_date_range(document_date),
                     }
                 },
             },

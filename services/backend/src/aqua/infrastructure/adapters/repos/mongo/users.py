@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -11,6 +11,9 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
+from aqua.infrastructure.periphery.serializing.from_document.to_native import (
+    native_date_of,
+)
 from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
     glass_of,
     maybe_result_of,
@@ -50,7 +53,7 @@ class MongoUsers(Users):
                 id=day_object["_id", UUID],
                 events=list(),
                 user_id=user_object["_id", UUID],
-                date_=day_object["date", date],
+                date_=native_date_of(day_object["date", datetime]),
                 target=target_of(day_object["target", int]),
                 water_balance=water_balance_of(
                     day_object["water_balance", int]

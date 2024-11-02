@@ -1,12 +1,13 @@
-from datetime import UTC, date, datetime, timedelta
+from datetime import timedelta
 
-from aqua.infrastructure.periphery.pymongo.document import Document
+from aqua.infrastructure.periphery.pymongo.document import (
+    Document,
+    DocumentDate,
+)
 
 
-def in_date_range(date_: date) -> Document:
-    datetime_ = datetime(date_.year, date_.month, date_.day, tzinfo=UTC)
-
+def in_date_range(document_date: DocumentDate) -> Document:
     return {
-        "$gte": datetime_,
-        "$lt": datetime_ + timedelta(days=1),
+        "$gte": document_date,
+        "$lt": document_date + timedelta(days=1),
     }

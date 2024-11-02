@@ -62,6 +62,11 @@ ignore = [
 "*/domain/*" = ["PLR2004"]
 "src/entrypoint/presentation/periphery/api/controllers/routes/*" = ["PLR0911"]
 "*/tests/*" = ["PLR2004", "S101"]
+"*/conftest/*" = ["F403"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"

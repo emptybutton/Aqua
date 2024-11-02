@@ -52,15 +52,11 @@ class MongoRecordMapper(RecordMapper):
         )
 
     def _document_of(self, record: Record) -> Document:
-        subid = record.id.hex
-
         return {
-            "_id": record.user_id,
-            f"records.{subid}.drunk_water": water_value_of(record.drunk_water),
-            f"records.{subid}.recording_time": time_value_of(
-                record.recording_time
-            ),
-            f"records.{subid}.is_cancelled": record.is_cancelled,
+            "_id": record.id,
+            "drunk_water": water_value_of(record.drunk_water),
+            "recording_time": time_value_of(record.recording_time),
+            "is_cancelled": record.is_cancelled,
         }
 
 

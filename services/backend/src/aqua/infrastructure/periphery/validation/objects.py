@@ -10,7 +10,7 @@ type _Params[V] = tuple[list[str], type[V]]
 
 class _ValidationObject:
     def __init__(self, value: dict[str, Any]) -> None:
-        self.__value = value
+        self._map = value
 
     def _params_of[V](self, raw_params: _RawParams[V]) -> _Params[V]:
         field_name_value, field_type = raw_params
@@ -26,13 +26,13 @@ class _ValidationObject:
 class NotStrictValidationObject(_ValidationObject):
     @cached_property
     def y(self) -> "StrictValidationObject":
-        return StrictValidationObject(self.__value)
+        return StrictValidationObject(self._map)
 
     def __getitem__[V](self, raw_params: _RawParams[V]) -> V | None:
         field_names, field_type = self._params_of(raw_params)
 
         for field_name in field_names:
-            value = self.__value.get(field_name)
+            value = self._map.get(field_name)
 
             if isinstance(value, field_type):
                 return value
@@ -43,13 +43,13 @@ class NotStrictValidationObject(_ValidationObject):
 class StrictValidationObject(_ValidationObject):
     @cached_property
     def n(self) -> "NotStrictValidationObject":
-        return NotStrictValidationObject(self.__value)
+        return NotStrictValidationObject(self._map)
 
     def __getitem__[V](self, raw_params: _RawParams[V]) -> V:
         field_names, field_type = self._params_of(raw_params)
 
         for field_name in field_names:
-            value = self.__value.get(field_name)
+            value = self._map.get(field_name)
 
             if isinstance(value, field_type):
                 return value

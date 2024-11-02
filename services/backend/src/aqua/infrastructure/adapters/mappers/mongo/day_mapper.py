@@ -18,6 +18,9 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
     target_value_of,
     water_balance_value_of,
 )
+from aqua.infrastructure.periphery.serializing.from_native.to_document import (
+    document_date_of,
+)
 
 
 class MongoDayMapper(DayMapper):
@@ -51,7 +54,7 @@ class MongoDayMapper(DayMapper):
             "_id": day.id,
             "water_balance": water_balance_value_of(day.water_balance),
             "target": target_value_of(day.target),
-            "date": day.date_,
+            "date": document_date_of(day.date_),
             "pinned_result": maybe_result_value_of(day.pinned_result),
             "correct_result": result_value_of(day.correct_result),
             "result": result_value_of(day.result),
