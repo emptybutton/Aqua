@@ -8,13 +8,15 @@ from pytest import fixture
 
 from aqua.infrastructure.periphery.pymongo.document import Document
 from aqua.infrastructure.periphery.storages.mongo.clients import (
-    client as _mongo_client,
+    client_with,
 )
 
 
 @fixture(scope="session")
-def mongo_client() -> AsyncMongoClient[Document]:
-    return _mongo_client
+async def mongo_client() -> AsyncIterable[AsyncMongoClient[Document]]:
+    client = client_with(read_preference="primary")
+    yield client
+    await client.close()
 
 
 @fixture(scope="session")

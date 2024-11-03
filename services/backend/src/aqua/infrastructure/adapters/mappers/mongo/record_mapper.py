@@ -20,7 +20,7 @@ from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute imp
 
 class MongoRecordMapper(RecordMapper):
     __operations = ArrayOperations(
-        namespace="db.users", prefix="record", sort=-1
+        namespace="db.users", prefix="record", sort={"recording_time": -1}
     )
 
     def __init__(self, session: AsyncClientSession) -> None:

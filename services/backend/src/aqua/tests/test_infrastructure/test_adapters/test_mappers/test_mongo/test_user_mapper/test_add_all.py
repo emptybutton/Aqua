@@ -20,8 +20,9 @@ async def test_with_users(  # noqa: PLR0917
 ) -> None:
     await user_mapper.add_all(users)
 
-    user_documents[1]["records"] = list()
-    user_documents[1]["days"] = list()
+    for user_document in user_documents:
+        del user_document["records"]
+        del user_document["days"]
 
     async_documents = mongo_client.db.users.find({}, session=mongo_session)
     added_documents = [document async for document in async_documents]

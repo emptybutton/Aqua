@@ -4,6 +4,7 @@ from pymongo.asynchronous.client_session import (
 )
 
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
+from aqua.domain.model.core.vos.target import Target
 from aqua.domain.model.core.vos.water_balance import (
     WaterBalance,
 )
@@ -22,13 +23,13 @@ async def test_with_user2_day2(  # noqa: PLR0917
     user_documents: list[Document],
     day_mapper: MongoDayMapper,
 ) -> None:
-    user2_day2.water_balance = WaterBalance(
+    user2_day2.target = Target(water_balance=WaterBalance(
         water=Water.with_(milliliters=5_000_000).unwrap()
-    )
+    ))
 
     await day_mapper.update_all([user2_day2])
 
-    user_documents[1]["days"][1]["water_balance"] = 5_000_000
+    user_documents[1]["days"][1]["target"] = 5_000_000
 
     async_documents = mongo_client.db.users.find({}, session=mongo_session)
     stored_documents = [document async for document in async_documents]

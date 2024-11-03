@@ -17,22 +17,42 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_ECHO: true
-      MONGO_URI: mongodb://aqua:aqua@mongo:27017/
+      MONGO_URI: mongodb://mongo1,mongo2,mongo3/?replicaSet=aquaSet
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
       - postgres
 
-  mongo:
+  mongo1:
     image: mongo:8.0.3-noble
-    container_name: aqua-mongo
+    container_name: aqua-mongo1
     restart: unless-stopped
+    command: --replSet aquaSet
     volumes:
-      - mongo_data:/data/db
+      - mongo1_data:/data/db
     networks:
       - private-network
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: aqua
-      MONGO_INITDB_ROOT_PASSWORD: aqua
+
+  mongo2:
+    image: mongo:8.0.3-noble
+    container_name: aqua-mongo2
+    restart: unless-stopped
+    command: --replSet aquaSet
+    volumes:
+      - mongo2_data:/data/db
+    networks:
+      - private-network
+
+  mongo3:
+    image: mongo:8.0.3-noble
+    container_name: aqua-mongo3
+    restart: unless-stopped
+    command: --replSet aquaSet
+    volumes:
+      - mongo3_data:/data/db
+    networks:
+      - private-network
 
   postgres:
     image: postgres:16.3-alpine3.19
@@ -65,5 +85,7 @@ networks:
     driver: bridge
 
 volumes:
-  mongo_data: null
+  mongo1_data: null
+  mongo2_data: null
+  mongo3_data: null
   postgres_data: null

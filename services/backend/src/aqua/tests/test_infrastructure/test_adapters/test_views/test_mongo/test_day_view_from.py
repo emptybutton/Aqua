@@ -27,7 +27,7 @@ async def test_with_user2_day1(
     full_mongo: None,  # noqa: ARG001
     day_view_from: DBDayViewFromMongoUsers,
     mongo_session: AsyncMongoSession,
-    day1_db_view: DBDayView,
+    user2_day1_db_view: DBDayView,
 ) -> None:
     result_view = await day_view_from(
         MongoUsers(mongo_session),
@@ -35,7 +35,7 @@ async def test_with_user2_day1(
         date_=date(2000, 1, 1),
     )
 
-    assert result_view == day1_db_view
+    assert result_view == user2_day1_db_view
 
 
 async def test_without_user(

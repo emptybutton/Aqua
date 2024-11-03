@@ -1,6 +1,7 @@
 from types import TracebackType
 from typing import Self, Type
 
+from pymongo import ReadPreference
 from pymongo.asynchronous.client_session import AsyncClientSession
 
 from aqua.application.ports.transactions import Transaction, TransactionFor
@@ -24,7 +25,9 @@ class MongoTransaction(Transaction):
             raise NestedTransactionError
 
         self.__is_completed = False
-        await self.__session.start_transaction()
+        await self.__session.start_transaction(
+            read_preference=ReadPreference.PRIMARY
+        )
 
         return self
 
@@ -34,8 +37,13 @@ class MongoTransaction(Transaction):
         error: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        if not self.__is_completed:
+        if self.__is_completed:
+            return
+
+        if error is None:
             await self.__session.commit_transaction()
+        else:
+            await self.__session.abort_transaction()
 
 
 class MongoTransactionForMongoUsers(TransactionFor[MongoUsers]):

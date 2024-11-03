@@ -25,6 +25,6 @@ async def test_user2(
 
 
 async def test_no_user(full_mongo: None, mongo_users: MongoUsers) -> None:  # noqa: ARG001
-    result = await mongo_users.user_with_id(UUID(int=-1))
+    result = await mongo_users.user_with_id(UUID(int=8))
 
     assert result is None

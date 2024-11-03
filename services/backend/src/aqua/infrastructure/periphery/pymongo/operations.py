@@ -26,12 +26,12 @@ type Map = UpdateOne
 type Push = UpdateOne
 
 
-type Sort = Literal[1, -1] | None
+type Sort = dict[str, Literal[1, -1]]
 
 
 class ArrayOperations:
     def __init__(
-        self, *, namespace: str, prefix: str, sort: Sort = None
+        self, *, namespace: str, prefix: str, sort: Sort | None = None
     ) -> None:
         self.__namespace = namespace
         self.__prefix = prefix
@@ -62,9 +62,9 @@ class ArrayOperations:
 
     def __for_iteration(self, document: Document) -> Document:
         return {
-            f"{self.__prefix}s.$[{self.__prefix}].key": v
-            for k, v in document.items()
-            if k != "_id"
+            f"{self.__prefix}s.$[{self.__prefix}].{field_name}": field_value
+            for field_name, field_value in document.items()
+            if field_name != "_id"
         }
 
 
@@ -87,7 +87,7 @@ async def execute(
     session: AsyncClientSession,
     comment: str | None = None,
 ) -> None:
-    operations = tuple(raw_operations)
+    operations = list(raw_operations)
 
     if not operations:
         return

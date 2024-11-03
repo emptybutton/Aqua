@@ -13,6 +13,7 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
 from aqua.domain.model.core.aggregates.user.root import User
 from aqua.infrastructure.periphery.serializing.from_document.to_native import (
     native_date_of,
+    native_datetime_of,
 )
 from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
     glass_of,
@@ -71,8 +72,8 @@ class MongoUsers(Users):
                 events=list(),
                 user_id=user_object["_id", UUID],
                 drunk_water=water_of(record_object["drunk_water", int]),
-                recording_time=time_of(
-                    record_object["recording_time", datetime]
+                recording_time=time_of(native_datetime_of(
+                    record_object["recording_time", datetime])
                 ),
                 is_cancelled=record_object["is_cancelled", bool],
             )

@@ -1,6 +1,7 @@
 from typing import Annotated, AsyncIterable
 
 from dishka import FromComponent, Provider, Scope, from_context, provide
+from pymongo import AsyncMongoClient
 from pymongo.asynchronous.client_session import (
     AsyncClientSession as MongoSession,
 )
@@ -57,8 +58,9 @@ from aqua.infrastructure.adapters.views.mongo.day_view_from import (
 from aqua.infrastructure.adapters.views.mongo.user_view_from import (
     DBUserViewFromMongoUsers,
 )
+from aqua.infrastructure.periphery.pymongo.document import Document
 from aqua.infrastructure.periphery.storages.mongo.clients import (
-    client as mongo_client,
+    client_with,
 )
 from shared.infrastructure.periphery.envs import Env
 
@@ -89,9 +91,17 @@ class ConnectionProvider(Provider):
 
         return bind
 
+    @provide(scope=Scope.APP)
+    async def get_client(self) -> AsyncIterable[AsyncMongoClient[Document]]:
+        client = client_with()
+        yield client
+        await client.close()
+
     @provide(scope=Scope.REQUEST)
-    async def get_session(self) -> AsyncIterable[MongoSession]:
-        async with mongo_client.start_session() as session:
+    async def get_session(
+        self, client: AsyncMongoClient[Document]
+    ) -> AsyncIterable[MongoSession]:
+        async with client.start_session() as session:
             yield session
 
 

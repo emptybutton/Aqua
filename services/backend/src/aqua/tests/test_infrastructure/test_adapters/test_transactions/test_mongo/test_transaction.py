@@ -28,10 +28,8 @@ async def test_positive_case(
     async with transaction:
         await mongo_client.db.users.insert_one(document, session=mongo_session)
 
-    documents = mongo_client.db.users.find(session=mongo_session)
-    stored_documents = {document async for document in documents}
-
-    assert {document} == stored_documents
+    results = await mongo_client.db.users.find(session=mongo_session).to_list()
+    assert [document] == results
 
 
 class NegativeCaseError(Exception): ...
@@ -55,10 +53,8 @@ async def test_negative_case(
             )
             raise NegativeCaseError
 
-    documents = mongo_client.db.users.find(session=mongo_session)
-    stored_documents = {document async for document in documents}
-
-    assert {document} == stored_documents
+    results = await mongo_client.db.users.find(session=mongo_session).to_list()
+    assert [document] == results
 
 
 async def test_rollback(
@@ -78,7 +74,5 @@ async def test_rollback(
         )
         await transaction.rollback()
 
-    documents = mongo_client.db.users.find(session=mongo_session)
-    stored_documents = {document async for document in documents}
-
-    assert {document} == stored_documents
+    results = await mongo_client.db.users.find(session=mongo_session).to_list()
+    assert [document] == results

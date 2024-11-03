@@ -1,6 +1,7 @@
 from datetime import UTC, date, datetime
 from uuid import UUID
 
+from bson.tz_util import utc as bson_utc
 from pytest import fixture
 
 from aqua.domain.framework.entity import Entities
@@ -33,14 +34,14 @@ def user2_day1() -> Day:
     return Day(
         id=UUID(int=1),
         events=list(),
-        user_id=UUID(int=1),
+        user_id=UUID(int=2),
         date_=date(2000, 1, 1),
         target=Target(
             water_balance=WaterBalance(
-                water=Water.with_(milliliters=500).unwrap()
+                water=Water.with_(milliliters=2000).unwrap()
             )
         ),
-        water_balance=WaterBalance(water=Water.with_(milliliters=200).unwrap()),
+        water_balance=WaterBalance(water=Water.with_(milliliters=500).unwrap()),
         pinned_result=None,
     )
 
@@ -50,7 +51,7 @@ def user2_day2() -> Day:
     return Day(
         id=UUID(int=2),
         events=list(),
-        user_id=UUID(int=1),
+        user_id=UUID(int=2),
         date_=date(2000, 1, 5),
         target=Target(
             water_balance=WaterBalance(
@@ -166,7 +167,7 @@ def user2_document() -> Document:
         "days": [
             {
                 "_id": UUID(int=1),
-                "date": datetime(2000, 1, 1),
+                "date": datetime(2000, 1, 1, tzinfo=bson_utc),
                 "target": 2000,
                 "water_balance": 500,
                 "result": 2,
@@ -175,7 +176,7 @@ def user2_document() -> Document:
             },
             {
                 "_id": UUID(int=2),
-                "date": datetime(2000, 1, 5),
+                "date": datetime(2000, 1, 5, tzinfo=bson_utc),
                 "target": 50_000,
                 "water_balance": 100,
                 "result": 1,
@@ -187,25 +188,25 @@ def user2_document() -> Document:
             {
                 "_id": UUID(int=1),
                 "drunk_water": 100,
-                "recording_time": datetime(2000, 1, 5, 20, 15, tzinfo=UTC),
+                "recording_time": datetime(2000, 1, 5, 20, 15, tzinfo=bson_utc),
                 "is_cancelled": False,
             },
             {
                 "_id": UUID(int=2),
                 "drunk_water": 100_000,
-                "recording_time": datetime(2000, 1, 1, 16, 00, tzinfo=UTC),
+                "recording_time": datetime(2000, 1, 1, 16, 00, tzinfo=bson_utc),
                 "is_cancelled": True,
             },
             {
                 "_id": UUID(int=3),
                 "drunk_water": 290,
-                "recording_time": datetime(2000, 1, 1, 15, 30, tzinfo=UTC),
+                "recording_time": datetime(2000, 1, 1, 15, 30, tzinfo=bson_utc),
                 "is_cancelled": False,
             },
             {
                 "_id": UUID(int=4),
                 "drunk_water": 210,
-                "recording_time": datetime(2000, 1, 1, 10, 30, tzinfo=UTC),
+                "recording_time": datetime(2000, 1, 1, 10, 30, tzinfo=bson_utc),
                 "is_cancelled": False,
             },
         ],
@@ -227,7 +228,7 @@ def user2_db_view_on_day1() -> DBUserViewData:
     )
 
     return DBUserViewData(
-        user_id=UUID(int=1),
+        user_id=UUID(int=2),
         glass_milliliters=500,
         weight_kilograms=75,
         date_=date(2000, 1, 1),
@@ -241,7 +242,7 @@ def user2_db_view_on_day1() -> DBUserViewData:
 
 
 @fixture
-def day1_db_view() -> DBDayView:
+def user2_day1_db_view() -> DBDayView:
     record3_view = DBDayViewRecordData(
         record_id=UUID(int=3),
         drunk_water_milliliters=290,
@@ -255,7 +256,7 @@ def day1_db_view() -> DBDayView:
     )
 
     return DBDayView(
-        user_id=UUID(int=1),
+        user_id=UUID(int=2),
         date_=date(2000, 1, 1),
         target_water_balance_milliliters=2000,
         water_balance_milliliters=500,
