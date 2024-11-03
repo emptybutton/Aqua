@@ -23,9 +23,11 @@ async def test_with_user2_day2(  # noqa: PLR0917
     user_documents: list[Document],
     day_mapper: MongoDayMapper,
 ) -> None:
-    user2_day2.target = Target(water_balance=WaterBalance(
-        water=Water.with_(milliliters=5_000_000).unwrap()
-    ))
+    user2_day2.target = Target(
+        water_balance=WaterBalance(
+            water=Water.with_(milliliters=5_000_000).unwrap()
+        )
+    )
 
     await day_mapper.update_all([user2_day2])
 

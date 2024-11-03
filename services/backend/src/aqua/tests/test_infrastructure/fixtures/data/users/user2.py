@@ -147,9 +147,11 @@ def user2(user2_days: list[Day], user2_records: list[Record]) -> User:
     return User(
         id=UUID(int=2),
         events=list(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=50_000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=50_000).unwrap()
+            )
+        ),
         glass=Glass(capacity=Water.with_(milliliters=500).unwrap()),
         weight=Weight.with_(kilograms=75).unwrap(),
         days=Entities(user2_days),
@@ -182,7 +184,7 @@ def user2_document() -> Document:
                 "result": 1,
                 "correct_result": 2,
                 "pinned_result": 1,
-            }
+            },
         ],
         "records": [
             {
@@ -237,7 +239,7 @@ def user2_db_view_on_day1() -> DBUserViewData:
         result_code=2,
         correct_result_code=2,
         pinned_result_code=None,
-        records=(record3_view, record4_view)
+        records=(record3_view, record4_view),
     )
 
 
@@ -263,5 +265,5 @@ def user2_day1_db_view() -> DBDayView:
         result_code=2,
         correct_result_code=2,
         pinned_result_code=None,
-        records=(record3_view, record4_view)
+        records=(record3_view, record4_view),
     )

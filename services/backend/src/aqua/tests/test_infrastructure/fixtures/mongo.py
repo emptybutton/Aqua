@@ -21,7 +21,7 @@ async def mongo_client() -> AsyncIterable[AsyncMongoClient[Document]]:
 
 @fixture(scope="session")
 async def mongo_session(
-    mongo_client: AsyncMongoClient[Document]
+    mongo_client: AsyncMongoClient[Document],
 ) -> AsyncIterable[AsyncMongoSession]:
     async with mongo_client.start_session() as session:
         yield session

@@ -19,9 +19,11 @@ def user1() -> User:
     return User(
         id=UUID(int=1),
         events=list(),
-        target=Target(water_balance=WaterBalance(
-            water=Water.with_(milliliters=2000).unwrap()
-        )),
+        target=Target(
+            water_balance=WaterBalance(
+                water=Water.with_(milliliters=2000).unwrap()
+            )
+        ),
         glass=Glass(capacity=Water.with_(milliliters=200).unwrap()),
         weight=Weight.with_(kilograms=70).unwrap(),
         days=Entities(),

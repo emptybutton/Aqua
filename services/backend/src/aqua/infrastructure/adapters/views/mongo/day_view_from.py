@@ -37,24 +37,30 @@ class DBDayViewFromMongoUsers(DayViewFrom[MongoUsers, DBDayView]):
         document_date = document_date_of(date_)
         pipeline: list[Document] = [
             {"$match": {"_id": user_id, "days.date": document_date}},
-            {"$project": {
-                "days": {"$filter": {
-                    "input": "$days",
-                    "cond": {"$eq": ["$$this.date", document_date]}
-                }},
-                "records": {"$filter": {
-                    "input": "$records",
-                    "cond": {
-                        "$and": [
-                            {"$eq": ["$$this.is_cancelled", False]},
-                            *cond_about(
-                                in_date_range(document_date),
-                                field="$$this.recording_time"
-                            )
-                        ]
-                    }
-                }}
-            }}
+            {
+                "$project": {
+                    "days": {
+                        "$filter": {
+                            "input": "$days",
+                            "cond": {"$eq": ["$$this.date", document_date]},
+                        }
+                    },
+                    "records": {
+                        "$filter": {
+                            "input": "$records",
+                            "cond": {
+                                "$and": [
+                                    {"$eq": ["$$this.is_cancelled", False]},
+                                    *cond_about(
+                                        in_date_range(document_date),
+                                        field="$$this.recording_time",
+                                    ),
+                                ]
+                            },
+                        }
+                    },
+                }
+            },
         ]
         documents = await mongo_users.session.client.db.users.aggregate(
             pipeline, session=mongo_users.session

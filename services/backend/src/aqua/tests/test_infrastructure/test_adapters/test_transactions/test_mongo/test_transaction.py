@@ -21,7 +21,7 @@ async def test_positive_case(
     empty_mongo: None,  # noqa: ARG001
     mongo_client: AsyncMongoClient[Document],
     mongo_session: AsyncMongoSession,
-    transaction: MongoTransaction
+    transaction: MongoTransaction,
 ) -> None:
     document = {"_id": UUID(int=0), "x": 4}
 
@@ -39,7 +39,7 @@ async def test_negative_case(
     empty_mongo: None,  # noqa: ARG001
     mongo_client: AsyncMongoClient[Document],
     mongo_session: AsyncMongoSession,
-    transaction: MongoTransaction
+    transaction: MongoTransaction,
 ) -> None:
     document = {"_id": UUID(int=0), "x": 4}
     await mongo_client.db.users.insert_one(document, session=mongo_session)
@@ -61,7 +61,7 @@ async def test_rollback(
     empty_mongo: None,  # noqa: ARG001
     mongo_client: AsyncMongoClient[Document],
     mongo_session: AsyncMongoSession,
-    transaction: MongoTransaction
+    transaction: MongoTransaction,
 ) -> None:
     document = {"_id": UUID(int=0), "x": 4}
     await mongo_client.db.users.insert_one(document, session=mongo_session)
