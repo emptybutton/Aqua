@@ -11,6 +11,10 @@ def native_date_of(document_date: DocumentDate) -> date:
 
 
 def native_datetime_of(document_datetime: DocumentDatetime) -> datetime:
+    tz = document_datetime.tzinfo
+    timedelta = None if tz is None else tz.utcoffset(None)
+    native_tz = None if timedelta is None else timezone(timedelta)
+
     return datetime(
         document_datetime.year,
         document_datetime.month,
@@ -19,6 +23,6 @@ def native_datetime_of(document_datetime: DocumentDatetime) -> datetime:
         document_datetime.minute,
         document_datetime.second,
         document_datetime.microsecond,
-        timezone(document_datetime.tzinfo.utcoffset(None)),
+        native_tz,
         fold=document_datetime.fold,
     )

@@ -62,7 +62,8 @@ ignore = [
 "*/domain/*" = ["PLR2004"]
 "src/entrypoint/presentation/periphery/api/controllers/routes/*" = ["PLR0911"]
 "*/tests/*" = ["PLR2004", "S101"]
-"*/conftest/*" = ["F403"]
+"*/conftest.py" = ["F403"]
+"*/fixtures/*" = ["F403"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2

@@ -35,7 +35,7 @@ class DBDayViewFromMongoUsers(DayViewFrom[MongoUsers, DBDayView]):
         self, mongo_users: MongoUsers, *, user_id: UUID, date_: date
     ) -> DBDayView:
         document_date = document_date_of(date_)
-        pipeline = [
+        pipeline: list[Document] = [
             {"$match": {"_id": user_id, "days.date": document_date}},
             {"$project": {
                 "days": {"$filter": {
