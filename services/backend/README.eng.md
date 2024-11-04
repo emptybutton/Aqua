@@ -4,13 +4,15 @@ Monolithic web application for a single [frontend](https://github.com/emptybutto
 ## Deployment
 To deploy this application locally:
 1. clone this repository
-2. set the DB structure
-3. run the service inside `docker`
+2. run the service
+3. set the `Postgres` table structure
+4. initialize `MongoDB` cluster
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
 docker compose -f Aqua/services/backend/docker-compose.dev.yml up
+docker exec aqua-backend alembic upgrade head
+docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 ```
 
 > [!NOTE]

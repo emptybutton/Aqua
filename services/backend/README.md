@@ -4,17 +4,18 @@ ___
 
 Монолитное веб приложение для единственного [фронтенда](https://github.com/emptybutton/Aqua/blob/main/services/frontend) системы.
 
-
 ## Как запустить
 Что бы запустить локально:
 1. склонируйте этот репозиторий
-2. установите структуру БД
-3. запустите сервис внутри `docker`
+2. запустите сервис
+3. установите структуру таблиц `Postgres`
+4. инициализируйте кластер `MongoDB`
 
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
-docker compose -f Aqua/services/backend/docker-compose.dev.yml run aqua alembic upgrade head
 docker compose -f Aqua/services/backend/docker-compose.dev.yml up
+docker exec aqua-backend alembic upgrade head
+docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 ```
 
 > [!NOTE]

@@ -31,8 +31,12 @@ services:
     command: --replSet aquaSet
     volumes:
       - mongo1_data:/data/db
+      - ./scripts/mongo1:/scripts
     networks:
       - private-network
+    depends_on:
+      - mongo2
+      - mongo3
 
   mongo2:
     image: mongo:8.0.3-noble
