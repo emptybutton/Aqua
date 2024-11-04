@@ -5,9 +5,9 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases.view_user import view_user
-from aqua.infrastructure.adapters.repos.db.users import DBUsers
-from aqua.infrastructure.adapters.views.db.user_view_from import (
-    DBUserViewFrom,
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
+from aqua.infrastructure.adapters.views.mongo.user_view_from import (
+    DBUserViewFromMongoUsers,
 )
 from aqua.presentation.di.containers import adapter_container
 
@@ -39,12 +39,14 @@ class Error(Exception): ...
 class NoUserError(Error): ...
 
 
-async def perform(user_id: UUID, *, session: AsyncSession) -> Output | None:
-    async with adapter_container(context={AsyncSession: session}) as container:
+async def perform(
+    user_id: UUID, *, session: AsyncSession | None = None  # noqa: ARG001
+) -> Output | None:
+    async with adapter_container() as container:
         view = await view_user(
             user_id,
-            view_from=await container.get(DBUserViewFrom, "views"),
-            users=await container.get(DBUsers, "repos"),
+            view_from=await container.get(DBUserViewFromMongoUsers, "views"),
+            users=await container.get(MongoUsers, "repos"),
         )
 
     if view is None:

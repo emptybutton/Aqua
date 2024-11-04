@@ -10,10 +10,10 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.storages.in_memory import (
+from aqua.infrastructure.periphery.storages import (
     transactional_storage as _transactional_storage,
 )
-from aqua.infrastructure.periphery.storages.in_memory.user_storage import (
+from aqua.infrastructure.periphery.storages.user_storage import (
     InMemoryUserStorage,
 )
 

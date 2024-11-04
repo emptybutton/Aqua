@@ -2,15 +2,13 @@ from types import TracebackType
 from typing import Any, Self, Type
 
 from aqua.application.ports.transactions import Transaction, TransactionFor
-from aqua.infrastructure.periphery.storages.in_memory import (
-    transactional_storage as _transactional_storage,
+from aqua.infrastructure.periphery.storages.transactional_storage import (
+    TransactionalInMemoryStorage,
 )
 
 
 class InMemoryStorageTransaction(Transaction):
-    def __init__(
-        self, storage: _transactional_storage.TransactionalInMemoryStorage[Any]
-    ) -> None:
+    def __init__(self, storage: TransactionalInMemoryStorage[Any]) -> None:
         self.__is_rollbacked = False
         self.__storage = storage
 
@@ -40,10 +38,9 @@ class InMemoryStorageTransaction(Transaction):
 
 
 class InMemoryStorageTransactionFor(
-    TransactionFor[_transactional_storage.TransactionalInMemoryStorage[Any]]
+    TransactionFor[TransactionalInMemoryStorage[Any]]
 ):
     def __call__(
-        self,
-        storage: _transactional_storage.TransactionalInMemoryStorage[Any],
+        self, storage: TransactionalInMemoryStorage[Any]
     ) -> InMemoryStorageTransaction:
         return InMemoryStorageTransaction(storage)

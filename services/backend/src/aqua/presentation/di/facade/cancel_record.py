@@ -11,14 +11,18 @@ from aqua.application.ports.loggers import Logger
 from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
-from aqua.infrastructure.adapters.mappers.db.day_mapper import DBDayMapperTo
-from aqua.infrastructure.adapters.mappers.db.record_mapper import (
-    DBRecordMapperTo,
+from aqua.infrastructure.adapters.mappers.mongo.day_mapper import (
+    MongoDayMapperTo,
 )
-from aqua.infrastructure.adapters.mappers.db.user_mapper import DBUserMapperTo
-from aqua.infrastructure.adapters.repos.db.users import DBUsers
-from aqua.infrastructure.adapters.transactions.db.transaction import (
-    DBTransactionForDBUsers,
+from aqua.infrastructure.adapters.mappers.mongo.record_mapper import (
+    MongoRecordMapperTo,
+)
+from aqua.infrastructure.adapters.mappers.mongo.user_mapper import (
+    MongoUserMapperTo,
+)
+from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
+from aqua.infrastructure.adapters.transactions.mongo.transaction import (
+    MongoTransactionForMongoUsers,
 )
 from aqua.infrastructure.adapters.views.in_memory.cancellation_view_of import (
     InMemoryCancellationViewOf,
@@ -57,24 +61,23 @@ async def perform(
     user_id: UUID,
     record_id: UUID,
     *,
-    session: AsyncSession,
+    session: AsyncSession | None = None,  # noqa: ARG001
 ) -> Output | Literal["no_record"]:
-    request_container = adapter_container(
-        context={AsyncSession | None: session}
-    )
-    async with request_container as container:
+    async with adapter_container() as container:
         view_result = await cancel_record(
             user_id,
             record_id,
             view_of=await container.get(InMemoryCancellationViewOf, "views"),
-            users=await container.get(DBUsers, "repos"),
+            users=await container.get(MongoUsers, "repos"),
             transaction_for=await container.get(
-                DBTransactionForDBUsers, "transactions"
+                MongoTransactionForMongoUsers, "transactions"
             ),
             logger=await container.get(Logger, "loggers"),
-            user_mapper_to=await container.get(DBUserMapperTo, "mappers"),
-            record_mapper_to=await container.get(DBRecordMapperTo, "mappers"),
-            day_mapper_to=await container.get(DBDayMapperTo, "mappers"),
+            user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
+            record_mapper_to=await container.get(
+                MongoRecordMapperTo, "mappers"
+            ),
+            day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
         )
 
     match view_result:

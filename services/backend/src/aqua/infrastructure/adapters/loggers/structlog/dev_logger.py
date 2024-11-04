@@ -4,10 +4,10 @@ from aqua.domain.model.core.aggregates.user.internal.entities.record import (
     Record,
 )
 from aqua.domain.model.core.aggregates.user.root import User
-from aqua.infrastructure.periphery.loggers.structlog.dev_logger import (
+from aqua.infrastructure.periphery.logs import text_logs as logs
+from aqua.infrastructure.periphery.structlog.dev_logger import (
     dev_logger,
 )
-from aqua.infrastructure.periphery.logs import text_logs as logs
 
 
 class StructlogDevLogger(loggers.Logger):
