@@ -12,5 +12,11 @@ jobs:
         with:
           python-version: 3.12
 
+      - name: run mongo1 server
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run -d --name mongo1 mongo1 mongod --replSet aquaSet
+
+      - name: init mongo cluster
+        run: docker exec mongo1 mognosh -f /scripts/init-cluster.js
+
       - name: pytest
         run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua pytest
