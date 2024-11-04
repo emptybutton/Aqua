@@ -6,5 +6,5 @@ from aqua.infrastructure.periphery.serializing import (
     from_native as from_native,
 )
 from aqua.infrastructure.periphery.serializing import (
-    from_table_attribute as from_table_attribute,
+    from_view as from_view,
 )

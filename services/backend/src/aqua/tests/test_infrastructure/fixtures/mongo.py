@@ -6,10 +6,10 @@ from pymongo.asynchronous.client_session import (
 )
 from pytest import fixture
 
-from aqua.infrastructure.periphery.pymongo.document import Document
-from aqua.infrastructure.periphery.storages.mongo.clients import (
+from aqua.infrastructure.periphery.pymongo.clients import (
     client_with,
 )
+from aqua.infrastructure.periphery.pymongo.document import Document
 
 
 @fixture(scope="session")

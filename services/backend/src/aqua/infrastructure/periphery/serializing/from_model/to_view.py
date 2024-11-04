@@ -23,18 +23,6 @@ def new_result_view_of(result: Result) -> str:
             raise UnhandledResultError
 
 
-def result_of_new(result_view: str) -> Result | None:
-    match result_view:
-        case "good":
-            return Result.good
-        case "not_enough_water":
-            return Result.not_enough_water
-        case "excess_water":
-            return Result.excess_water
-        case _:
-            return None
-
-
 def old_result_view_of(result: Result) -> int:
     match result:
         case Result.good:
@@ -45,18 +33,6 @@ def old_result_view_of(result: Result) -> int:
             return 3
         case _:
             raise UnhandledResultError
-
-
-def result_of_old(result_view: int) -> Result | None:
-    match result_view:
-        case 1:
-            return Result.good
-        case 2:
-            return Result.not_enough_water
-        case 3:
-            return Result.excess_water
-        case _:
-            return None
 
 
 def glass_view_of(glass: Glass) -> int:

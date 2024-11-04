@@ -12,9 +12,9 @@ from aqua.infrastructure.periphery.pymongo.operations import (
     ArrayOperations,
     execute,
 )
-from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
-    time_value_of,
-    water_value_of,
+from aqua.infrastructure.periphery.serializing.from_model.to_document import (
+    document_time_of,
+    document_water_of,
 )
 
 
@@ -54,8 +54,8 @@ class MongoRecordMapper(RecordMapper):
     def _document_of(self, record: Record) -> Document:
         return {
             "_id": record.id,
-            "drunk_water": water_value_of(record.drunk_water),
-            "recording_time": time_value_of(record.recording_time),
+            "drunk_water": document_water_of(record.drunk_water),
+            "recording_time": document_time_of(record.recording_time),
             "is_cancelled": record.is_cancelled,
         }
 

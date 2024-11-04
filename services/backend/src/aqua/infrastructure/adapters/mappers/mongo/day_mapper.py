@@ -12,11 +12,11 @@ from aqua.infrastructure.periphery.pymongo.operations import (
     ArrayOperations,
     execute,
 )
-from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
-    maybe_result_value_of,
-    result_value_of,
-    target_value_of,
-    water_balance_value_of,
+from aqua.infrastructure.periphery.serializing.from_model.to_document import (
+    document_result_of,
+    document_target_of,
+    document_water_balance_of,
+    maybe_document_result_of,
 )
 from aqua.infrastructure.periphery.serializing.from_native.to_document import (
     document_date_of,
@@ -52,12 +52,12 @@ class MongoDayMapper(DayMapper):
     def _document_of(self, day: Day) -> Document:
         return {
             "_id": day.id,
-            "water_balance": water_balance_value_of(day.water_balance),
-            "target": target_value_of(day.target),
+            "water_balance": document_water_balance_of(day.water_balance),
+            "target": document_target_of(day.target),
             "date": document_date_of(day.date_),
-            "pinned_result": maybe_result_value_of(day.pinned_result),
-            "correct_result": result_value_of(day.correct_result),
-            "result": result_value_of(day.result),
+            "pinned_result": maybe_document_result_of(day.pinned_result),
+            "correct_result": document_result_of(day.correct_result),
+            "result": document_result_of(day.result),
         }
 
 

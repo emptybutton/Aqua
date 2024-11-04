@@ -13,12 +13,12 @@ from aqua.infrastructure.periphery.pymongo.operators import (
 from aqua.infrastructure.periphery.serializing.from_document.to_native import (
     native_datetime_of,
 )
-from aqua.infrastructure.periphery.serializing.from_native.to_document import (
-    document_date_of,
-)
-from aqua.infrastructure.periphery.serializing.from_table_attribute.to_view import (  # noqa: E501
+from aqua.infrastructure.periphery.serializing.from_document.to_view import (
     old_maybe_result_view_of,
     old_result_view_of,
+)
+from aqua.infrastructure.periphery.serializing.from_native.to_document import (
+    document_date_of,
 )
 from aqua.infrastructure.periphery.validation.objects import (
     StrictValidationObject,

@@ -10,10 +10,10 @@ from aqua.infrastructure.periphery.pymongo.operations import (
     RootOperations,
     execute,
 )
-from aqua.infrastructure.periphery.serializing.from_model.to_table_attribute import (  # noqa: E501
-    glass_value_of,
-    maybe_weight_value_of,
-    target_value_of,
+from aqua.infrastructure.periphery.serializing.from_model.to_document import (
+    document_glass_of,
+    document_target_of,
+    maybe_document_weight_of,
 )
 
 
@@ -39,9 +39,9 @@ class MongoUserMapper(UserMapper):
     def __document_of(self, user: User) -> Document:
         return {
             "_id": user.id,
-            "target": target_value_of(user.target),
-            "glass": glass_value_of(user.glass),
-            "weight": maybe_weight_value_of(user.weight),
+            "target": document_target_of(user.target),
+            "glass": document_glass_of(user.glass),
+            "weight": maybe_document_weight_of(user.weight),
         }
 
 

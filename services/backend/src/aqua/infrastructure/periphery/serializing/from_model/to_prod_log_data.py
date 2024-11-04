@@ -8,7 +8,7 @@ from aqua.domain.model.core.aggregates.user.root import User
 from aqua.domain.model.core.vos.target import Result
 
 
-def user_dict_of(user: User, *, name: str = "user") -> dict[str, Any]:
+def prod_log_user_of(user: User, *, name: str = "user") -> dict[str, Any]:
     suitable_milliliters = user.suitable_water_balance.map(
         lambda balance: balance.water.milliliters
     ).unwrap_or(None)
@@ -26,7 +26,7 @@ def user_dict_of(user: User, *, name: str = "user") -> dict[str, Any]:
     }
 
 
-def record_dict_of(record: Record, *, name: str = "record") -> dict[str, Any]:
+def prod_log_record_of(record: Record, *, name: str = "record") -> dict[str, Any]:
     return {
         f"{name}_id": record.id,
         f"{name}_user_id": record.user_id,
@@ -36,7 +36,7 @@ def record_dict_of(record: Record, *, name: str = "record") -> dict[str, Any]:
     }
 
 
-def day_dict_of(day: Day, *, name: str = "day") -> dict[str, Any]:
+def prod_log_day_of(day: Day, *, name: str = "day") -> dict[str, Any]:
     pinned_result = (
         None if day.pinned_result is None else _serialized(day.pinned_result)
     )
