@@ -40,8 +40,8 @@ class NoUserError(Error): ...
 
 
 async def perform(
-    user_id: UUID, *, session: AsyncSession | None = None
-) -> Output | None:  # noqa: ARG001
+    user_id: UUID, *, session: AsyncSession | None = None  # noqa: ARG001
+) -> Output | None:
     async with adapter_container() as container:
         view = await view_user(
             user_id,

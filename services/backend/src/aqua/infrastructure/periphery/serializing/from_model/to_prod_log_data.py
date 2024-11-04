@@ -26,7 +26,9 @@ def prod_log_user_of(user: User, *, name: str = "user") -> dict[str, Any]:
     }
 
 
-def prod_log_record_of(record: Record, *, name: str = "record") -> dict[str, Any]:
+def prod_log_record_of(
+    record: Record, *, name: str = "record"
+) -> dict[str, Any]:
     return {
         f"{name}_id": record.id,
         f"{name}_user_id": record.user_id,
