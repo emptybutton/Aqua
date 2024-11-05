@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Iterable, cast
 from uuid import UUID
 
-from aqua.application.ports.views import DayViewFrom
+from aqua.application.ports.views import UserViewFrom
 from aqua.domain.framework.iterable import one_from
 from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.periphery.pymongo.document import Document
@@ -30,7 +30,7 @@ from aqua.infrastructure.periphery.views.db.user_view import (
 )
 
 
-class DBUserViewFromMongoUsers(DayViewFrom[MongoUsers, DBUserView]):
+class DBUserViewFromMongoUsers(UserViewFrom[MongoUsers, DBUserView]):
     async def __call__(
         self, mongo_users: MongoUsers, *, user_id: UUID, date_: date
     ) -> DBUserView:

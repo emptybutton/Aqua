@@ -85,12 +85,12 @@ async def perform(
             return "no_record"
         case Ok(view):
             user = view.user
-            day = view.output.day
-            cancelled_record = view.output.cancelled_record
+            day = view.day
+            cancelled_record = view.cancelled_record
             records = view.records
 
     return Output(
-        user_id=user.user_id,
+        user_id=user.id,
         target_water_balance_milliliters=target_view_of(day.target),
         date_=day.date_,
         water_balance_milliliters=water_balance_view_of(day.water_balance),

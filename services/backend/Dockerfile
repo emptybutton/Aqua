@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.19 AS poetry
+FROM python:3.13-alpine3.19 AS poetry
 
 WORKDIR /aqua
 
@@ -9,12 +9,14 @@ RUN apk add curl
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "/root/.local/bin:$PATH"
 
+
 FROM poetry AS build
 
 COPY pyproject.toml .
 COPY poetry.lock .
 ENV POETRY_VIRTUALENVS_CREATE=false
-RUN poetry install --no-root
+RUN poetry lock && poetry install --no-root
+
 
 FROM build AS start
 

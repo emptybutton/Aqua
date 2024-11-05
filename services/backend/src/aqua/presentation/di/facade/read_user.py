@@ -1,14 +1,17 @@
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import Never
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aqua.application.cases.view_user import view_user
+from aqua.application.ports.views import UserViewFrom
 from aqua.infrastructure.adapters.repos.mongo.users import MongoUsers
 from aqua.infrastructure.adapters.views.mongo.user_view_from import (
     DBUserViewFromMongoUsers,
 )
+from aqua.infrastructure.periphery.views.db.user_view import DBUserView
 from aqua.presentation.di.containers import adapter_container
 
 
@@ -54,8 +57,8 @@ async def perform(
 
     records = tuple(
         Output.RecordData(
-            record_id=record.id,
-            drunk_water_milliliters=record.drunk_water.milliliters,
+            record_id=record.record_id,
+            drunk_water_milliliters=record.drunk_water_milliliters,
             recording_time=record.recording_time,
         )
         for record in view.records
