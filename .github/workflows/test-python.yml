@@ -13,7 +13,7 @@ jobs:
           python-version: 3.12
 
       - name: run mongo1 server
-        run: docker compose -f ./services/backend/docker-compose.dev.yml run -d --name mongo1 mongo1 mongod --replSet aquaSet
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run -d --name mongo1 aqua-mongo1 mongod --replSet aquaSet
 
       - name: init mongo cluster
         run: sleep 5 && docker exec mongo1 mongosh -f /scripts/init-cluster.js
