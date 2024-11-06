@@ -18,5 +18,8 @@ jobs:
       - name: init mongo cluster
         run: sleep 5 && docker exec aqua-mongo1 mongosh -f /scripts/init-cluster.js
 
+      - name: remove mongo1 server
+        run: docker rename aqua-mongo1 removed-aqua-mongo1
+
       - name: pytest
         run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua pytest
