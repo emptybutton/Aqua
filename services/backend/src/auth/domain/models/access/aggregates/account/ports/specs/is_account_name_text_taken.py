@@ -1,4 +1,4 @@
-from shared.domain.framework.ports.low_level_spec import (
+from auth.domain.framework.ports.low_level_spec import (
     LowLevelSpec,
 )
 

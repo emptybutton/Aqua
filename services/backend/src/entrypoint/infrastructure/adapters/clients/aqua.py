@@ -2,12 +2,11 @@ from datetime import date
 from typing import Literal
 from uuid import UUID
 
-from aqua.presentation.di import facade as aqua
+from aqua.presentation.periphery import facade as aqua
 from entrypoint.application.ports import clients
-from shared.infrastructure.adapters.transactions import DBTransaction
 
 
-class AquaFacade(clients.aqua.Aqua[DBTransaction]):
+class AquaFacade(clients.aqua.Aqua):
     def __init__(self) -> None:
         self.__errors: list[Exception] = list()
 
@@ -24,8 +23,6 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         water_balance_milliliters: int | None,
         glass_milliliters: int | None,
         weight_kilograms: int | None,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.aqua.RegisterUserOutput
         | Literal["aqua_is_not_working"]
@@ -40,7 +37,6 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
                 water_balance_milliliters,
                 glass_milliliters,
                 weight_kilograms,
-                session=transaction.session,
             )
         except aqua.register_user.IncorrectWaterAmountError:
             return "incorrect_water_amount"
@@ -67,8 +63,6 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         self,
         user_id: UUID,
         milliliters: int | None,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.aqua.WriteWaterOutput
         | Literal["aqua_is_not_working"]
@@ -77,7 +71,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.write_water.perform(
-                user_id, milliliters, session=transaction.session
+                user_id, milliliters
             )
         except aqua.write_water.NoUserError:
             return "no_user"
@@ -114,7 +108,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def read_day(
-        self, user_id: UUID, date_: date, *, transaction: DBTransaction
+        self, user_id: UUID, date_: date
     ) -> (
         clients.aqua.ReadDayOutput
         | Literal["aqua_is_not_working"]
@@ -122,7 +116,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.read_day.perform(
-                user_id, date_, session=transaction.session
+                user_id, date_
             )
         except aqua.read_day.NoUserError:
             return "no_user"
@@ -151,7 +145,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def read_user(
-        self, user_id: UUID, *, transaction: DBTransaction
+        self, user_id: UUID
     ) -> (
         clients.aqua.ReadUserOutput
         | Literal["aqua_is_not_working"]
@@ -159,7 +153,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.read_user.perform(
-                user_id, session=transaction.session
+                user_id
             )
         except Exception as error:
             self.__errors.append(error)
@@ -191,7 +185,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
         )
 
     async def cancel_record(
-        self, user_id: UUID, record_id: UUID, *, transaction: DBTransaction
+        self, user_id: UUID, record_id: UUID
     ) -> (
         clients.aqua.CancelRecordOutput
         | Literal["aqua_is_not_working"]
@@ -199,7 +193,7 @@ class AquaFacade(clients.aqua.Aqua[DBTransaction]):
     ):
         try:
             result = await aqua.cancel_record.perform(
-                user_id, record_id, session=transaction.session
+                user_id, record_id
             )
         except Exception as error:
             self.__errors.append(error)

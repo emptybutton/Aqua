@@ -3,7 +3,6 @@ from typing import Literal, TypeAlias, TypeVar
 from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
-from shared.application.ports.transactions import Transaction
 
 
 _ChangingOutput: TypeAlias = (
@@ -22,21 +21,17 @@ class OutputData:
 Output: TypeAlias = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
-_TransactionT = TypeVar("_TransactionT", bound=Transaction)
-_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: ignore[valid-type]
+_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth)
 
 
 async def perform(
     session_id: UUID,
     new_password: str,
     *,
-    transaction: _TransactionT,
     auth: _AuthT,
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
-    authentication_result = await auth.authenticate_user(
-        session_id, transaction=transaction
-    )
+    authentication_result = await auth.authenticate_user(session_id)
 
     if authentication_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -50,7 +45,6 @@ async def perform(
         session_id,
         authentication_result.user_id,
         new_password,
-        transaction=transaction,
     )
 
     changing_output: _ChangingOutput = "error"

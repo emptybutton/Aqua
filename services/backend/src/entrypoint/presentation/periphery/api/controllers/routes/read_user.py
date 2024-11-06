@@ -1,6 +1,6 @@
 from fastapi import Response
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -24,7 +24,7 @@ async def read_user(session_id_hex: cookies.session_id_cookie) -> Response:
     if session_id is None:
         return views.responses.bad.not_authenticated_view.to_response()
 
-    result = await facade.read_user.perform(session_id)
+    result = await services.read_user.perform(session_id)
 
     if result == "not_working":
         return views.responses.bad.backend_is_not_working_view.to_response()

@@ -1,6 +1,6 @@
 from fastapi import Response
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers.routers import router
 from entrypoint.presentation.periphery.api.controllers.tags import Tag
@@ -16,7 +16,7 @@ from entrypoint.presentation.periphery.api.controllers.tags import Tag
     ),
 )
 async def user_exists(username: str) -> Response:
-    result = await facade.user_exists.perform(username)
+    result = await services.user_exists.perform(username)
 
     if result == "error":
         return views.responses.bad.backend_is_not_working_view.to_response()

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from auth.application.ports.views import AccountViewFrom
 from auth.infrastructure.adapters.repos.db import DBAccounts
-from shared.infrastructure.periphery.db.tables import auth as tables
+from auth.infrastructure.periphery.sqlalchemy import tables
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

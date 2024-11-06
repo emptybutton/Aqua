@@ -1,9 +1,8 @@
 from typing import TypeAlias
 
-from auth.application.ports.mappers import SessionMapper
+from auth.application.ports.mappers import MapperFactory, SessionMapper
 from auth.domain.models.access.aggregates import account as _account
 from auth.infrastructure.adapters.repos.in_memory import InMemoryAccounts
-from shared.application.ports.mappers import MapperFactory
 
 
 _Session: TypeAlias = _account.internal.entities.session.Session

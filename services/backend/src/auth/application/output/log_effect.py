@@ -1,6 +1,6 @@
 from auth.application.ports.loggers import Logger
+from auth.domain.framework.effects.searchable import SearchableEffect
 from auth.domain.models.access.aggregates import account as _account
-from shared.domain.framework.effects.searchable import SearchableEffect
 
 
 async def log_effect(effect: SearchableEffect, logger: Logger) -> None:

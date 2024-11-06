@@ -1,7 +1,7 @@
-from typing import Annotated
+from typing import Annotated, AsyncIterable
 
 from dishka import FromComponent, Provider, Scope, provide
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncConnection as SAConnection
 
 from auth.application import ports
 from auth.infrastructure.adapters import (
@@ -9,9 +9,28 @@ from auth.infrastructure.adapters import (
     loggers,
     mappers,
     repos,
+    transactions,
     views,
 )
-from shared.infrastructure.periphery.envs import Env
+from auth.infrastructure.periphery import envs
+from auth.infrastructure.periphery.sqlalchemy.engines import postgres_engine
+
+
+class SqlalchemyProvider(Provider):
+    class Error(Exception): ...
+
+    class NoSessionError(Error): ...
+
+    class NoSessionAndNoConncetionError(Error): ...
+
+    class SessionWithoutConncetionError(Error): ...
+
+    component = "sqlalchemy"
+
+    @provide(scope=Scope.REQUEST)
+    async def get_connection(self) -> AsyncIterable[SAConnection]:
+        async with postgres_engine.connect() as connection:
+            yield connection
 
 
 class RepoProvider(Provider):
@@ -19,7 +38,7 @@ class RepoProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_a(
-        self, connection: Annotated[AsyncConnection, FromComponent("periphery")]
+        self, connection: Annotated[SAConnection, FromComponent("sqlalchemy")]
     ) -> repos.db.DBAccounts:
         return repos.db.DBAccounts(connection)
 
@@ -45,7 +64,7 @@ class LoggerProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_a(self) -> ports.loggers.Logger:
-        if Env.for_dev:
+        if envs.is_dev:
             return loggers.structlog.dev.StructlogDevLogger()
 
         return loggers.structlog.prod.StructlogProdLogger()
@@ -65,3 +84,19 @@ class GatewayProvider(Provider):
     @provide(scope=Scope.APP)
     def get_a(self) -> gateways.db.DBGatewayFactory:
         return gateways.db.DBGatewayFactory()
+
+
+class TransactionProvider(Provider):
+    component = "transactions"
+
+    @provide(scope=Scope.REQUEST)
+    def get_db_conncetion_transaction(
+        self, connection: Annotated[SAConnection, FromComponent("sqlalchemy")]
+    ) -> transactions.DBConnectionTransaction:
+        return transactions.DBConnectionTransaction(connection)
+
+    @provide(scope=Scope.REQUEST)
+    def get_db_conncetion_transaction_factory(
+        self, connection: Annotated[SAConnection, FromComponent("sqlalchemy")]
+    ) -> transactions.DBConnectionTransactionFactory:
+        return transactions.DBConnectionTransactionFactory(connection)

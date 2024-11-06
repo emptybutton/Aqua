@@ -5,7 +5,7 @@ from uuid import UUID
 
 from auth.application import ports
 from auth.domain.models.access.aggregates import account as _account
-from shared.infrastructure.periphery.containers import TransactionalContainer
+from auth.infrastructure.periphery.containers import TransactionalContainer
 
 
 _Account: TypeAlias = _account.root.Account

@@ -11,7 +11,7 @@ To deploy this application locally:
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
 docker compose -f Aqua/services/backend/docker-compose.dev.yml up
-docker exec aqua-backend alembic upgrade head
+docker exec aqua-backend alembic -c src/auth/alembic.ini upgrade head
 docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 ```
 
@@ -21,30 +21,17 @@ docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 > docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 > ```
 
-## API scheme
+## API
 <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/api-view.png?raw=true"/>
 
 ## Design
 Used approaches:
 - Modular monolith
 - Clean architecture
-- Some DDD patterns
+- DDD patterns
+- `Result` monad
 
-### Modules
-The system is divided into subsystems - modules, each of which represents an independent (or almost independent) application with its own external interface in the form of a facade.
-
-#### Internal structure of modules
-<picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
-</picture>
-
-<span></sman>
-
-> [!NOTE]
-> In the context of internal layering of modules, when `A -> B` interacts, both `A` and `B` are on the `Periphery` layer for each other, namely, for `A`, `B` will be in the `Infrastructure periphery`, and for `B`, `A` will be in the `Presentation periphery`.
-
-#### Interaction of modules
+### General structure
 <picture>
  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/dark-theme.png?raw=true">
  <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/light-theme.png?raw=true">
@@ -52,7 +39,14 @@ The system is divided into subsystems - modules, each of which represents an ind
 
 <span></sman>
 
+> [!NOTE]
+> Interaction between modules occurs synchronously through facade calls, not through the network.
+
+### Structure of modules
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
+</picture>
+
 > [!IMPORTANT]
-> The interaction of modules occurs in a logically synchronous method, that is, a separate module must directly call another module without the use of message brokers or other things that provide events.
-> 
-> There is a special `Shared` module, it itself should not interact with other modules and have a façade, since other modules can interact with it as if it were the very part of the module that uses it. It is advisable to keep it as small as possible in order to prevent too much coupling between other modules, even if you have to write several pieces that (for now) completely repeat each other.
+> Each module has its own individual device, but at the moment (06.11.2024) this scheme can generalize them all.

@@ -39,9 +39,9 @@ from aqua.infrastructure.adapters.views.mongo.day_view_from import (
 from aqua.infrastructure.adapters.views.mongo.user_view_from import (
     DBUserViewFromMongoUsers,
 )
+from aqua.infrastructure.periphery import envs
 from aqua.infrastructure.periphery.pymongo.clients import client_with
 from aqua.infrastructure.periphery.pymongo.document import Document
-from shared.infrastructure.periphery.envs import Env
 
 
 class NoConncetionError(Exception): ...
@@ -69,7 +69,7 @@ class LoggerProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_logger(self) -> Logger:
-        return StructlogDevLogger() if Env.for_dev else StructlogProdLogger()
+        return StructlogDevLogger() if envs.is_dev else StructlogProdLogger()
 
 
 class MapperProvider(Provider):

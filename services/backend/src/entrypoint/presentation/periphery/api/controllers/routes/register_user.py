@@ -1,7 +1,7 @@
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -37,7 +37,7 @@ async def register_user(
     request_model: RegisterUserRequestModel,
     session_id_hex: cookies.optional_session_id_cookie,
 ) -> Response:
-    result = await facade.register_user.perform(
+    result = await services.register_user.perform(
         id_of(session_id_hex),
         request_model.username,
         request_model.password,

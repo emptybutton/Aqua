@@ -9,8 +9,8 @@ from auth.domain.models.access.aggregates import account as _account
 from auth.domain.models.access.vos.password import PasswordHash
 from auth.domain.models.access.vos.session_lifetime import SessionLifetime
 from auth.domain.models.access.vos.time import Time
-from shared.infrastructure.periphery.db.stmt_builders import STMTBuilder
-from shared.infrastructure.periphery.db.tables import auth as tables
+from auth.infrastructure.periphery.sqlalchemy import tables
+from auth.infrastructure.periphery.sqlalchemy.stmt_builders import STMTBuilder
 
 
 if TYPE_CHECKING:

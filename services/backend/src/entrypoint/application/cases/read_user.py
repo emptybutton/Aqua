@@ -3,7 +3,6 @@ from typing import Literal, TypeAlias, TypeVar
 from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
-from shared.application.ports.transactions import Transaction
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -18,23 +17,20 @@ Output: TypeAlias = (
 )
 
 
-_TransactionT = TypeVar("_TransactionT", bound=Transaction)
-_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: ignore[valid-type]
-_AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: ignore[valid-type]
+_TransactionT = TypeVar("_TransactionT")
+_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth)
+_AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua)
 
 
 async def perform(
     session_id: UUID,
     *,
-    transaction: _TransactionT,
     auth: _AuthT,
     aqua: _AquaT,
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    authenticate_result = await auth.authenticate_user(
-        session_id, transaction=transaction
-    )
+    authenticate_result = await auth.authenticate_user(session_id)
 
     if authenticate_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -44,11 +40,11 @@ async def perform(
 
     user_id = authenticate_result.user_id
 
-    aqua_result = await aqua.read_user(user_id, transaction=transaction)
+    aqua_result = await aqua.read_user(user_id)
     if aqua_result == "aqua_is_not_working":
         await aqua_logger.log_aqua_is_not_working(aqua)
 
-    auth_result = await auth.read_user(user_id, transaction=transaction)
+    auth_result = await auth.read_user(user_id)
     if auth_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
 

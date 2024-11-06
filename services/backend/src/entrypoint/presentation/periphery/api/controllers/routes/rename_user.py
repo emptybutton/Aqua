@@ -1,7 +1,7 @@
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -32,7 +32,7 @@ async def rename_user(
     if session_id is None:
         return views.responses.bad.not_authenticated_view.to_response()
 
-    result = await facade.rename_user.perform(
+    result = await services.rename_user.perform(
         session_id,
         request_model.new_username,
     )
@@ -47,7 +47,7 @@ async def rename_user(
 
     if result.other_data == "error":
         data = None
-    elif not isinstance(result.other_data, facade.rename_user.OkOtherData):
+    elif not isinstance(result.other_data, services.rename_user.OkOtherData):
         data = result.other_data
     else:
         data = views.bodies.ok.RenamedUserView.OkData(

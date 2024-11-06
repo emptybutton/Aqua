@@ -1,12 +1,11 @@
 from typing import Literal
 from uuid import UUID
 
-from auth.presentation.di import facade as auth
+from auth.presentation.periphery import facade as auth
 from entrypoint.application.ports import clients
-from shared.infrastructure.adapters.transactions import DBTransaction
 
 
-class AuthFacade(clients.auth.Auth[DBTransaction]):
+class AuthFacade(clients.auth.Auth):
     def __init__(self) -> None:
         self.__errors: list[Exception] = list()
 
@@ -22,8 +21,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         session_id: UUID | None,
         name: str,
         password: str,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.auth.RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -33,7 +30,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.register_user.perform(
-                session_id, name, password, session=transaction.session
+                session_id, name, password
             )
         except auth.register_user.UserIsAlreadyRegisteredError:
             return "user_is_already_registered"
@@ -52,7 +49,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         )
 
     async def authenticate_user(
-        self, session_id: UUID, *, transaction: DBTransaction
+        self, session_id: UUID
     ) -> (
         clients.auth.AuthenticateUserOutput
         | Literal["auth_is_not_working"]
@@ -62,9 +59,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         | Literal["replaced_session"]
     ):
         try:
-            result = await auth.authenticate_user.perform(
-                session_id, session=transaction.session
-            )
+            result = await auth.authenticate_user.perform(session_id)
         except auth.authenticate_user.NoSessionError:
             return "no_session"
         except auth.authenticate_user.ExpiredSessionError:
@@ -86,8 +81,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         session_id: UUID | None,
         name: str,
         password: str,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.auth.AuthorizeUserOutput
         | Literal["auth_is_not_working"]
@@ -96,7 +89,7 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     ):
         try:
             result = await auth.authorize_user.perform(
-                session_id, name, password, session=transaction.session
+                session_id, name, password
             )
         except auth.authorize_user.NoUserError:
             return "no_user"
@@ -113,15 +106,14 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         )
 
     async def read_user(
-        self, user_id: UUID, *, transaction: DBTransaction
+        self, user_id: UUID
     ) -> (
         clients.auth.ReadUserOutput
         | Literal["auth_is_not_working"]
         | Literal["no_user"]
     ):
         try:
-            session = transaction.session
-            result = await auth.read_user.perform(user_id, session=session)
+            result = await auth.read_user.perform(user_id)
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"
@@ -137,8 +129,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         self,
         user_id: UUID,
         new_username: str,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.auth.RenameUserOutput
         | Literal["auth_is_not_working"]
@@ -150,7 +140,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
             result = await auth.rename_user.perform(
                 user_id,
                 new_username,
-                session=transaction.session,
             )
         except auth.rename_user.NoUserError:
             return "no_user"
@@ -173,8 +162,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
         session_id: UUID,
         user_id: UUID,
         new_password: str,
-        *,
-        transaction: DBTransaction,
     ) -> (
         clients.auth.ChangePasswordOutput
         | Literal["auth_is_not_working"]
@@ -186,7 +173,6 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
                 session_id,
                 user_id,
                 new_password,
-                session=transaction.session,
             )
         except auth.change_password.NoUserError:
             return "no_user"
@@ -205,14 +191,9 @@ class AuthFacade(clients.auth.Auth[DBTransaction]):
     async def user_exists(
         self,
         username: str,
-        *,
-        transaction: DBTransaction,
     ) -> bool | Literal["auth_is_not_working"]:
         try:
-            return await auth.user_exists.perform(
-                username,
-                session=transaction.session,
-            )
+            return await auth.user_exists.perform(username)
         except Exception as error:
             self.__errors.append(error)
             return "auth_is_not_working"

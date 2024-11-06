@@ -5,11 +5,10 @@ from uuid import uuid4
 from sqlalchemy import bindparam, insert, update
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from auth.application.ports.mappers import AccountNameMapper
+from auth.application.ports.mappers import AccountNameMapper, MapperFactory
 from auth.domain.models.access.aggregates import account as _account
 from auth.infrastructure.adapters.repos.db import DBAccounts
-from shared.application.ports.mappers import MapperFactory
-from shared.infrastructure.periphery.db.tables import auth as tables
+from auth.infrastructure.periphery.sqlalchemy import tables
 
 
 _AccountName: TypeAlias = _account.internal.entities.account_name.AccountName

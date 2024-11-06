@@ -14,7 +14,7 @@ ___
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
 docker compose -f Aqua/services/backend/docker-compose.dev.yml up
-docker exec aqua-backend alembic upgrade head
+docker exec aqua-backend alembic -c src/auth/alembic.ini upgrade head
 docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 ```
 
@@ -24,30 +24,17 @@ docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 > docker compose -f Aqua/services/backend/docker-compose.dev.yml up
 > ```
 
-## API схема
+## API
 <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/api-view.png?raw=true"/>
 
-## Дизайн
+## Архитектура
 Используемые подходы:
 - Модульный монолит
 - Чистая архитектура
-- Некоторые паттерны DDD
+- Паттерны DDD
+- Монада `Result`
 
-### Модули
-Система разделена на подсистемы — модули, каждый из которых представляет собой независимое (или почти независимое) приложение со своим внешним интерфейсом в виде фасада.
-
-#### Внутреннее устроиство модулей
-<picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
- <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
-</picture>
-
-<span></sman>
-
-> [!NOTE]
-> В контексте внутреннего разделения модулей на слои, при взаимодействии `A -> B`, как `A`, так и `B`, друг для друга находятся на слое переферий (`Periphery`), а именно для `A`, `B` будет находиться в переферии инфраструктуры (`Infrastructure periphery`), а для `B`, `A` будет находиться в переферии представления (`Presentation periphery`).
-
-#### Взаимодействие модулей
+### Общая структура
 <picture>
  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/dark-theme.png?raw=true">
  <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-relationship-map/light-theme.png?raw=true">
@@ -55,7 +42,16 @@ docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 
 <span></sman>
 
+> [!NOTE]
+> Взаимодействие модулей происходит синхронным образом через вызовы фасадов, не через сеть.
+
+### Структура модулей
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
+ <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
+</picture>
+
+<span></sman>
+
 > [!IMPORTANT]
-> Взаимодействие модулей происходит логически синхронным методом, т. е. отдельный модуль должен напрямую вызывать другой модуль без использоваия брокеров сообщений или других вещей предоставляющие эвенты.
-> 
-> Существует специальный модуль `Shared`, сам он не должен взаимодействовать с другими модулями и иметь фасада, так как другие модули могут взаимодействовать с ним так, как будто он является самой частью модуля, который его использует. Желательно держать его как можно меньше, что бы предотвратить большую связность между другими модулями, даже если придется написать несколько штук, которые (пока что) полностью повторяют друг друга.
+> Каждый модуль имеет свое индивидуальное устроиство, но на данный момент (06.11.2024) эта схема может их всех обобщить.

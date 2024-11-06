@@ -3,7 +3,7 @@ from typing import Literal
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -34,7 +34,7 @@ async def create_record(
     if session_id is None:
         return views.responses.bad.not_authenticated_view.to_response()
 
-    result = await facade.write_water.perform(
+    result = await services.write_water.perform(
         session_id,
         request_model.water_milliliters,
     )

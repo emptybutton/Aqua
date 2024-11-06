@@ -8,7 +8,7 @@ from auth.domain.models.access.aggregates import account as _account
 from auth.domain.models.access.vos.session_lifetime import SessionLifetime
 from auth.domain.models.access.vos.time import Time
 from auth.infrastructure.adapters.repos.db import DBAccounts
-from shared.infrastructure.periphery.db.tables import auth as tables
+from auth.infrastructure.periphery.sqlalchemy import tables
 
 
 _Session: TypeAlias = _account.internal.entities.session.Session

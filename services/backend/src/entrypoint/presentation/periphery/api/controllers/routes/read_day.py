@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import Response
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -29,7 +29,7 @@ async def read_day(
     if session_id is None:
         return views.responses.bad.not_authenticated_view.to_response()
 
-    result = await facade.read_day.perform(
+    result = await services.read_day.perform(
         session_id,
         date_,
     )

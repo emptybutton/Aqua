@@ -3,7 +3,7 @@ from typing import TypeAlias
 from auth.application.ports import loggers
 from auth.domain.models.access.aggregates import account as _account
 from auth.infrastructure.periphery import logs
-from shared.infrastructure.periphery.structlog import dev_logger
+from auth.infrastructure.periphery.structlog import dev_logger
 
 
 _Account: TypeAlias = _account.root.Account

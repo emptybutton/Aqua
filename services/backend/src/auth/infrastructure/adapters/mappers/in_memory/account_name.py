@@ -1,9 +1,8 @@
 from typing import TypeAlias
 
-from auth.application.ports.mappers import AccountNameMapper
+from auth.application.ports.mappers import AccountNameMapper, MapperFactory
 from auth.domain.models.access.aggregates import account as _account
 from auth.infrastructure.adapters.repos.in_memory import InMemoryAccounts
-from shared.application.ports.mappers import MapperFactory
 
 
 _AccountName: TypeAlias = _account.internal.entities.account_name.AccountName

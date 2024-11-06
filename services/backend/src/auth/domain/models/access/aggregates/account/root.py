@@ -4,6 +4,8 @@ from uuid import UUID, uuid4
 
 from result import Err, Ok, Result
 
+from auth.domain.framework import entity as _entity
+from auth.domain.framework.effects.base import Effect
 from auth.domain.models.access.aggregates.account.internal.entities import (
     account_name as _account_name,
 )
@@ -15,8 +17,6 @@ from auth.domain.models.access.aggregates.account.internal.specs import (
 )
 from auth.domain.models.access.vos import password as _password
 from auth.domain.models.access.vos import time as _time
-from shared.domain.framework import entity as _entity
-from shared.domain.framework.effects.base import Effect
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

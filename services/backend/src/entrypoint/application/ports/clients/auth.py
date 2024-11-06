@@ -1,14 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Generic, Literal, TypeVar
+from typing import Literal
 from uuid import UUID
-
-from shared.application.ports.transactions import Transaction
-
-
-_TransactionT_contra = TypeVar(
-    "_TransactionT_contra", bound=Transaction, contravariant=True
-)
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -51,18 +44,13 @@ class ChangePasswordOutput:
     session_id: UUID
 
 
-class Auth(Generic[_TransactionT_contra], ABC):
-    @abstractmethod
-    async def close(self) -> None: ...
-
+class Auth(ABC):
     @abstractmethod
     async def register_user(
         self,
         session_id: UUID | None,
         name: str,
         password: str,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         RegisterUserOutput
         | Literal["auth_is_not_working"]
@@ -73,7 +61,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def authenticate_user(
-        self, session_id: UUID, *, transaction: _TransactionT_contra
+        self, session_id: UUID
     ) -> (
         AuthenticateUserOutput
         | Literal["auth_is_not_working"]
@@ -89,8 +77,6 @@ class Auth(Generic[_TransactionT_contra], ABC):
         session_id: UUID | None,
         name: str,
         password: str,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         AuthorizeUserOutput
         | Literal["auth_is_not_working"]
@@ -100,7 +86,7 @@ class Auth(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def read_user(
-        self, user_id: UUID, *, transaction: _TransactionT_contra
+        self, user_id: UUID
     ) -> (
         ReadUserOutput | Literal["auth_is_not_working"] | Literal["no_user"]
     ): ...
@@ -110,8 +96,6 @@ class Auth(Generic[_TransactionT_contra], ABC):
         self,
         user_id: UUID,
         new_username: str,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         RenameUserOutput
         | Literal["auth_is_not_working"]
@@ -126,8 +110,6 @@ class Auth(Generic[_TransactionT_contra], ABC):
         session_id: UUID,
         user_id: UUID,
         new_password: str,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         ChangePasswordOutput
         | Literal["auth_is_not_working"]
@@ -139,6 +121,4 @@ class Auth(Generic[_TransactionT_contra], ABC):
     async def user_exists(
         self,
         username: str,
-        *,
-        transaction: _TransactionT_contra,
     ) -> bool | Literal["auth_is_not_working"]: ...

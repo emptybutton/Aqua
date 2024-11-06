@@ -1,15 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Generic, Literal, TypeVar
+from typing import Literal
 from uuid import UUID
-
-from shared.application.ports.transactions import Transaction
-
-
-_TransactionT_contra = TypeVar(
-    "_TransactionT_contra", bound=Transaction, contravariant=True
-)
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -99,10 +92,7 @@ class CancelRecordOutput:
     cancelled_record: RecordData
 
 
-class Aqua(Generic[_TransactionT_contra], ABC):
-    @abstractmethod
-    async def close(self) -> None: ...
-
+class Aqua(ABC):
     @abstractmethod
     async def register_user(
         self,
@@ -110,8 +100,6 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         target_water_balance_milliliters: int | None,
         glass_milliliters: int | None,
         weight_kilograms: int | None,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         RegisterUserOutput
         | Literal["aqua_is_not_working"]
@@ -126,8 +114,6 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         self,
         user_id: UUID,
         milliliters: int | None,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         WriteWaterOutput
         | Literal["aqua_is_not_working"]
@@ -137,14 +123,14 @@ class Aqua(Generic[_TransactionT_contra], ABC):
 
     @abstractmethod
     async def read_day(
-        self, user_id: UUID, date_: date, *, transaction: _TransactionT_contra
+        self, user_id: UUID, date_: date
     ) -> (
         ReadDayOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...
 
     @abstractmethod
     async def read_user(
-        self, user_id: UUID, *, transaction: _TransactionT_contra
+        self, user_id: UUID
     ) -> (
         ReadUserOutput | Literal["no_user"] | Literal["aqua_is_not_working"]
     ): ...
@@ -154,8 +140,6 @@ class Aqua(Generic[_TransactionT_contra], ABC):
         self,
         user_id: UUID,
         record_id: UUID,
-        *,
-        transaction: _TransactionT_contra,
     ) -> (
         CancelRecordOutput
         | Literal["aqua_is_not_working"]

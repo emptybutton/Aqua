@@ -5,7 +5,7 @@ from typing import Literal
 
 from result import Err, Ok, Result
 
-from shared.domain.framework.safe import SafeImmutable
+from auth.domain.framework.safe import SafeImmutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

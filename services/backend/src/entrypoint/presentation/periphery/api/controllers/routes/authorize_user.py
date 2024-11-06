@@ -1,7 +1,7 @@
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -31,7 +31,7 @@ async def authorize_user(
 ) -> Response:
     session_id = id_of(session_id_hex)
 
-    result = await facade.authorize_user.perform(
+    result = await services.authorize_user.perform(
         session_id,
         request_model.username,
         request_model.password,

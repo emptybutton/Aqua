@@ -4,13 +4,13 @@ from uuid import UUID, uuid4
 
 from result import Err, Ok, Result
 
+from auth.domain.framework.effects.base import Effect
+from auth.domain.framework.entity import Created, Entity, Mutated
+from auth.domain.framework.safe import SafeMutable
 from auth.domain.models.access.aggregates.account.internal.specs import (
     is_account_name_taken as _is_account_name_taken,
 )
 from auth.domain.models.access.vos.time import Time
-from shared.domain.framework.effects.base import Effect
-from shared.domain.framework.entity import Created, Entity, Mutated
-from shared.domain.framework.safe import SafeMutable
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, TypeAlias
 
+from auth.domain.framework.high_level_spec import HighLevelSpec
 from auth.domain.models.access.aggregates.account.ports.specs import (
     is_account_name_text_taken as _is_account_name_text_taken,
 )
-from shared.domain.framework.high_level_spec import HighLevelSpec
 
 
 if TYPE_CHECKING:

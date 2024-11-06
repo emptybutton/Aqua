@@ -1,7 +1,7 @@
 from pymongo import AsyncMongoClient
 
+from aqua.infrastructure.periphery import envs
 from aqua.infrastructure.periphery.pymongo.document import Document
-from shared.infrastructure.periphery.envs import Env
 
 
 def client_with(
@@ -11,7 +11,7 @@ def client_with(
         read_preference = "secondaryPreferred"
 
     return AsyncMongoClient(
-        Env.mongo_uri,
+        envs.mongo_uri,
         uuidRepresentation="standard",
         tz_aware=True,
         readPreference=read_preference,

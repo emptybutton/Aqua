@@ -3,12 +3,10 @@ from typing import Literal, TypeAlias, TypeVar
 from uuid import UUID
 
 from entrypoint.application.ports import clients, loggers
-from shared.application.ports.transactions import Transaction
 
 
-_TransactionT = TypeVar("_TransactionT", bound=Transaction)
-_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth[_TransactionT])  # type: ignore[valid-type]
-_AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua[_TransactionT])  # type: ignore[valid-type]
+_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth)
+_AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua)
 
 
 AquaOutput: TypeAlias = (
@@ -29,15 +27,12 @@ async def perform(
     session_id: UUID,
     record_id: UUID,
     *,
-    transaction: _TransactionT,
     auth: _AuthT,
     aqua: _AquaT,
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    auth_output = await auth.authenticate_user(
-        session_id, transaction=transaction
-    )
+    auth_output = await auth.authenticate_user(session_id)
 
     if auth_output == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -45,9 +40,7 @@ async def perform(
     if not isinstance(auth_output, clients.auth.AuthenticateUserOutput):
         return "not_authenticated"
 
-    aqua_result = await aqua.cancel_record(
-        auth_output.user_id, record_id, transaction=transaction
-    )
+    aqua_result = await aqua.cancel_record(auth_output.user_id, record_id)
 
     aqua_output: AquaOutput
 

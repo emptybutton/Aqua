@@ -1,7 +1,7 @@
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.presentation.di import facade
+from entrypoint.presentation.di import services
 from entrypoint.presentation.periphery.api import views
 from entrypoint.presentation.periphery.api.controllers import cookies
 from entrypoint.presentation.periphery.api.controllers.parsers import id_of
@@ -32,7 +32,7 @@ async def change_password(
     if session_id is None:
         return views.responses.bad.not_authenticated_view.to_response()
 
-    result = await facade.change_password.perform(
+    result = await services.change_password.perform(
         session_id,
         request_model.new_password,
     )
@@ -46,7 +46,7 @@ async def change_password(
     username = None
     error: views.bodies.ok.UserWithChangedPasswordView.Error = None
 
-    if isinstance(result.data, facade.change_password.OkData):
+    if isinstance(result.data, services.change_password.OkData):
         username = result.data.username
     elif result.data == "error":
         error = "unexpected_error"

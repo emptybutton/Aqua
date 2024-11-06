@@ -3,7 +3,10 @@ from uuid import UUID
 from entrypoint.application.ports import loggers
 from entrypoint.infrastructure.adapters import clients
 from entrypoint.infrastructure.periphery import logs
-from shared.infrastructure.periphery.structlog import dev_logger, prod_logger
+from entrypoint.infrastructure.periphery.structlog import (
+    dev_logger,
+    prod_logger,
+)
 
 
 class AquaFacadeDevLogger(loggers.AquaLogger[clients.aqua.AquaFacade]):

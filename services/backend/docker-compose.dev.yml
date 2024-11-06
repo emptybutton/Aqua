@@ -10,66 +10,71 @@ services:
     networks:
       - private-network
     environment:
-      FOR_DEV: true
-      POSTGRES_DATABASE: aqua
-      POSTGRES_USERNAME: aqua
-      POSTGRES_PASSWORD: aqua
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_ECHO: true
-      MONGO_URI: mongodb://mongo1,mongo2,mongo3/?replicaSet=aquaSet
-    depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
-      - postgres
+      AUTH_DEV: true
+      AUTH_POSTGRES_DATABASE: auth
+      AUTH_POSTGRES_USERNAME: auth
+      AUTH_POSTGRES_PASSWORD: auth
+      AUTH_POSTGRES_HOST: auth-postgres
+      AUTH_POSTGRES_PORT: 5432
+      AUTH_POSTGRES_ECHO: true
 
-  mongo1:
+      AQUA_DEV: true
+      AQUA_MONGO_URI: mongodb://aqua-mongo1,aqua-mongo2,aqua-mongo3/?replicaSet=aquaSet
+
+      ENTRYPOINT_DEV: true
+
+    depends_on:
+      - aqua-mongo1
+      - aqua-mongo2
+      - aqua-mongo3
+      - auth-postgres
+
+  aqua-mongo1:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo1
     restart: unless-stopped
     command: --replSet aquaSet
     volumes:
-      - mongo1_data:/data/db
-      - ./scripts/mongo1:/scripts
+      - aqua-mongo1-data:/data/db
+      - ./scripts/aqua-mongo1:/scripts
     networks:
       - private-network
     depends_on:
-      - mongo2
-      - mongo3
+      - aqua-mongo2
+      - aqua-mongo3
 
-  mongo2:
+  aqua-mongo2:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo2
     restart: unless-stopped
     command: --replSet aquaSet
     volumes:
-      - mongo2_data:/data/db
+      - aqua-mongo2-data:/data/db
     networks:
       - private-network
 
-  mongo3:
+  aqua-mongo3:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo3
     restart: unless-stopped
     command: --replSet aquaSet
     volumes:
-      - mongo3_data:/data/db
+      - aqua-mongo3-data:/data/db
     networks:
       - private-network
 
-  postgres:
+  auth-postgres:
     image: postgres:16.3-alpine3.19
-    container_name: aqua-postgres
+    container_name: auth-postgres
     restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - auth-postgres-data:/var/lib/postgresql/data
     networks:
       - private-network
     environment:
-      POSTGRES_DB: aqua
-      POSTGRES_USER: aqua
-      POSTGRES_PASSWORD: aqua
+      POSTGRES_DB: auth
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
 
   nginx:
     image: nginx:stable-alpine3.19-perl
@@ -89,7 +94,7 @@ networks:
     driver: bridge
 
 volumes:
-  mongo1_data: null
-  mongo2_data: null
-  mongo3_data: null
-  postgres_data: null
+  aqua-mongo1-data: null
+  aqua-mongo2-data: null
+  aqua-mongo3-data: null
+  auth-postgres-data: null

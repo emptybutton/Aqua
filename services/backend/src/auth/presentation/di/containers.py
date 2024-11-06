@@ -1,15 +1,22 @@
 from dishka import make_async_container
 
-from auth.presentation.di import providers as auth_providers
-from shared.presentation.di import providers as shared_providers
+from auth.presentation.di.providers import (
+    GatewayProvider,
+    LoggerProvider,
+    MepperProvider,
+    RepoProvider,
+    SqlalchemyProvider,
+    TransactionProvider,
+    ViewProvider,
+)
 
 
 async_container = make_async_container(
-    shared_providers.MultilevelPeripheryProvider(),
-    shared_providers.ConnectionTransactionProvider(),
-    auth_providers.RepoProvider(),
-    auth_providers.MepperProvider(),
-    auth_providers.LoggerProvider(),
-    auth_providers.ViewProvider(),
-    auth_providers.GatewayProvider(),
+    SqlalchemyProvider(),
+    RepoProvider(),
+    MepperProvider(),
+    LoggerProvider(),
+    ViewProvider(),
+    GatewayProvider(),
+    TransactionProvider(),
 )

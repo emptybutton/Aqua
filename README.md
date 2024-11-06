@@ -16,7 +16,7 @@ ___
 ```bash
 git clone https://github.com/emptybutton/Aqua.git
 docker compose -f Aqua/docker-compose.dev.yml up
-docker exec aqua-backend alembic upgrade head
+docker exec aqua-backend alembic -c src/auth/alembic.ini upgrade head
 docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 ```
 

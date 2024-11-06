@@ -15,7 +15,7 @@ FROM poetry AS build
 COPY pyproject.toml .
 COPY poetry.lock .
 ENV POETRY_VIRTUALENVS_CREATE=false
-RUN poetry lock && poetry install --no-root
+RUN poetry install --no-root
 
 
 FROM build AS start
