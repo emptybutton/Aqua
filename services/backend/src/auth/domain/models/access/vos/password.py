@@ -13,7 +13,9 @@ class Password(SafeImmutable):
     text: str
 
     @classmethod
-    def with_(cls, *, text: str) -> Result[
+    def with_(
+        cls, *, text: str
+    ) -> Result[
         "Password",
         Literal[
             "password_too_short",

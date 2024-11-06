@@ -49,7 +49,9 @@ async def change_account_name[AccountsT: Accounts](
     logger: Logger,
 ) -> Result[
     Output,
-    Literal["no_account", "account_name_text_is_empty", "account_name_is_taken"]
+    Literal[
+        "no_account", "account_name_text_is_empty", "account_name_is_taken"
+    ],
 ]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
@@ -90,19 +92,24 @@ async def change_account_name[AccountsT: Accounts](
                     current_account_name=account.current_name,
                     previous_account_name=output.previous_name,
                 )
+
         await result.map_async(act)
 
         await result.map_async(lambda _: log_effect(effect, logger))
-        await result.map_async(lambda _: map_effect(
-            effect,
-            Mappers(
-                (_Account, account_mapper_in(accounts)),
-                (_AccountName, account_name_mapper_in(accounts)),
-                (_Session, session_mapper_in(accounts)),
-            ),
-        ))
+        await result.map_async(
+            lambda _: map_effect(
+                effect,
+                Mappers(
+                    (_Account, account_mapper_in(accounts)),
+                    (_AccountName, account_name_mapper_in(accounts)),
+                    (_Session, session_mapper_in(accounts)),
+                ),
+            )
+        )
 
-        return result.map(lambda output: Output(
-            account=account,
-            previous_account_name=output.previous_name,
-        ))
+        return result.map(
+            lambda output: Output(
+                account=account,
+                previous_account_name=output.previous_name,
+            )
+        )

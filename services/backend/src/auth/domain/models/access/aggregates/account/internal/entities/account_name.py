@@ -60,15 +60,17 @@ class AccountName(Entity[UUID, AccountNameEvent], SafeMutable):
         if not text:
             return Err("account_name_text_is_empty")
 
-        return Ok(AccountName(
-            id=id,
-            account_id=account_id,
-            text=text,
-            taking_times=taking_times,
-            is_current=is_current,
-            events=events,
-            is_safe=True,
-        ))
+        return Ok(
+            AccountName(
+                id=id,
+                account_id=account_id,
+                text=text,
+                taking_times=taking_times,
+                is_current=is_current,
+                events=events,
+                is_safe=True,
+            )
+        )
 
     @classmethod
     async def create(

@@ -12,9 +12,9 @@ class Time(SafeImmutable):
     datetime_: datetime
 
     @classmethod
-    def with_(cls, *, datetime_: datetime) -> Result[
-        "Time", Literal["not_utc_time"]
-    ]:
+    def with_(
+        cls, *, datetime_: datetime
+    ) -> Result["Time", Literal["not_utc_time"]]:
         time = Time(datetime_=datetime_, is_safe=True)
 
         if time.datetime_.tzinfo is not UTC:

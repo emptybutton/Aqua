@@ -57,7 +57,8 @@ class Output:
 
 
 async def perform(
-    user_id: UUID, record_id: UUID,
+    user_id: UUID,
+    record_id: UUID,
 ) -> Output | Literal["no_record"]:
     async with adapter_container() as container:
         view_result = await cancel_record(

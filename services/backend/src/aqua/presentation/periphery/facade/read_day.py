@@ -72,7 +72,7 @@ async def perform(user_id: UUID, date_: date) -> Output:
 
 
 def _output_target_water_balance_milliliters_of(
-    view_target_water_balance_milliliters: int | None
+    view_target_water_balance_milliliters: int | None,
 ) -> int:
     if view_target_water_balance_milliliters is None:
         return 0

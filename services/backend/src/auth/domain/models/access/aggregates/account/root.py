@@ -38,10 +38,9 @@ class Account(_entity.Entity[UUID, AccountEvent]):
     def names(self) -> frozenset[_account_name.AccountName]:
         return frozenset({self.current_name, *self.previous_names})
 
-    def primary_authenticate(self, *, password: _password.Password) -> Result[
-        None,
-        Literal["invalid_password_for_primary_authentication"]
-    ]:
+    def primary_authenticate(
+        self, *, password: _password.Password
+    ) -> Result[None, Literal["invalid_password_for_primary_authentication"]]:
         password_hash = _password.hash_of(password)
 
         if self.password_hash != password_hash:
@@ -55,7 +54,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         session_id: UUID,
         current_time: _time.Time,
         effect: Effect,
-    ) ->  Result[
+    ) -> Result[
         _session.Session,
         Literal[
             "no_session_for_secondary_authentication",
@@ -96,7 +95,7 @@ class Account(_entity.Entity[UUID, AccountEvent]):
         effect: Effect,
     ) -> Result[
         NameChangeOutput,
-        Literal["account_name_text_is_empty", "account_name_is_taken"]
+        Literal["account_name_text_is_empty", "account_name_is_taken"],
     ]:
         if new_name_text == self.current_name.text:
             return Ok(Account.NameChangeOutput(previous_name=None))
@@ -194,22 +193,28 @@ class Account(_entity.Entity[UUID, AccountEvent]):
             effect=effect,
         )
 
-        account_result = name_result.map(lambda name: Account(
-            id=account_id,
-            current_name=name,
-            previous_names=set(),
-            sessions={current_session},
-            password_hash=password_hash,
-            events=[],
-        ))
-        account_result.map(lambda account: (
-            account.events.append(_entity.Created(entity=account))
-        ))
+        account_result = name_result.map(
+            lambda name: Account(
+                id=account_id,
+                current_name=name,
+                previous_names=set(),
+                sessions={current_session},
+                password_hash=password_hash,
+                events=[],
+            )
+        )
+        account_result.map(
+            lambda account: (
+                account.events.append(_entity.Created(entity=account))
+            )
+        )
         account_result.map(effect.consider)
 
-        return account_result.map(lambda account: Account.CreationOutput(
-            account=account, current_session=current_session
-        ))
+        return account_result.map(
+            lambda account: Account.CreationOutput(
+                account=account, current_session=current_session
+            )
+        )
 
     def __session_with(self, session_id: UUID) -> _session.Session | None:
         for session in self.sessions:
@@ -264,14 +269,15 @@ def login_to(
     current_session: _session.Session | None = None,
     effect: Effect,
 ) -> Result[
-    _session.Session,
-    Literal["invalid_password_for_primary_authentication"]
+    _session.Session, Literal["invalid_password_for_primary_authentication"]
 ]:
     result = account.primary_authenticate(password=password)
 
-    return result.map(lambda _: _session.issue_session(
-        account_id=account.id,
-        current_time=current_time,
-        current_session=current_session,
-        effect=effect,
-    ))
+    return result.map(
+        lambda _: _session.issue_session(
+            account_id=account.id,
+            current_time=current_time,
+            current_session=current_session,
+            effect=effect,
+        )
+    )

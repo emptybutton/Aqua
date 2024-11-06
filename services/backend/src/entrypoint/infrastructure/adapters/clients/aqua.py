@@ -70,9 +70,7 @@ class AquaFacade(clients.aqua.Aqua):
         | Literal["incorrect_water_amount"]
     ):
         try:
-            result = await aqua.write_water.perform(
-                user_id, milliliters
-            )
+            result = await aqua.write_water.perform(user_id, milliliters)
         except aqua.write_water.NoUserError:
             return "no_user"
         except aqua.write_water.IncorrectWaterAmountError:
@@ -115,9 +113,7 @@ class AquaFacade(clients.aqua.Aqua):
         | Literal["no_user"]
     ):
         try:
-            result = await aqua.read_day.perform(
-                user_id, date_
-            )
+            result = await aqua.read_day.perform(user_id, date_)
         except aqua.read_day.NoUserError:
             return "no_user"
         except Exception as error:
@@ -152,9 +148,7 @@ class AquaFacade(clients.aqua.Aqua):
         | Literal["no_user"]
     ):
         try:
-            result = await aqua.read_user.perform(
-                user_id
-            )
+            result = await aqua.read_user.perform(user_id)
         except Exception as error:
             self.__errors.append(error)
             return "aqua_is_not_working"
@@ -192,9 +186,7 @@ class AquaFacade(clients.aqua.Aqua):
         | Literal["no_record"]
     ):
         try:
-            result = await aqua.cancel_record.perform(
-                user_id, record_id
-            )
+            result = await aqua.cancel_record.perform(user_id, record_id)
         except Exception as error:
             self.__errors.append(error)
             return "aqua_is_not_working"

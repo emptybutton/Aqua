@@ -75,14 +75,16 @@ async def change_account_password[AccountsT: Accounts](
             lambda _: logger.log_password_change(account=account)
         )
         await result.map_async(lambda _: log_effect(effect, logger))
-        await result.map_async(lambda _: map_effect(
-            effect,
-            Mappers(
-                (_Account, account_mapper_in(accounts)),
-                (_AccountName, account_name_mapper_in(accounts)),
-                (_Session, session_mapper_in(accounts)),
-            ),
-        ))
+        await result.map_async(
+            lambda _: map_effect(
+                effect,
+                Mappers(
+                    (_Account, account_mapper_in(accounts)),
+                    (_AccountName, account_name_mapper_in(accounts)),
+                    (_Session, session_mapper_in(accounts)),
+                ),
+            )
+        )
 
         return result.map(
             lambda session: Output(account=account, session=session)

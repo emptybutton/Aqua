@@ -110,19 +110,25 @@ async def create_account[AccountsT: Accounts](
         )
         await swap(result).map_async(lambda _: transaction.rollback())
 
-        await result.map_async(lambda output: logger.log_registration(
-            account=output.account, session=output.current_session
-        ))
+        await result.map_async(
+            lambda output: logger.log_registration(
+                account=output.account, session=output.current_session
+            )
+        )
         await result.map_async(lambda _: log_effect(effect, logger))
-        await result.map_async(lambda _: map_effect(
-            effect,
-            Mappers(
-                (_Account, account_mapper_in(accounts)),
-                (_AccountName, account_name_mapper_in(accounts)),
-                (_Session, session_mapper_in(accounts)),
-            ),
-        ))
+        await result.map_async(
+            lambda _: map_effect(
+                effect,
+                Mappers(
+                    (_Account, account_mapper_in(accounts)),
+                    (_AccountName, account_name_mapper_in(accounts)),
+                    (_Session, session_mapper_in(accounts)),
+                ),
+            )
+        )
 
-        return result.map(lambda output:
-            Output(account=output.account, session=output.current_session)
+        return result.map(
+            lambda output: Output(
+                account=output.account, session=output.current_session
+            )
         )

@@ -1,4 +1,3 @@
-
 from auth.application.usecases import (
     view_account_with_name_exists as _view_account,
 )

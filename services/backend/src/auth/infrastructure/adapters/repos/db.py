@@ -267,14 +267,12 @@ class DBAccounts(ports.repos.Accounts):
             start_time = None
 
             if row.session_start_time is not None:
-                start_time = (
-                    Time.with_(datetime_=row.session_start_time).unwrap()
-                )
+                start_time = Time.with_(
+                    datetime_=row.session_start_time
+                ).unwrap()
 
             end_time = Time.with_(datetime_=row.session_end_time).unwrap()
-            lifetime = SessionLifetime(
-                start_time=start_time, end_time=end_time
-            )
+            lifetime = SessionLifetime(start_time=start_time, end_time=end_time)
             yield _Session(
                 id=row.session_id,
                 account_id=row.account_id,

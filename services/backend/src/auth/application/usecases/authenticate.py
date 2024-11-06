@@ -63,15 +63,19 @@ async def authenticate[AccountsT: Accounts](
         await swap(session_result).map_async(lambda _: transaction.rollback())
 
         await session_result.map_async(lambda _: log_effect(effect, logger))
-        await session_result.map_async(lambda _: map_effect(
-            effect,
-            Mappers(
-                (_Account, account_mapper_in(accounts)),
-                (_AccountName, account_name_mapper_in(accounts)),
-                (_Session, session_mapper_in(accounts)),
-            ),
-        ))
+        await session_result.map_async(
+            lambda _: map_effect(
+                effect,
+                Mappers(
+                    (_Account, account_mapper_in(accounts)),
+                    (_AccountName, account_name_mapper_in(accounts)),
+                    (_Session, session_mapper_in(accounts)),
+                ),
+            )
+        )
 
-        return session_result.map(lambda session: (
-            Output(account_id=account.id, session_id=session.id))
+        return session_result.map(
+            lambda session: (
+                Output(account_id=account.id, session_id=session.id)
+            )
         )

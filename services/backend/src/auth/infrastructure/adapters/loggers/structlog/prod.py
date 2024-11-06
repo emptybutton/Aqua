@@ -64,9 +64,7 @@ class StructlogProdLogger(loggers.Logger):
             **self.__mapper.to_dict(session),
         )
 
-    async def log_login(
-        self, *, account: _Account, session: _Session
-    ) -> None:
+    async def log_login(self, *, account: _Account, session: _Session) -> None:
         await prod_logger.ainfo(
             logs.login_log,
             **self.__mapper.to_dict(account),
@@ -85,9 +83,11 @@ class StructlogProdLogger(loggers.Logger):
         current_account_name: _AccountName,
         previous_account_name: _AccountName,
     ) -> None:
-        event = last_among(current_account_name.events_with_type(
-            _account.internal.entities.account_name.BecameCurrent
-        ))
+        event = last_among(
+            current_account_name.events_with_type(
+                _account.internal.entities.account_name.BecameCurrent
+            )
+        )
         taking_time = None if event is None else event.new_taking_time
         await prod_logger.ainfo(
             logs.renaming_log,

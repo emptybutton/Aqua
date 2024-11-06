@@ -42,9 +42,11 @@ def from_[AValueT, AErrorT, BValueT, BErrorT, **Params](
 def async_from[AValueT, AErrorT, BValueT, BErrorT, **Params](
     result: Result[AValueT, AErrorT],
 ) -> Callable[
-    [Callable[
-        Concatenate[AValueT, Params], Awaitable[Result[BValueT, BErrorT]]
-    ]],
+    [
+        Callable[
+            Concatenate[AValueT, Params], Awaitable[Result[BValueT, BErrorT]]
+        ]
+    ],
     Callable[Params, Awaitable[Result[BValueT, AErrorT | BErrorT]]],
 ]:
     def decorator(
@@ -65,6 +67,6 @@ def async_from[AValueT, AErrorT, BValueT, BErrorT, **Params](
 
 
 async def sync[ValueT, ErrorT](
-    async_result: Result[Awaitable[ValueT], ErrorT]
+    async_result: Result[Awaitable[ValueT], ErrorT],
 ) -> Result[ValueT, ErrorT]:
     return await async_result.map_async(lambda value: value)
