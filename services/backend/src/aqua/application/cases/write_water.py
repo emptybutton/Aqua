@@ -1,5 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import AsyncIterator
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -24,6 +26,7 @@ from aqua.domain.model.primitives.vos.water import (
 class NoUserError: ...
 
 
+@asynccontextmanager
 async def write_water[UsersT: repos.Users, ViewT](
     user_id: UUID,
     milliliters: int | None,
@@ -35,7 +38,7 @@ async def write_water[UsersT: repos.Users, ViewT](
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
-) -> Result[ViewT, NoUserError | NegativeWaterAmountError]:
+) -> AsyncIterator[Result[ViewT, NoUserError | NegativeWaterAmountError]]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     if milliliters is None:
@@ -45,13 +48,15 @@ async def write_water[UsersT: repos.Users, ViewT](
             case Ok(value):
                 water = value
             case Err(_) as result:
-                return result
+                yield result
+                return
 
     async with transaction_for(users):
         user = await users.user_with_id(user_id)
 
         if user is None:
-            return Err(NoUserError())
+            yield Err(NoUserError())
+            return
 
         effect = SearchableEffect()
         output = user.write_water(
@@ -66,4 +71,4 @@ async def write_water[UsersT: repos.Users, ViewT](
             logger=logger,
         )
 
-        return Ok(view_of(user=user, output=output))
+        yield Ok(view_of(user=user, output=output))

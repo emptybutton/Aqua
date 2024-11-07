@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal, TypeAlias
+from typing import AsyncIterator, Literal, TypeAlias
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -29,6 +30,7 @@ class Output:
     session: _Session
 
 
+@asynccontextmanager
 async def login_to_account[AccountsT: Accounts](
     session_id: UUID | None,
     name_text: str,
@@ -41,14 +43,15 @@ async def login_to_account[AccountsT: Accounts](
     transaction_for: TransactionFactory[AccountsT],
     gateway_to: GatewayFactory[AccountsT],
     logger: Logger,
-) -> Result[Output, Literal["no_account", "incorrect_password"]]:
+) -> AsyncIterator[Result[Output, Literal["no_account", "incorrect_password"]]]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     match Password.with_(text=password_text):
         case Ok(value):
             password = value
         case Err(value):
-            return Err("incorrect_password")
+            yield Err("incorrect_password")
+            return
 
     async with transaction_for(accounts) as transaction:
         if session_id is None:
@@ -67,7 +70,8 @@ async def login_to_account[AccountsT: Accounts](
 
         if account is None:
             await transaction.rollback()
-            return Err("no_account")
+            yield Err("no_account")
+            return
 
         effect = SearchableEffect()
         result = _account.root.login_to(
@@ -82,7 +86,8 @@ async def login_to_account[AccountsT: Accounts](
                 session = v
             case Err(v):
                 await transaction.rollback()
-                return Err("incorrect_password")
+                yield Err("incorrect_password")
+                return
 
         await logger.log_login(account=account, session=session)
         await log_effect(effect, logger)
@@ -95,4 +100,4 @@ async def login_to_account[AccountsT: Accounts](
             ),
         )
 
-        return Ok(Output(account=account, session=session))
+        yield Ok(Output(account=account, session=session))

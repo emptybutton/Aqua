@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Literal
+from typing import AsyncIterator, Literal
 from uuid import UUID
 
 from result import Err, Ok
@@ -56,47 +57,47 @@ class Output:
     cancelled_record: RecordData
 
 
+@asynccontextmanager
 async def perform(
     user_id: UUID,
     record_id: UUID,
-) -> Output | Literal["no_record"]:
-    async with adapter_container() as container:
-        view_result = await cancel_record(
-            user_id,
-            record_id,
-            view_of=await container.get(InMemoryCancellationViewOf, "views"),
-            users=await container.get(MongoUsers, "repos"),
-            transaction_for=await container.get(
-                MongoTransactionForMongoUsers, "transactions"
-            ),
-            logger=await container.get(Logger, "loggers"),
-            user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
-            record_mapper_to=await container.get(
-                MongoRecordMapperTo, "mappers"
-            ),
-            day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
+) -> AsyncIterator[Output | Literal["no_record"]]:
+    async with adapter_container() as container, cancel_record(
+        user_id,
+        record_id,
+        view_of=await container.get(InMemoryCancellationViewOf, "views"),
+        users=await container.get(MongoUsers, "repos"),
+        transaction_for=await container.get(
+            MongoTransactionForMongoUsers, "transactions"
+        ),
+        logger=await container.get(Logger, "loggers"),
+        user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
+        record_mapper_to=await container.get(
+            MongoRecordMapperTo, "mappers"
+        ),
+        day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
+    ) as view_result:
+        match view_result:
+            case Err(_):
+                yield "no_record"
+                return
+            case Ok(view):
+                user = view.user
+                day = view.day
+                cancelled_record = view.cancelled_record
+                records = view.records
+
+        yield Output(
+            user_id=user.id,
+            target_water_balance_milliliters=target_view_of(day.target),
+            date_=day.date_,
+            water_balance_milliliters=water_balance_view_of(day.water_balance),
+            result_code=old_result_view_of(day.result),
+            real_result_code=old_result_view_of(day.correct_result),
+            is_result_pinned=day.is_result_pinned,
+            day_records=tuple(map(_data_of, records)),
+            cancelled_record=_data_of(cancelled_record),
         )
-
-    match view_result:
-        case Err(_):
-            return "no_record"
-        case Ok(view):
-            user = view.user
-            day = view.day
-            cancelled_record = view.cancelled_record
-            records = view.records
-
-    return Output(
-        user_id=user.id,
-        target_water_balance_milliliters=target_view_of(day.target),
-        date_=day.date_,
-        water_balance_milliliters=water_balance_view_of(day.water_balance),
-        result_code=old_result_view_of(day.result),
-        real_result_code=old_result_view_of(day.correct_result),
-        is_result_pinned=day.is_result_pinned,
-        day_records=tuple(map(_data_of, records)),
-        cancelled_record=_data_of(cancelled_record),
-    )
 
 
 def _data_of(record: Record) -> RecordData:

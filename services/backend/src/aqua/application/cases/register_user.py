@@ -1,8 +1,9 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from operator import call
+from typing import AsyncIterator
 from uuid import UUID
 
-from result import Ok, Result
+from result import Err, Ok, Result
 
 from aqua.application.output.output_effect import output_effect
 from aqua.application.ports import loggers, repos, views
@@ -13,7 +14,7 @@ from aqua.application.ports.mappers import (
 )
 from aqua.application.ports.transactions import TransactionFor
 from aqua.domain.framework.effects.searchable import SearchableEffect
-from aqua.domain.framework.fp.result import async_from
+from aqua.domain.framework.fp.result import ErrList, OkList, rlist
 from aqua.domain.model.access.entities.user import User as AccessUser
 from aqua.domain.model.core.aggregates.user.root import (
     NoWeightForSuitableWaterBalanceError,
@@ -41,6 +42,7 @@ class NegativeGlassMillilitersError: ...
 class NegativeWeightKilogramsError: ...
 
 
+@asynccontextmanager
 async def register_user[UsersT: repos.Users, ViewT](
     user_id: UUID,
     target_water_balance_milliliters: int | None,
@@ -54,7 +56,7 @@ async def register_user[UsersT: repos.Users, ViewT](
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
-) -> Result[
+) -> AsyncIterator[Result[
     ViewT,
     (
         ExtremeWeightForSuitableWaterBalanceError
@@ -63,7 +65,7 @@ async def register_user[UsersT: repos.Users, ViewT](
         | NegativeGlassMillilitersError
         | NegativeWeightKilogramsError
     ),
-]:
+]]:
     target_result: Result[
         Target | None, NegativeTargetWaterBalanceMillilitersError
     ]
@@ -95,49 +97,37 @@ async def register_user[UsersT: repos.Users, ViewT](
             .map(lambda water: Glass(capacity=water))
         )
 
-    @call
-    @async_from(target_result)
-    @async_from(glass_result)
-    @async_from(weight_result)
-    async def async_view_result(
-        weight: Weight | None,
-        glass: Glass | None,
-        target: Target | None,
-        /,
-    ) -> Result[
-        ViewT,
-        (
-            ExtremeWeightForSuitableWaterBalanceError
-            | NoWeightForSuitableWaterBalanceError
-        ),
-    ]:
-        effect = SearchableEffect()
+    match rlist(target_result) + rlist(glass_result) + rlist(weight_result):
+        case ErrList(error):
+            yield Err(error)
+            return
+        case OkList((target, glass, weight)): ...
 
-        async with transaction_for(users):
-            user = await users.user_with_id(user_id)
+    effect = SearchableEffect()
 
-            if user is not None:
-                await logger.log_registered_user_registration(user)
-                return Ok(view_of(user))
+    async with transaction_for(users):
+        user = await users.user_with_id(user_id)
 
-            user_result = User.translated_from(
-                AccessUser(id=user_id, events=list()),
-                weight=weight,
-                glass=glass,
-                target=target,
-                effect=effect,
+        if user is not None:
+            await logger.log_registered_user_registration(user)
+            yield Ok(view_of(user))
+
+        user_result = User.translated_from(
+            AccessUser(id=user_id, events=list()),
+            weight=weight,
+            glass=glass,
+            target=target,
+            effect=effect,
+        )
+
+        await user_result.map_async(
+            lambda _: output_effect(
+                effect,
+                user_mapper=user_mapper_to(users),
+                day_mapper=day_mapper_to(users),
+                record_mapper=record_mapper_to(users),
+                logger=logger,
             )
+        )
 
-            await user_result.map_async(
-                lambda _: output_effect(
-                    effect,
-                    user_mapper=user_mapper_to(users),
-                    day_mapper=day_mapper_to(users),
-                    record_mapper=record_mapper_to(users),
-                    logger=logger,
-                )
-            )
-
-            return user_result.map(lambda user: view_of(user))
-
-    return await async_view_result
+        yield user_result.map(lambda user: view_of(user))

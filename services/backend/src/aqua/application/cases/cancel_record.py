@@ -1,4 +1,6 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from typing import AsyncIterator
 from uuid import UUID
 
 from result import Err, Result
@@ -27,6 +29,7 @@ from aqua.domain.model.core.aggregates.user.root import (
 class NoUserError: ...
 
 
+@asynccontextmanager
 async def cancel_record[UsersT: repos.Users, ViewT](
     user_id: UUID,
     record_id: UUID,
@@ -38,20 +41,23 @@ async def cancel_record[UsersT: repos.Users, ViewT](
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
-) -> Result[
-    ViewT,
-    (
-        NoUserError
-        | NoRecordToCancelError
-        | CancelledRecordToCancelError
-        | NoRecordDayToCancelError
-    ),
+) -> AsyncIterator[
+    Result[
+        ViewT,
+        (
+            NoUserError
+            | NoRecordToCancelError
+            | CancelledRecordToCancelError
+            | NoRecordDayToCancelError
+        ),
+    ]
 ]:
     async with transaction_for(users):
         user = await users.user_with_id(user_id)
 
         if not user:
-            return Err(NoUserError())
+            yield Err(NoUserError())
+            return
 
         effect = SearchableEffect()
         result = user.cancel_record(record_id=record_id, effect=effect)
@@ -70,6 +76,6 @@ async def cancel_record[UsersT: repos.Users, ViewT](
             )
         )
 
-        return result.map(
+        yield result.map(
             lambda output: view_of(user=user, output=output)
         ).map_err(lambda env: env.value)

@@ -1,5 +1,6 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import AsyncIterator, Literal, TypeAlias
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -27,6 +28,7 @@ class Output:
     session: _Session
 
 
+@asynccontextmanager
 async def change_account_password[AccountsT: Accounts](
     account_id: UUID,
     new_password_text: str,
@@ -38,7 +40,7 @@ async def change_account_password[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Result[
+) -> AsyncIterator[Result[
     Output,
     Literal[
         "no_account",
@@ -49,19 +51,21 @@ async def change_account_password[AccountsT: Accounts](
         "password_contains_only_digits",
         "password_has_no_numbers",
     ],
-]:
+]]:
     match Password.with_(text=new_password_text):
         case Ok(v):
             new_password = v
         case Err(v) as r:
-            return r
+            yield r
+            return
 
     async with transaction_for(accounts) as transaction:
         account = await accounts.account_with_id(account_id)
 
         if not account:
             await transaction.rollback()
-            return Err("no_account")
+            yield Err("no_account")
+            return
 
         effect = SearchableEffect()
         result = account.change_password(
@@ -86,6 +90,6 @@ async def change_account_password[AccountsT: Accounts](
             )
         )
 
-        return result.map(
+        yield result.map(
             lambda session: Output(account=account, session=session)
         )
