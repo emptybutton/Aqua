@@ -33,7 +33,7 @@ services:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo1
     restart: unless-stopped
-    command: --replSet aquaSet
+    command: --replSet aquaSet --syslog
     volumes:
       - aqua-mongo1-data:/data/db
       - ./scripts/aqua-mongo1:/scripts
@@ -47,7 +47,7 @@ services:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo2
     restart: unless-stopped
-    command: --replSet aquaSet
+    command: --replSet aquaSet --syslog
     volumes:
       - aqua-mongo2-data:/data/db
     networks:
@@ -57,7 +57,7 @@ services:
     image: mongo:8.0.3-noble
     container_name: aqua-mongo3
     restart: unless-stopped
-    command: --replSet aquaSet
+    command: --replSet aquaSet --syslog
     volumes:
       - aqua-mongo3-data:/data/db
     networks:
