@@ -44,12 +44,12 @@ async def perform(session_id: UUID, date_: date) -> Output:
         result = await read_day.perform(
             session_id,
             date_,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            aqua=container.get(clients.aqua.AquaFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
-            aqua_logger=await container.get(
+            aqua_logger=container.get(
                 ports.loggers.AquaLogger[clients.aqua.AquaFacade], "loggers"
             ),
         )

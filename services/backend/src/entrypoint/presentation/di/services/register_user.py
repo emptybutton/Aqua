@@ -47,12 +47,12 @@ async def perform(  # noqa: PLR0917
             target_water_balance_milliliters,
             glass_milliliters,
             weight_kilograms,
-            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            aqua_logger=await container.get(
+            aqua=container.get(clients.aqua.AquaFacade, "clients"),
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            aqua_logger=container.get(
                 ports.loggers.AquaLogger[clients.aqua.AquaFacade], "loggers"
             ),
-            auth_logger=await container.get(
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )

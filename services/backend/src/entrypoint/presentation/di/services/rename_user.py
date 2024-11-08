@@ -37,8 +37,8 @@ async def perform(session_id: UUID, new_username: str) -> Output:
         result = await rename_user.perform(
             session_id,
             new_username,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )

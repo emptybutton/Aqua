@@ -46,12 +46,12 @@ async def perform(session_id: UUID, record_id: UUID) -> Output:
         result = await cancel_record.perform(
             session_id,
             record_id,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            aqua=await container.get(clients.aqua.AquaFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            aqua=container.get(clients.aqua.AquaFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
-            aqua_logger=await container.get(
+            aqua_logger=container.get(
                 ports.loggers.AquaLogger[clients.aqua.AquaFacade], "loggers"
             ),
         )

@@ -13,8 +13,8 @@ async def perform(username: str) -> Output:
     with sync_container() as container:
         return await user_exists.perform(
             username,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )

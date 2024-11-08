@@ -31,8 +31,8 @@ async def perform(session_id: UUID, new_password: str) -> Output:
         result = await change_password.perform(
             session_id,
             new_password,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )

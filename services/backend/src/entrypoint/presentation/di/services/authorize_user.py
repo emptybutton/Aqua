@@ -29,8 +29,8 @@ async def perform(session_id: UUID | None, name: str, password: str) -> Output:
             session_id,
             name,
             password,
-            auth=await container.get(clients.auth.AuthFacade, "clients"),
-            auth_logger=await container.get(
+            auth=container.get(clients.auth.AuthFacade, "clients"),
+            auth_logger=container.get(
                 ports.loggers.AuthLogger[clients.auth.AuthFacade], "loggers"
             ),
         )
