@@ -65,7 +65,7 @@ async def perform(
     ) as result:
         match result:
             case Ok(output):
-                return Output(
+                yield Output(
                     user_id=output.account.id,
                     username=output.account.current_name.text,
                     session_id=output.session.id,

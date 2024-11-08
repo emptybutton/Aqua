@@ -101,7 +101,8 @@ async def register_user[UsersT: repos.Users, ViewT](
         case ErrList(error):
             yield Err(error)
             return
-        case OkList((target, glass, weight)): ...
+        case OkList(list_):
+            target, glass, weight = list_
 
     effect = SearchableEffect()
 
@@ -111,6 +112,7 @@ async def register_user[UsersT: repos.Users, ViewT](
         if user is not None:
             await logger.log_registered_user_registration(user)
             yield Ok(view_of(user))
+            return
 
         user_result = User.translated_from(
             AccessUser(id=user_id, events=list()),

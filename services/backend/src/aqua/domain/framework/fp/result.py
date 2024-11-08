@@ -133,7 +133,7 @@ class OkList[Values: AnyTuple]:
 
 @dataclass(frozen=True, slots=True)
 class ErrList[Value]:
-    _value: Value
+    __value: Value
 
     def __add__(self, _: Any) -> Self:  # noqa: ANN401
         return self
@@ -144,7 +144,14 @@ class ErrList[Value]:
     def map_err[NewValue](
         self, act: Callable[[Value], NewValue]
     ) -> "ErrList[NewValue]":
-        return ErrList(act(self._value))
+        return ErrList(act(self.__value))
+
+
+@overload
+def rlist[Value](result: Ok[Value]) -> OkList[tuple[Value]]: ...
+
+@overload
+def rlist[Error](result: Err[Error]) -> ErrList[Error]: ...
 
 
 def rlist[Value, Error](
