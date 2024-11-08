@@ -32,7 +32,8 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    async with auth.authenticate_user(session_id) as auth_output: ...
+    async with auth.authenticate_user(session_id) as auth_output:
+        ...
 
     if auth_output == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)

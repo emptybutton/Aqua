@@ -14,12 +14,12 @@ def test_map_err() -> None:
 
 
 def test_add_with_ok_list() -> None:
-    result = OkList((1, )) + OkList((2, )) + OkList((3, ))
+    result = OkList((1,)) + OkList((2,)) + OkList((3,))
 
     assert result == OkList((1, 2, 3))
 
 
 def test_add_with_err_list() -> None:
-    result = OkList((1, )) + ErrList(2) + ErrList(3)
+    result = OkList((1,)) + ErrList(2) + ErrList(3)
 
     assert result == ErrList(2)

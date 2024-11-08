@@ -56,16 +56,18 @@ async def register_user[UsersT: repos.Users, ViewT](
     user_mapper_to: UserMapperTo[UsersT],
     day_mapper_to: DayMapperTo[UsersT],
     record_mapper_to: RecordMapperTo[UsersT],
-) -> AsyncIterator[Result[
-    ViewT,
-    (
-        ExtremeWeightForSuitableWaterBalanceError
-        | NoWeightForSuitableWaterBalanceError
-        | NegativeTargetWaterBalanceMillilitersError
-        | NegativeGlassMillilitersError
-        | NegativeWeightKilogramsError
-    ),
-]]:
+) -> AsyncIterator[
+    Result[
+        ViewT,
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+            | NegativeTargetWaterBalanceMillilitersError
+            | NegativeGlassMillilitersError
+            | NegativeWeightKilogramsError
+        ),
+    ]
+]:
     target_result: Result[
         Target | None, NegativeTargetWaterBalanceMillilitersError
     ]

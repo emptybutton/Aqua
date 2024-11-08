@@ -52,12 +52,14 @@ async def perform(  # noqa: PLR0917
 
             return auth_result
 
-        aqua_context = Context(aqua.register_user(
-            auth_result.user_id,
-            target_water_balance_milliliters,
-            glass_milliliters,
-            weight_kilograms,
-        ))
+        aqua_context = Context(
+            aqua.register_user(
+                auth_result.user_id,
+                target_water_balance_milliliters,
+                glass_milliliters,
+                weight_kilograms,
+            )
+        )
 
         async with aqua_context as aqua_result:
             if not isinstance(aqua_result, clients.aqua.RegisterUserOutput):

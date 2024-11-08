@@ -39,16 +39,18 @@ async def authenticate[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> AsyncIterator[Result[
-    Output,
-    Literal[
-        "no_account",
-        "no_session_for_secondary_authentication",
-        "expired_session_for_secondary_authentication",
-        "cancelled_session_for_secondary_authentication",
-        "replaced_session_for_secondary_authentication",
-    ],
-]]:
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "no_account",
+            "no_session_for_secondary_authentication",
+            "expired_session_for_secondary_authentication",
+            "cancelled_session_for_secondary_authentication",
+            "replaced_session_for_secondary_authentication",
+        ],
+    ]
+]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     async with transaction_for(accounts) as transaction:

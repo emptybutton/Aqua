@@ -82,9 +82,7 @@ async def perform(
         ),
         logger=await container.get(Logger, "loggers"),
         user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
-        record_mapper_to=await container.get(
-            MongoRecordMapperTo, "mappers"
-        ),
+        record_mapper_to=await container.get(MongoRecordMapperTo, "mappers"),
         day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
     ) as result:
         match result:

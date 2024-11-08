@@ -80,9 +80,9 @@ def context() -> Context:
     users = InMemoryUsers()
     logger = InMemoryLogger()
 
-    async def write_water(user_id: UUID, water: int | None) -> Result[
-        InMemoryWritingView, NoUserError | NegativeWaterAmountError
-    ]:
+    async def write_water(
+        user_id: UUID, water: int | None
+    ) -> Result[InMemoryWritingView, NoUserError | NegativeWaterAmountError]:
         async with case(
             user_id,
             water,

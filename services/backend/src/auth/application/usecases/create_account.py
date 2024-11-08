@@ -57,18 +57,20 @@ async def create_account[AccountsT: Accounts](
     transaction_for: TransactionFactory[AccountsT],
     gateway_to: GatewayFactory[AccountsT],
     logger: Logger,
-) -> AsyncIterator[Result[
-    Output,
-    Literal[
-        "account_name_text_is_empty",
-        "account_name_is_taken",
-        "password_too_short",
-        "password_contains_only_small_letters",
-        "password_contains_only_capital_letters",
-        "password_contains_only_digits",
-        "password_has_no_numbers",
-    ],
-]]:
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "account_name_text_is_empty",
+            "account_name_is_taken",
+            "password_too_short",
+            "password_contains_only_small_letters",
+            "password_contains_only_capital_letters",
+            "password_contains_only_digits",
+            "password_has_no_numbers",
+        ],
+    ]
+]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     match Password.with_(text=password_text):

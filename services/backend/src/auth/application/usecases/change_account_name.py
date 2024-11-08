@@ -49,12 +49,14 @@ async def change_account_name[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> AsyncIterator[Result[
-    Output,
-    Literal[
-        "no_account", "account_name_text_is_empty", "account_name_is_taken"
-    ],
-]]:
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "no_account", "account_name_text_is_empty", "account_name_is_taken"
+        ],
+    ]
+]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
     async with transaction_for(accounts) as transaction:

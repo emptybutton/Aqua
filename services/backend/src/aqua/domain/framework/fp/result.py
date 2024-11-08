@@ -69,8 +69,9 @@ class OkList[Values: AnyTuple]:
     __values: Values
 
     @overload
-    def __add__[Error](self, result_list: "ErrList[Error]") -> "ErrList[Error]":
-        ...
+    def __add__[Error](
+        self, result_list: "ErrList[Error]"
+    ) -> "ErrList[Error]": ...
 
     @overload
     def __add__[*ValuesTVT, T1](
@@ -79,32 +80,31 @@ class OkList[Values: AnyTuple]:
 
     @overload
     def __add__[*ValuesTVT, T1, T2](
-        self: "OkList[tuple[*ValuesTVT]]",
-        result_list: "OkList[tuple[T1, T2]]"
+        self: "OkList[tuple[*ValuesTVT]]", result_list: "OkList[tuple[T1, T2]]"
     ) -> "OkList[tuple[*ValuesTVT, T1, T2]]": ...
 
     @overload
     def __add__[*ValuesTVT, T1, T2, T3](
         self: "OkList[tuple[*ValuesTVT]]",
-        result_list: "OkList[tuple[T1, T2, T3]]"
+        result_list: "OkList[tuple[T1, T2, T3]]",
     ) -> "OkList[tuple[*ValuesTVT, T1, T2, T3]]": ...
 
     @overload
     def __add__[*ValuesTVT, T1, T2, T3, T4](
         self: "OkList[tuple[*ValuesTVT]]",
-        result_list: "OkList[tuple[T1, T2, T3, T4]]"
+        result_list: "OkList[tuple[T1, T2, T3, T4]]",
     ) -> "OkList[tuple[*ValuesTVT, T1, T2, T3, T4]]": ...
 
     @overload
     def __add__[*ValuesTVT, T1, T2, T3, T4, T5](
         self: "OkList[tuple[*ValuesTVT]]",
-        result_list: "OkList[tuple[T1, T2, T3, T4, T5]]"
+        result_list: "OkList[tuple[T1, T2, T3, T4, T5]]",
     ) -> "OkList[tuple[*ValuesTVT, T1, T2, T3, T4, T5]]": ...
 
     @overload
     def __add__[*ValuesTVT, T1, T2, T3, T4, T5, T6](
         self: "OkList[tuple[*ValuesTVT]]",
-        result_list: "OkList[tuple[T1, T2, T3, T4, T6]]"
+        result_list: "OkList[tuple[T1, T2, T3, T4, T6]]",
     ) -> "OkList[tuple[*ValuesTVT, T1, T2, T3, T4, T6]]": ...
 
     @overload
@@ -150,16 +150,17 @@ class ErrList[Value]:
 @overload
 def rlist[Value](result: Ok[Value]) -> OkList[tuple[Value]]: ...
 
+
 @overload
 def rlist[Error](result: Err[Error]) -> ErrList[Error]: ...
 
 
 def rlist[Value, Error](
-    result: Result[Value, Error]
+    result: Result[Value, Error],
 ) -> ResultList[tuple[Value], Error]:
     match result:
         case Ok(value):
-            return OkList((value, ))
+            return OkList((value,))
         case Err(error):
             return ErrList(error)
 

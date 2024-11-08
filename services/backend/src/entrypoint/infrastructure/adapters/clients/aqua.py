@@ -76,9 +76,12 @@ class AquaFacade(clients.aqua.Aqua):
         try:
             async with aqua.write_water.perform(user_id, milliliters) as result:
                 target = result.target_water_balance_milliliters
-                previous_records = tuple(map(
-                    self.__write_water_record_data_of, result.previous_records
-                ))
+                previous_records = tuple(
+                    map(
+                        self.__write_water_record_data_of,
+                        result.previous_records,
+                    )
+                )
 
                 yield clients.aqua.WriteWaterOutput(
                     user_id=result.user_id,

@@ -40,18 +40,20 @@ async def change_account_password[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> AsyncIterator[Result[
-    Output,
-    Literal[
-        "no_account",
-        "no_session_for_password_change",
-        "password_too_short",
-        "password_contains_only_small_letters",
-        "password_contains_only_capital_letters",
-        "password_contains_only_digits",
-        "password_has_no_numbers",
-    ],
-]]:
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "no_account",
+            "no_session_for_password_change",
+            "password_too_short",
+            "password_contains_only_small_letters",
+            "password_contains_only_capital_letters",
+            "password_contains_only_digits",
+            "password_has_no_numbers",
+        ],
+    ]
+]:
     match Password.with_(text=new_password_text):
         case Ok(v):
             new_password = v
