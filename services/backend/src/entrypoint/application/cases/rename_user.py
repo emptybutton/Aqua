@@ -32,7 +32,7 @@ async def perform(
     auth: _AuthT,
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
-    authentication_result = await auth.authenticate_user(session_id)
+    async with auth.authenticate_user(session_id) as authentication_result: ...
 
     if authentication_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -42,22 +42,20 @@ async def perform(
     ):
         return "not_authenticated"
 
-    renaming_result = await auth.rename_user(
-        authentication_result.user_id, new_username
-    )
+    user_id = authentication_result.user_id
+    async with auth.rename_user(user_id, new_username) as renaming_result:
+        renaming_output: _RenamingOutput = "error"
 
-    renaming_output: _RenamingOutput = "error"
+        if renaming_result == "auth_is_not_working":
+            await auth_logger.log_auth_is_not_working(auth)
+        elif renaming_result == "no_user":
+            await auth_logger.log_user_without_session(
+                auth, authentication_result.user_id, session_id
+            )
+        else:
+            renaming_output = renaming_result
 
-    if renaming_result == "auth_is_not_working":
-        await auth_logger.log_auth_is_not_working(auth)
-    elif renaming_result == "no_user":
-        await auth_logger.log_user_without_session(
-            auth, authentication_result.user_id, session_id
+        return OutputData(
+            authentication_output=authentication_result,
+            renaming_output=renaming_output,
         )
-    else:
-        renaming_output = renaming_result
-
-    return OutputData(
-        authentication_output=authentication_result,
-        renaming_output=renaming_output,
-    )

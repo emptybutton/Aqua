@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Literal
+from typing import AsyncContextManager, Literal
 from uuid import UUID
 
 
@@ -46,43 +46,43 @@ class ChangePasswordOutput:
 
 class Auth(ABC):
     @abstractmethod
-    async def register_user(
+    def register_user(
         self,
         session_id: UUID | None,
         name: str,
         password: str,
-    ) -> (
+    ) -> AsyncContextManager[
         RegisterUserOutput
         | Literal["auth_is_not_working"]
         | Literal["user_is_already_registered"]
         | Literal["empty_username"]
         | Literal["week_password"]
-    ): ...
+    ]: ...
 
     @abstractmethod
-    async def authenticate_user(
+    def authenticate_user(
         self, session_id: UUID
-    ) -> (
+    ) -> AsyncContextManager[
         AuthenticateUserOutput
         | Literal["auth_is_not_working"]
         | Literal["no_session"]
         | Literal["expired_session"]
         | Literal["cancelled_session"]
         | Literal["replaced_session"]
-    ): ...
+    ]: ...
 
     @abstractmethod
-    async def authorize_user(
+    def authorize_user(
         self,
         session_id: UUID | None,
         name: str,
         password: str,
-    ) -> (
+    ) -> AsyncContextManager[
         AuthorizeUserOutput
         | Literal["auth_is_not_working"]
         | Literal["no_user"]
         | Literal["incorrect_password"]
-    ): ...
+    ]: ...
 
     @abstractmethod
     async def read_user(
@@ -92,30 +92,30 @@ class Auth(ABC):
     ): ...
 
     @abstractmethod
-    async def rename_user(
+    def rename_user(
         self,
         user_id: UUID,
         new_username: str,
-    ) -> (
+    ) -> AsyncContextManager[
         RenameUserOutput
         | Literal["auth_is_not_working"]
         | Literal["no_user"]
         | Literal["new_username_taken"]
         | Literal["empty_new_username"]
-    ): ...
+    ]: ...
 
     @abstractmethod
-    async def change_password(
+    def change_password(
         self,
         session_id: UUID,
         user_id: UUID,
         new_password: str,
-    ) -> (
+    ) -> AsyncContextManager[
         ChangePasswordOutput
         | Literal["auth_is_not_working"]
         | Literal["no_user"]
         | Literal["week_password"]
-    ): ...
+    ]: ...
 
     @abstractmethod
     async def user_exists(

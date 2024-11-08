@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Literal
+from typing import AsyncContextManager, Literal
 from uuid import UUID
 
 
@@ -94,32 +94,32 @@ class CancelRecordOutput:
 
 class Aqua(ABC):
     @abstractmethod
-    async def register_user(
+    def register_user(
         self,
         auth_user_id: UUID,
         target_water_balance_milliliters: int | None,
         glass_milliliters: int | None,
         weight_kilograms: int | None,
-    ) -> (
+    ) -> AsyncContextManager[
         RegisterUserOutput
         | Literal["aqua_is_not_working"]
         | Literal["incorrect_water_amount"]
         | Literal["incorrect_weight_amount"]
         | Literal["no_weight_for_water_balance"]
         | Literal["extreme_weight_for_water_balance"]
-    ): ...
+    ]: ...
 
     @abstractmethod
-    async def write_water(
+    def write_water(
         self,
         user_id: UUID,
         milliliters: int | None,
-    ) -> (
+    ) -> AsyncContextManager[
         WriteWaterOutput
         | Literal["aqua_is_not_working"]
         | Literal["no_user"]
         | Literal["incorrect_water_amount"]
-    ): ...
+    ]: ...
 
     @abstractmethod
     async def read_day(
@@ -136,12 +136,12 @@ class Aqua(ABC):
     ): ...
 
     @abstractmethod
-    async def cancel_record(
+    def cancel_record(
         self,
         user_id: UUID,
         record_id: UUID,
-    ) -> (
+    ) -> AsyncContextManager[
         CancelRecordOutput
         | Literal["aqua_is_not_working"]
         | Literal["no_record"]
-    ): ...
+    ]: ...

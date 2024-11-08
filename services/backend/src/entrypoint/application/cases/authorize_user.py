@@ -23,10 +23,9 @@ async def perform(
     auth: _AuthT,
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
-    auth_result = await auth.authorize_user(session_id, name, password)
+    async with auth.authorize_user(session_id, name, password) as auth_result:
+        if auth_result == "auth_is_not_working":
+            await auth_logger.log_auth_is_not_working(auth)
+            return "not_working"
 
-    if auth_result == "auth_is_not_working":
-        await auth_logger.log_auth_is_not_working(auth)
-        return "not_working"
-
-    return auth_result
+        return auth_result
