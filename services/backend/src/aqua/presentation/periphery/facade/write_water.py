@@ -1,5 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import AsyncIterator
 from uuid import UUID
 
 from result import Err, Ok
@@ -70,46 +72,45 @@ class IncorrectWaterAmountError(Error): ...
 class NoUserError(Error): ...
 
 
-async def perform(user_id: UUID, milliliters: int | None) -> Output:
-    async with adapter_container() as container:
-        view_result = await write_water(
-            user_id,
-            milliliters,
-            view_of=await container.get(InMemoryWritingViewOf, "views"),
-            users=await container.get(MongoUsers, "repos"),
-            transaction_for=await container.get(
-                MongoTransactionForMongoUsers, "transactions"
-            ),
-            logger=await container.get(Logger, "loggers"),
-            user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
-            record_mapper_to=await container.get(
-                MongoRecordMapperTo, "mappers"
-            ),
-            day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
+@asynccontextmanager
+async def perform(
+    user_id: UUID, milliliters: int | None
+) -> AsyncIterator[Output]:
+    async with adapter_container() as container, write_water(
+        user_id,
+        milliliters,
+        view_of=await container.get(InMemoryWritingViewOf, "views"),
+        users=await container.get(MongoUsers, "repos"),
+        transaction_for=await container.get(
+            MongoTransactionForMongoUsers, "transactions"
+        ),
+        logger=await container.get(Logger, "loggers"),
+        user_mapper_to=await container.get(MongoUserMapperTo, "mappers"),
+        record_mapper_to=await container.get(MongoRecordMapperTo, "mappers"),
+        day_mapper_to=await container.get(MongoDayMapperTo, "mappers"),
+    ) as view_result:
+        match view_result:
+            case Err(_NoUserApplicationError()):
+                raise NoUserError
+            case Err(NegativeWaterAmountError()):
+                raise IncorrectWaterAmountError
+            case Ok(view):
+                user = view.user
+                day = view.day
+                new_record = view.new_record
+                previous_records = view.previous_records
+
+        yield Output(
+            user_id=user.id,
+            date_=day.date_,
+            target_water_balance_milliliters=target_view_of(day.target),
+            water_balance_milliliters=water_balance_view_of(day.water_balance),
+            result_code=old_result_view_of(day.result),
+            real_result_code=old_result_view_of(day.correct_result),
+            is_result_pinned=day.is_result_pinned,
+            new_record=_record_data_of(new_record),
+            previous_records=tuple(map(_record_data_of, previous_records)),
         )
-
-    match view_result:
-        case Err(_NoUserApplicationError()):
-            raise NoUserError
-        case Err(NegativeWaterAmountError()):
-            raise IncorrectWaterAmountError
-        case Ok(view):
-            user = view.user
-            day = view.day
-            new_record = view.new_record
-            previous_records = view.previous_records
-
-    return Output(
-        user_id=user.id,
-        date_=day.date_,
-        target_water_balance_milliliters=target_view_of(day.target),
-        water_balance_milliliters=water_balance_view_of(day.water_balance),
-        result_code=old_result_view_of(day.result),
-        real_result_code=old_result_view_of(day.correct_result),
-        is_result_pinned=day.is_result_pinned,
-        new_record=_record_data_of(new_record),
-        previous_records=tuple(map(_record_data_of, previous_records)),
-    )
 
 
 def _record_data_of(record: Record) -> RecordData:

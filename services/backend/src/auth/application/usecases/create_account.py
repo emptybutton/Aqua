@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal, TypeAlias
+from typing import AsyncIterator, Literal, TypeAlias
 from uuid import UUID
 
 from result import Err, Ok, Result
@@ -43,6 +44,7 @@ class Output:
     session: _Session
 
 
+@asynccontextmanager
 async def create_account[AccountsT: Accounts](
     session_id: UUID | None,
     name_text: str,
@@ -55,17 +57,19 @@ async def create_account[AccountsT: Accounts](
     transaction_for: TransactionFactory[AccountsT],
     gateway_to: GatewayFactory[AccountsT],
     logger: Logger,
-) -> Result[
-    Output,
-    Literal[
-        "account_name_text_is_empty",
-        "account_name_is_taken",
-        "password_too_short",
-        "password_contains_only_small_letters",
-        "password_contains_only_capital_letters",
-        "password_contains_only_digits",
-        "password_has_no_numbers",
-    ],
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "account_name_text_is_empty",
+            "account_name_is_taken",
+            "password_too_short",
+            "password_contains_only_small_letters",
+            "password_contains_only_capital_letters",
+            "password_contains_only_digits",
+            "password_has_no_numbers",
+        ],
+    ]
 ]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
@@ -73,7 +77,8 @@ async def create_account[AccountsT: Accounts](
         case Ok(v):
             password = v
         case Err(v) as r:
-            return r
+            yield r
+            return
 
     async with transaction_for(accounts) as transaction:
         is_account_name_text_taken: _IsAccountNameTextTaken
@@ -127,7 +132,7 @@ async def create_account[AccountsT: Accounts](
             )
         )
 
-        return result.map(
+        yield result.map(
             lambda output: Output(
                 account=output.account, session=output.current_session
             )

@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal, TypeAlias
+from typing import AsyncIterator, Literal, TypeAlias
 from uuid import UUID
 
 from result import Err, Result
@@ -36,6 +37,7 @@ class Output:
     previous_account_name: _AccountName | None
 
 
+@asynccontextmanager
 async def change_account_name[AccountsT: Accounts](
     account_id: UUID,
     account_name_text: str,
@@ -47,11 +49,13 @@ async def change_account_name[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Result[
-    Output,
-    Literal[
-        "no_account", "account_name_text_is_empty", "account_name_is_taken"
-    ],
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "no_account", "account_name_text_is_empty", "account_name_is_taken"
+        ],
+    ]
 ]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
@@ -72,7 +76,8 @@ async def change_account_name[AccountsT: Accounts](
 
         if not account:
             await transaction.rollback()
-            return Err("no_account")
+            yield Err("no_account")
+            return
 
         effect = SearchableEffect()
         result = await account.change_name(
@@ -107,7 +112,7 @@ async def change_account_name[AccountsT: Accounts](
             )
         )
 
-        return result.map(
+        yield result.map(
             lambda output: Output(
                 account=account,
                 previous_account_name=output.previous_name,

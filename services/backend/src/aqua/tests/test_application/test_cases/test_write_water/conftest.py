@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from functools import partial
 from typing import Awaitable, Callable, TypeAlias
 from uuid import UUID
 
@@ -9,7 +8,9 @@ from result import Result
 
 from aqua.application.cases.write_water import (
     NoUserError,
-    write_water,
+)
+from aqua.application.cases.write_water import (
+    write_water as case,
 )
 from aqua.domain.framework.entity import Entities
 from aqua.domain.model.core.aggregates.user.internal.entities.day import Day
@@ -79,18 +80,23 @@ def context() -> Context:
     users = InMemoryUsers()
     logger = InMemoryLogger()
 
-    write_water_: WriteWater = partial(
-        write_water,
-        view_of=InMemoryWritingViewOf(),
-        users=users,
-        transaction_for=_InMemoryStorageTransactionFor(),
-        logger=logger,
-        user_mapper_to=InMemoryUserMapperTo(),
-        day_mapper_to=InMemoryDayMapperTo(),
-        record_mapper_to=InMemoryRecordMapperTo(),
-    )
+    async def write_water(
+        user_id: UUID, water: int | None
+    ) -> Result[InMemoryWritingView, NoUserError | NegativeWaterAmountError]:
+        async with case(
+            user_id,
+            water,
+            view_of=InMemoryWritingViewOf(),
+            users=users,
+            transaction_for=_InMemoryStorageTransactionFor(),
+            logger=logger,
+            user_mapper_to=InMemoryUserMapperTo(),
+            day_mapper_to=InMemoryDayMapperTo(),
+            record_mapper_to=InMemoryRecordMapperTo(),
+        ) as result:
+            return result
 
-    return Context(write_water=write_water_, users=users, logger=logger)
+    return Context(write_water=write_water, users=users, logger=logger)
 
 
 @fixture

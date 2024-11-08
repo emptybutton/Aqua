@@ -36,7 +36,8 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    auth_result = await auth.authenticate_user(session_id)
+    async with auth.authenticate_user(session_id) as auth_result:
+        ...
 
     if auth_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -44,23 +45,25 @@ async def perform(
     if not isinstance(auth_result, clients.auth.AuthenticateUserOutput):
         return "not_authenticated"
 
-    aqua_result = await aqua.write_water(auth_result.user_id, milliliters)
+    user_id = auth_result.user_id
+    async with aqua.write_water(user_id, milliliters) as aqua_result:
+        if aqua_result == "aqua_is_not_working":
+            await aqua_logger.log_aqua_is_not_working(aqua)
+        if aqua_result == "no_user":
+            await aqua_logger.log_no_user_from_other_parts(
+                aqua, auth_result.user_id
+            )
 
-    if aqua_result == "aqua_is_not_working":
-        await aqua_logger.log_aqua_is_not_working(aqua)
-    if aqua_result == "no_user":
-        await aqua_logger.log_no_user_from_other_parts(
-            aqua, auth_result.user_id
+        output_aqua_result: AquaResult
+
+        if (
+            isinstance(aqua_result, clients.aqua.WriteWaterOutput)
+            or aqua_result == "incorrect_water_amount"
+        ):
+            output_aqua_result = aqua_result
+        else:
+            output_aqua_result = "error"
+
+        return OutputData(
+            auth_result=auth_result, aqua_result=output_aqua_result
         )
-
-    output_aqua_result: AquaResult
-
-    if (
-        isinstance(aqua_result, clients.aqua.WriteWaterOutput)
-        or aqua_result == "incorrect_water_amount"
-    ):
-        output_aqua_result = aqua_result
-    else:
-        output_aqua_result = "error"
-
-    return OutputData(auth_result=auth_result, aqua_result=output_aqua_result)

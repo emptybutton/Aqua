@@ -31,7 +31,8 @@ async def perform(
     auth: _AuthT,
     auth_logger: loggers.AuthLogger[_AuthT],
 ) -> Output:
-    authentication_result = await auth.authenticate_user(session_id)
+    async with auth.authenticate_user(session_id) as authentication_result:
+        ...
 
     if authentication_result == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -41,24 +42,22 @@ async def perform(
     ):
         return "not_authenticated"
 
-    changing_result = await auth.change_password(
-        session_id,
-        authentication_result.user_id,
-        new_password,
+    change_password = auth.change_password(
+        session_id, authentication_result.user_id, new_password
     )
+    async with change_password as changing_result:
+        changing_output: _ChangingOutput = "error"
 
-    changing_output: _ChangingOutput = "error"
+        if changing_result == "auth_is_not_working":
+            await auth_logger.log_auth_is_not_working(auth)
+        elif changing_result == "no_user":
+            await auth_logger.log_user_without_session(
+                auth, authentication_result.user_id, session_id
+            )
+        else:
+            changing_output = changing_result
 
-    if changing_result == "auth_is_not_working":
-        await auth_logger.log_auth_is_not_working(auth)
-    elif changing_result == "no_user":
-        await auth_logger.log_user_without_session(
-            auth, authentication_result.user_id, session_id
+        return OutputData(
+            authentication_output=authentication_result,
+            changing_output=changing_output,
         )
-    else:
-        changing_output = changing_result
-
-    return OutputData(
-        authentication_output=authentication_result,
-        changing_output=changing_output,
-    )

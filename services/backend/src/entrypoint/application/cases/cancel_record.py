@@ -32,7 +32,8 @@ async def perform(
     auth_logger: loggers.AuthLogger[_AuthT],
     aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
-    auth_output = await auth.authenticate_user(session_id)
+    async with auth.authenticate_user(session_id) as auth_output:
+        ...
 
     if auth_output == "auth_is_not_working":
         await auth_logger.log_auth_is_not_working(auth)
@@ -40,14 +41,15 @@ async def perform(
     if not isinstance(auth_output, clients.auth.AuthenticateUserOutput):
         return "not_authenticated"
 
-    aqua_result = await aqua.cancel_record(auth_output.user_id, record_id)
+    user_id = auth_output.user_id
 
-    aqua_output: AquaOutput
+    async with aqua.cancel_record(user_id, record_id) as aqua_result:
+        aqua_output: AquaOutput
 
-    if aqua_result == "aqua_is_not_working":
-        await aqua_logger.log_aqua_is_not_working(aqua)
-        aqua_output = "error"
-    else:
-        aqua_output = aqua_result
+        if aqua_result == "aqua_is_not_working":
+            await aqua_logger.log_aqua_is_not_working(aqua)
+            aqua_output = "error"
+        else:
+            aqua_output = aqua_result
 
-    return OutputData(auth_output=auth_output, aqua_output=aqua_output)
+        return OutputData(auth_output=auth_output, aqua_output=aqua_output)

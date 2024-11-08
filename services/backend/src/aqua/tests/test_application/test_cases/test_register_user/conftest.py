@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import partial
 from typing import Awaitable, Callable, TypeAlias
 from uuid import UUID
 
@@ -78,15 +77,31 @@ def context() -> Context:
     users = InMemoryUsers()
     logger = InMemoryLogger()
 
-    register_user: RegisterUser = partial(
-        case,
-        view_of=InMemoryRegistrationViewOf(),
-        users=users,
-        transaction_for=_InMemoryStorageTransactionFor(),
-        logger=logger,
-        user_mapper_to=InMemoryUserMapperTo(),
-        day_mapper_to=InMemoryDayMapperTo(),
-        record_mapper_to=InMemoryRecordMapperTo(),
-    )
+    async def register_user(
+        user_id: UUID, target: int | None, glass: int | None, weight: int | None
+    ) -> Result[
+        InMemoryRegistrationView,
+        (
+            ExtremeWeightForSuitableWaterBalanceError
+            | NoWeightForSuitableWaterBalanceError
+            | NegativeTargetWaterBalanceMillilitersError
+            | NegativeGlassMillilitersError
+            | NegativeWeightKilogramsError
+        ),
+    ]:
+        async with case(
+            user_id,
+            target,
+            glass,
+            weight,
+            view_of=InMemoryRegistrationViewOf(),
+            users=users,
+            transaction_for=_InMemoryStorageTransactionFor(),
+            logger=logger,
+            user_mapper_to=InMemoryUserMapperTo(),
+            day_mapper_to=InMemoryDayMapperTo(),
+            record_mapper_to=InMemoryRecordMapperTo(),
+        ) as result:
+            return result
 
     return Context(register_user=register_user, users=users, logger=logger)

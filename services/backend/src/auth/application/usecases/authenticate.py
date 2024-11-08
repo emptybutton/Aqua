@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Literal, TypeAlias
+from typing import AsyncIterator, Literal, TypeAlias
 from uuid import UUID
 
 from result import Err, Result
@@ -28,6 +29,7 @@ class Output:
     session_id: UUID
 
 
+@asynccontextmanager
 async def authenticate[AccountsT: Accounts](
     session_id: UUID,
     *,
@@ -37,15 +39,17 @@ async def authenticate[AccountsT: Accounts](
     session_mapper_in: MapperFactory[AccountsT, _Session],
     transaction_for: TransactionFactory[AccountsT],
     logger: Logger,
-) -> Result[
-    Output,
-    Literal[
-        "no_account",
-        "no_session_for_secondary_authentication",
-        "expired_session_for_secondary_authentication",
-        "cancelled_session_for_secondary_authentication",
-        "replaced_session_for_secondary_authentication",
-    ],
+) -> AsyncIterator[
+    Result[
+        Output,
+        Literal[
+            "no_account",
+            "no_session_for_secondary_authentication",
+            "expired_session_for_secondary_authentication",
+            "cancelled_session_for_secondary_authentication",
+            "replaced_session_for_secondary_authentication",
+        ],
+    ]
 ]:
     current_time = Time.with_(datetime_=datetime.now(UTC)).unwrap()
 
@@ -54,7 +58,8 @@ async def authenticate[AccountsT: Accounts](
 
         if account is None:
             await transaction.rollback()
-            return Err("no_account")
+            yield Err("no_account")
+            return
 
         effect = SearchableEffect()
         session_result = account.secondarily_authenticate(
@@ -74,7 +79,7 @@ async def authenticate[AccountsT: Accounts](
             )
         )
 
-        return session_result.map(
+        yield session_result.map(
             lambda session: (
                 Output(account_id=account.id, session_id=session.id)
             )
