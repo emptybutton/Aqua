@@ -2,6 +2,7 @@ from typing import Any, TypeAlias
 from uuid import UUID
 
 from sqlalchemy import Row, exists, select
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from auth.application.ports import gateway as _gateway
 from auth.domain.models.access.aggregates import account as _account
@@ -22,43 +23,42 @@ class DBGateway(_gateway.Gateway):
     def __init__(self, db_accounts: DBAccounts) -> None:
         self.__db_accounts = db_accounts
 
+    @property
+    def __connection(self) -> AsyncConnection:
+        return self.__db_accounts.connection
+
     async def session_with_id_and_contains_account_name_with_text(
         self,
         *,
         session_id: UUID,
         account_name_text: str,
     ) -> _gateway.SessionAndPresenceOfAccountNameWithText:
-        substmt = (
-            exists(1)
+        presence_stmt = select(exists(
+            select(1)
             .where(tables.account_name_table.c.text == account_name_text)
-            .label("contains")
-        )
-        stmt = (
-            self.__db_accounts.builder.select(
-                substmt,
+            .with_for_update()
+        ))
+        session_stmt = (
+            select(
                 tables.session_table.c.account_id,
                 tables.session_table.c.start_time,
                 tables.session_table.c.end_time,
                 tables.session_table.c.is_cancelled,
                 tables.session_table.c.leader_session_id,
             )
-            .build()
-            .outerjoin_from(
-                select(1).subquery(),
-                tables.session_table,
-                tables.session_table.c.id == session_id,
-            )
+            .where(tables.session_table.c.id == session_id)
+            .with_for_update()
         )
 
-        result = await self.__db_accounts.connection.execute(stmt)
-        row = result.first()
+        presence_result = await self.__connection.execute(presence_stmt)
+        session_result = await self.__connection.execute(session_stmt)
 
-        if row is None:
-            raise DBGateway.UnexpectedDBResult
+        session_row = session_result.first()
+        presence = bool(presence_result.first())
 
         return _gateway.SessionAndPresenceOfAccountNameWithText(
-            session=self.__session_from(row, session_id=session_id),
-            contains_account_name_with_text=row.contains,
+            session=self.__session_from(session_row, session_id=session_id),
+            contains_account_name_with_text=presence,
         )
 
     async def session_with_id_and_account_with_name(
@@ -73,25 +73,22 @@ class DBGateway(_gateway.Gateway):
 
     async def session_with_id(self, session_id: UUID) -> _Session | None:
         stmt = (
-            self.__db_accounts.builder.select(
+            select(
                 tables.session_table.c.account_id,
                 tables.session_table.c.start_time,
                 tables.session_table.c.end_time,
                 tables.session_table.c.is_cancelled,
                 tables.session_table.c.leader_session_id,
             )
-            .build()
             .where(
                 tables.session_table.c.id == session_id,
             )
             .limit(1)
+            .with_for_update()
         )
 
         result = await self.__db_accounts.connection.execute(stmt)
         row = result.first()
-
-        if row is None:
-            return None
 
         return self.__session_from(row, session_id=session_id)
 
@@ -112,9 +109,9 @@ class DBGateway(_gateway.Gateway):
         )
 
     def __session_from(
-        self, row: Row[Any], *, session_id: UUID
+        self, row: Row[Any] | None, *, session_id: UUID
     ) -> _Session | None:
-        if row.account_id is None:
+        if row is None:
             return None
 
         start_time = None
