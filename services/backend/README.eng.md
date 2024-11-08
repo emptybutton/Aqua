@@ -42,7 +42,7 @@ Used approaches:
 > [!NOTE]
 > Interaction between modules occurs synchronously through facade calls, not through the network.
 
-### Structure of modules
+### Module structure
 <picture>
  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
  <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">

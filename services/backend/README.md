@@ -45,7 +45,7 @@ docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 > [!NOTE]
 > Взаимодействие модулей происходит синхронным образом через вызовы фасадов, не через сеть.
 
-### Структура модулей
+### Структура модуля
 <picture>
  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/dark-theme.png?raw=true">
  <img src="https://github.com/emptybutton/Aqua/blob/main/services/backend/assets/module-structure-map/light-theme.png?raw=true">
