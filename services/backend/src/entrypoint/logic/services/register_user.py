@@ -1,20 +1,21 @@
 from dataclasses import dataclass
-from typing import Literal, TypeAlias, TypeVar
+from typing import Literal
 from uuid import UUID
 
-from entrypoint.application.ports import clients, loggers
-from entrypoint.langtools.context import Context, finalize_bad
+from entrypoint.infrastructure.facades.clients import aqua, auth
+from entrypoint.infrastructure.facades.loggers import aqua_logger, auth_logger
+from entrypoint.logic.tools.context import Context, finalize_bad
 
 
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
-    auth_result: clients.auth.RegisterUserOutput
-    aqua_result: clients.aqua.RegisterUserOutput
+    auth_output: auth.RegisterUserOutputData
+    aqua_output: aqua.RegisterUserOutputData
 
 
-Output: TypeAlias = (
+type Output = (
     OutputData
-    | Literal["not_working"]
+    | Literal["error"]
     | Literal["incorrect_water_amount"]
     | Literal["incorrect_weight_amount"]
     | Literal["no_weight_for_water_balance"]
@@ -25,30 +26,20 @@ Output: TypeAlias = (
 )
 
 
-_AuthT = TypeVar("_AuthT", bound=clients.auth.Auth)
-_AquaT = TypeVar("_AquaT", bound=clients.aqua.Aqua)
-
-
-async def perform(  # noqa: PLR0917
+async def register_user(
     session_id: UUID | None,
     name: str,
     password: str,
     target_water_balance_milliliters: int | None,
     glass_milliliters: int | None,
     weight_kilograms: int | None,
-    *,
-    auth: _AuthT,
-    aqua: _AquaT,
-    auth_logger: loggers.AuthLogger[_AuthT],
-    aqua_logger: loggers.AquaLogger[_AquaT],
 ) -> Output:
     auth_context = Context(auth.register_user(session_id, name, password))
-
     async with auth_context as auth_result:
-        if not isinstance(auth_result, clients.auth.RegisterUserOutput):
-            if auth_result == "auth_is_not_working":
-                await auth_logger.log_auth_is_not_working(auth)
-                return "not_working"
+        if not isinstance(auth_result, auth.RegisterUserOutputData):
+            if isinstance(auth_result, auth.Error):
+                await auth_logger.log_error(auth_result)
+                return "error"
 
             return auth_result
 
@@ -60,15 +51,14 @@ async def perform(  # noqa: PLR0917
                 weight_kilograms,
             )
         )
-
         async with aqua_context as aqua_result:
-            if not isinstance(aqua_result, clients.aqua.RegisterUserOutput):
+            if not isinstance(aqua_result, aqua.RegisterUserOutputData):
                 await finalize_bad(auth_context)
 
-                if aqua_result == "aqua_is_not_working":
-                    await aqua_logger.log_aqua_is_not_working(aqua)
-                    return "not_working"
+                if isinstance(aqua_result, aqua.Error):
+                    await aqua_logger.log_error(aqua_result)
+                    return "error"
 
                 return aqua_result
 
-            return OutputData(auth_result=auth_result, aqua_result=aqua_result)
+            return OutputData(auth_output=auth_result, aqua_output=aqua_result)
