@@ -20,7 +20,7 @@ type Output = (
     | Literal["incorrect_weight_amount"]
     | Literal["no_weight_for_water_balance"]
     | Literal["extreme_weight_for_water_balance"]
-    | Literal["user_is_already_registered"]
+    | Literal["taken_username"]
     | Literal["empty_username"]
     | Literal["week_password"]
 )
@@ -58,7 +58,5 @@ async def register_user(
                 if isinstance(aqua_result, aqua.Error):
                     await aqua_logger.log_error(aqua_result)
                     return "error"
-
-                return aqua_result
 
             return OutputData(auth_output=auth_result, aqua_output=aqua_result)

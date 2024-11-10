@@ -1,2 +1,1 @@
-from entrypoint.presentation import di as di
-from entrypoint.presentation import periphery as periphery
+from entrypoint.presentation import fastapi as fastapi

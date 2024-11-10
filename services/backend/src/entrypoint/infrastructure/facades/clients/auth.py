@@ -19,7 +19,7 @@ async def close() -> None:
 class RegisterUserOutputData:
     user_id: UUID
     username: str
-    session_id: UUID
+    new_session_id: UUID
 
 
 @asynccontextmanager
@@ -30,7 +30,7 @@ async def register_user(
 ) -> AsyncIterator[
     RegisterUserOutputData
     | Error
-    | Literal["user_is_already_registered"]
+    | Literal["taken_username"]
     | Literal["empty_username"]
     | Literal["week_password"]
 ]:
@@ -40,10 +40,10 @@ async def register_user(
             yield RegisterUserOutputData(
                 user_id=result.user_id,
                 username=result.username,
-                session_id=result.session_id,
+                new_session_id=result.session_id,
             )
-    except auth.register_user.UserIsAlreadyRegisteredError:
-        yield "user_is_already_registered"
+    except auth.register_user.TakenUsernameError:
+        yield "taken_username"
     except auth.register_user.EmptyUsernameError:
         yield "empty_username"
     except auth.register_user.WeekPasswordError:
@@ -116,7 +116,7 @@ async def read_user(
 class AuthorizeUserOutputData:
     user_id: UUID
     username: str
-    session_id: UUID
+    new_session_id: UUID
 
 
 @asynccontextmanager
@@ -136,7 +136,7 @@ async def authorize_user(
             yield AuthorizeUserOutputData(
                 user_id=result.user_id,
                 username=result.username,
-                session_id=result.session_id,
+                new_session_id=result.session_id,
             )
     except auth.authorize_user.NoUserError:
         yield "no_user"

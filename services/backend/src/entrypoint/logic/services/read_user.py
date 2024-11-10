@@ -55,7 +55,7 @@ async def read_user(session_id: UUID) -> Output:
         output_aqua_result = aqua_result
 
     return OutputData(
-        authenticate_user_result=authenticate_result,
-        read_auth_user_result=output_auth_result,
-        read_aqua_user_result=output_aqua_result,
+        authenticate_user_output=authenticate_result,
+        read_auth_user_output=output_auth_result,
+        read_aqua_user_output=output_aqua_result,
     )
