@@ -5,6 +5,7 @@ from typing import AsyncIterator, Literal
 from uuid import UUID
 
 from aqua.presentation.periphery import facade as aqua
+from entrypoint.infrastructure.periphery.error_wrapper import ErrorWrapper
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -54,14 +55,16 @@ async def register_user(
 
     try:
         async with register_user as result:
-            target = result.target_water_balance_milliliters
-
-            yield RegisterUserOutputData(
-                user_id=result.user_id,
-                target_water_balance_milliliters=target,
-                glass_milliliters=result.glass_milliliters,
-                weight_kilograms=result.weight_kilograms,
-            )
+            try:
+                target = result.target_water_balance_milliliters
+                yield RegisterUserOutputData(
+                    user_id=result.user_id,
+                    target_water_balance_milliliters=target,
+                    glass_milliliters=result.glass_milliliters,
+                    weight_kilograms=result.weight_kilograms,
+                )
+            except Exception as error:
+                raise ErrorWrapper(error) from None
     except aqua.register_user.IncorrectWaterAmountError:
         yield "incorrect_water_amount"
     except aqua.register_user.IncorrectWeightAmountError:
@@ -70,6 +73,8 @@ async def register_user(
         yield "no_weight_for_water_balance"
     except aqua.register_user.ExtremeWeightForWaterBalanceError:
         yield "extreme_weight_for_water_balance"
+    except ErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -99,26 +104,30 @@ async def write_water(
 ]:
     try:
         async with aqua.write_water.perform(user_id, milliliters) as result:
-            target = result.target_water_balance_milliliters
-            previous_records = tuple(
-                map(_record_data_of, result.previous_records)
-            )
-
-            yield WriteWaterOutputData(
-                user_id=result.user_id,
-                target_water_balance_milliliters=target,
-                water_balance_milliliters=result.water_balance_milliliters,
-                result_code=result.result_code,
-                real_result_code=result.real_result_code,
-                is_result_pinned=result.is_result_pinned,
-                date_=result.date_,
-                previous_records=previous_records,
-                new_record=_record_data_of(result.new_record),
-            )
+            try:
+                target = result.target_water_balance_milliliters
+                previous_records = tuple(
+                    map(_record_data_of, result.previous_records)
+                )
+                yield WriteWaterOutputData(
+                    user_id=result.user_id,
+                    target_water_balance_milliliters=target,
+                    water_balance_milliliters=result.water_balance_milliliters,
+                    result_code=result.result_code,
+                    real_result_code=result.real_result_code,
+                    is_result_pinned=result.is_result_pinned,
+                    date_=result.date_,
+                    previous_records=previous_records,
+                    new_record=_record_data_of(result.new_record),
+                )
+            except Exception as error:
+                raise ErrorWrapper(error) from None
     except aqua.write_water.NoUserError:
         yield "no_user"
     except aqua.write_water.IncorrectWaterAmountError:
         yield "incorrect_water_amount"
+    except ErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -253,37 +262,42 @@ async def cancel_record(
 ]:
     try:
         async with aqua.cancel_record.perform(user_id, record_id) as result:
-            if result == "no_record":
-                yield "no_record"
-                return
+            try:
+                if result == "no_record":
+                    yield "no_record"
+                    return
 
-            other_records = tuple(
-                RecordData(
-                    record_id=record.record_id,
-                    drunk_water_milliliters=record.drunk_water_milliliters,
-                    recording_time=record.recording_time,
+                other_records = tuple(
+                    RecordData(
+                        record_id=record.record_id,
+                        drunk_water_milliliters=record.drunk_water_milliliters,
+                        recording_time=record.recording_time,
+                    )
+                    for record in result.other_records
                 )
-                for record in result.other_records
-            )
 
-            drunk_water = result.cancelled_record.drunk_water_milliliters
-            cancelled_record = RecordData(
-                record_id=result.cancelled_record.record_id,
-                drunk_water_milliliters=drunk_water,
-                recording_time=result.cancelled_record.recording_time,
-            )
+                drunk_water = result.cancelled_record.drunk_water_milliliters
+                cancelled_record = RecordData(
+                    record_id=result.cancelled_record.record_id,
+                    drunk_water_milliliters=drunk_water,
+                    recording_time=result.cancelled_record.recording_time,
+                )
 
-            target = result.target_water_balance_milliliters
-            yield CancelRecordOutputData(
-                user_id=result.user_id,
-                date_=result.date_,
-                target_water_balance_milliliters=target,
-                water_balance_milliliters=result.water_balance_milliliters,
-                result_code=result.result_code,
-                real_result_code=result.real_result_code,
-                is_result_pinned=result.is_result_pinned,
-                cancelled_record=cancelled_record,
-                other_records=other_records,
-            )
+                target = result.target_water_balance_milliliters
+                yield CancelRecordOutputData(
+                    user_id=result.user_id,
+                    date_=result.date_,
+                    target_water_balance_milliliters=target,
+                    water_balance_milliliters=result.water_balance_milliliters,
+                    result_code=result.result_code,
+                    real_result_code=result.real_result_code,
+                    is_result_pinned=result.is_result_pinned,
+                    cancelled_record=cancelled_record,
+                    other_records=other_records,
+                )
+            except Exception as error:
+                raise ErrorWrapper(error) from None
+    except ErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)

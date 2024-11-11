@@ -4,6 +4,7 @@ from typing import AsyncIterator, Literal
 from uuid import UUID
 
 from auth.presentation.periphery import facade as auth
+from entrypoint.infrastructure.periphery.error_wrapper import ErrorWrapper
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -44,14 +45,14 @@ async def register_user(
                     new_session_id=result.session_id,
                 )
             except Exception as error:
-                raise _ContextErrorWrapper(error) from None
+                raise ErrorWrapper(error) from None
     except auth.register_user.TakenUsernameError:
         yield "taken_username"
     except auth.register_user.EmptyUsernameError:
         yield "empty_username"
     except auth.register_user.WeekPasswordError:
         yield "week_password"
-    except _ContextErrorWrapper as wrapper:
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
@@ -81,7 +82,7 @@ async def authenticate_user(
                     user_id=result.user_id, session_id=result.session_id
                 )
             except Exception as error:
-                raise _ContextErrorWrapper(error) from None
+                raise ErrorWrapper(error) from None
     except auth.authenticate_user.NoSessionError:
         yield "no_session"
     except auth.authenticate_user.ExpiredSessionError:
@@ -90,7 +91,7 @@ async def authenticate_user(
         yield "cancelled_session"
     except auth.authenticate_user.ReplacedSessionError:
         yield "replaced_session"
-    except _ContextErrorWrapper as wrapper:
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
@@ -150,12 +151,12 @@ async def authorize_user(
                     new_session_id=result.session_id,
                 )
             except Exception as error:
-                raise _ContextErrorWrapper(error) from None
+                raise ErrorWrapper(error) from None
     except auth.authorize_user.NoUserError:
         yield "no_user"
     except auth.authorize_user.IncorrectPasswordError:
         yield "incorrect_password"
-    except _ContextErrorWrapper as wrapper:
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
@@ -189,14 +190,14 @@ async def rename_user(
                     previous_username=result.previous_username,
                 )
             except Exception as error:
-                raise _ContextErrorWrapper(error) from None
+                raise ErrorWrapper(error) from None
     except auth.rename_user.NoUserError:
         yield "no_user"
     except auth.rename_user.NewUsernameTakenError:
         yield "new_username_taken"
     except auth.rename_user.EmptyUsernameError:
         yield "empty_new_username"
-    except _ContextErrorWrapper as wrapper:
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
@@ -234,12 +235,12 @@ async def change_password(
                     session_id=result.session_id,
                 )
             except Exception as error:
-                raise _ContextErrorWrapper(error) from None
+                raise ErrorWrapper(error) from None
     except auth.change_password.NoUserError:
         yield "no_user"
     except auth.change_password.WeekPasswordError:
         yield "week_password"
-    except _ContextErrorWrapper as wrapper:
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
@@ -250,18 +251,8 @@ async def user_exists(username: str) -> bool | Error:
         try:
             return await auth.user_exists.perform(username)
         except Exception as error:
-            raise _ContextErrorWrapper(error) from None
-    except _ContextErrorWrapper as wrapper:
+            raise ErrorWrapper(error) from None
+    except ErrorWrapper as wrapper:
         raise wrapper.error from wrapper.error
     except Exception as error:
         return Error(unexpected_error=error)
-
-
-class _ContextErrorWrapper[ErrorT: Exception](Exception):
-    def __init__(self, error: ErrorT) -> None:
-        super().__init__(str())
-        self.__error = error
-
-    @property
-    def error(self) -> ErrorT:
-        return self.__error
