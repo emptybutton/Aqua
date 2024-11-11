@@ -43,7 +43,7 @@ async def read_user(session_id_hex: cookies.session_id_cookie) -> Response:
     session_id = valid_id_of(session_id_hex)
 
     if session_id is None:
-        return not_authenticated_response_model.to_response()
+        return invalid_session_id_hex_response_model.to_response()
 
     result = await service(session_id)
 

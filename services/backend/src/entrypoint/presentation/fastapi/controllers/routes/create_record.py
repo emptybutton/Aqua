@@ -43,6 +43,7 @@ class CreateRecordRequestModel(BaseModel):
         fault_response_model,
         not_authenticated_response_model,
         invalid_session_id_hex_response_model,
+        invalid_water_amount_response_model,
         new_record_response_model,
     ),
 )

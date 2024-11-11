@@ -45,6 +45,7 @@ class CancelRecordRequestModel(BaseModel):
         invalid_session_id_hex_response_model,
         not_authenticated_response_model,
         cancelled_record_response_model,
+        no_record_response_model,
     ),
 )
 async def cancel_record(
