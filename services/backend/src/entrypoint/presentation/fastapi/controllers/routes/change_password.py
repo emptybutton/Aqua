@@ -1,4 +1,3 @@
-
 from fastapi import Response
 from pydantic import BaseModel
 
@@ -7,24 +6,26 @@ from entrypoint.presentation.fastapi.controllers import cookies
 from entrypoint.presentation.fastapi.controllers.parsers import valid_id_of
 from entrypoint.presentation.fastapi.controllers.routers import router
 from entrypoint.presentation.fastapi.controllers.tags import Tag
-from entrypoint.presentation.fastapi.views.bad.fault import fault_response_model
-from entrypoint.presentation.fastapi.views.bad.invalid_session_id_hex import (
+from entrypoint.presentation.fastapi.views.responses.bad.fault import (
+    fault_response_model,
+)
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_session_id_hex import (  # noqa: E501
     invalid_session_id_hex_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.not_authenticated import (
+from entrypoint.presentation.fastapi.views.responses.bad.not_authenticated import (  # noqa: E501
     not_authenticated_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.week_password import (
+from entrypoint.presentation.fastapi.views.responses.bad.week_password import (
     week_password_response_model,
-)
-from entrypoint.presentation.fastapi.views.common.model import (
-    to_doc,
-)
-from entrypoint.presentation.fastapi.views.ok.user.user_with_changed_password import (  # noqa: E501
-    user_with_changed_password_response_model,
 )
 from entrypoint.presentation.fastapi.views.responses.common.identified_user import (  # noqa: E501
     IdentifiedUserSchema,
+)
+from entrypoint.presentation.fastapi.views.responses.common.model import (
+    to_doc,
+)
+from entrypoint.presentation.fastapi.views.responses.ok.user.user_with_changed_password import (  # noqa: E501
+    user_with_changed_password_response_model,
 )
 
 

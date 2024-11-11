@@ -1,6 +1,6 @@
 import uvicorn
 
-from entrypoint.presentation.periphery.api.app import app
+from entrypoint.presentation.fastapi.app import app
 
 
 def main() -> None:

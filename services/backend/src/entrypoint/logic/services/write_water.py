@@ -7,7 +7,7 @@ from entrypoint.infrastructure.facades.loggers import aqua_logger, auth_logger
 
 
 type AquaOutput = (
-    aqua.WriteWaterOutput
+    aqua.WriteWaterOutputData
     | Literal["error"]
     | Literal["incorrect_water_amount"]
 )
@@ -15,7 +15,7 @@ type AquaOutput = (
 
 @dataclass(kw_only=True, frozen=True)
 class OutputData:
-    auth_output: auth.AuthenticateUserOutput
+    auth_output: auth.AuthenticateUserOutputData
     aqua_output: AquaOutput
 
 
@@ -28,16 +28,16 @@ async def write_water(session_id: UUID, milliliters: int | None) -> Output:
     async with auth.authenticate_user(session_id) as auth_result:
         ...
 
-    if isinstance(auth_result, auth.AuthError):
+    if isinstance(auth_result, auth.Error):
         await auth_logger.log_error(auth_result)
         return "error"
-    if not isinstance(auth_result, auth.AuthenticateUserOutput):
+    if not isinstance(auth_result, auth.AuthenticateUserOutputData):
         return "not_authenticated"
 
     user_id = auth_result.user_id
 
     async with aqua.write_water(user_id, milliliters) as aqua_result:
-        if isinstance(aqua_result, aqua.AquaError):
+        if isinstance(aqua_result, aqua.Error):
             await aqua_logger.log_error(aqua_result)
         if aqua_result == "no_user":
             await aqua_logger.log_no_user_from_other_parts(user_id)
@@ -45,7 +45,7 @@ async def write_water(session_id: UUID, milliliters: int | None) -> Output:
         aqua_output: AquaOutput
 
         if (
-            isinstance(aqua_result, aqua.WriteWaterOutput)
+            isinstance(aqua_result, aqua.WriteWaterOutputData)
             or aqua_result == "incorrect_water_amount"
         ):
             aqua_output = aqua_result

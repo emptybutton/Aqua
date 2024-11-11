@@ -1,33 +1,35 @@
-
 from fastapi import Response
 from pydantic import BaseModel
 
-from entrypoint.logic.services.cancel_record import cancel_record as service
+from entrypoint.logic.services.authorize_user import authorize_user as service
 from entrypoint.presentation.fastapi.controllers import cookies
 from entrypoint.presentation.fastapi.controllers.parsers import (
+    InvalidHexError,
     optional_valid_id_of,
 )
 from entrypoint.presentation.fastapi.controllers.routers import router
 from entrypoint.presentation.fastapi.controllers.tags import Tag
-from entrypoint.presentation.fastapi.views.bad.fault import fault_response_model
-from entrypoint.presentation.fastapi.views.bad.invalid_session_id_hex import (
-    invalid_session_id_hex_response_model,
-)
-from entrypoint.presentation.fastapi.views.bad.no_user import (
-    no_user_response_model,
-)
-from entrypoint.presentation.fastapi.views.common.model import (
-    to_doc,
-)
 from entrypoint.presentation.fastapi.views.cookies import SessionCookie
-from entrypoint.presentation.fastapi.views.ok.user.authorized_user import (
-    authorized_user_response_model,
+from entrypoint.presentation.fastapi.views.responses.bad.fault import (
+    fault_response_model,
 )
 from entrypoint.presentation.fastapi.views.responses.bad.invalid_password import (  # noqa: E501
     invalid_password_response_model,
 )
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_session_id_hex import (  # noqa: E501
+    invalid_session_id_hex_response_model,
+)
+from entrypoint.presentation.fastapi.views.responses.bad.no_user import (
+    no_user_response_model,
+)
 from entrypoint.presentation.fastapi.views.responses.common.identified_user import (  # noqa: E501
     IdentifiedUserSchema,
+)
+from entrypoint.presentation.fastapi.views.responses.common.model import (
+    to_doc,
+)
+from entrypoint.presentation.fastapi.views.responses.ok.user.authorized_user import (  # noqa: E501
+    authorized_user_response_model,
 )
 
 
@@ -54,7 +56,7 @@ async def authorize_user(
 ) -> Response:
     session_id = optional_valid_id_of(session_id_hex)
 
-    if session_id == "invalid_hex":
+    if isinstance(session_id, InvalidHexError):
         return invalid_session_id_hex_response_model.to_response()
 
     result = await service(

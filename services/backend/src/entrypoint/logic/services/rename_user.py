@@ -38,7 +38,7 @@ async def rename_user(session_id: UUID, new_username: str) -> Output:
     async with auth.rename_user(user_id, new_username) as auth_result:
         auth_output: AuthOutput = "error"
 
-        if auth_result == "error":
+        if isinstance(auth_result, auth.Error):
             await auth_logger.log_error(auth_result)
         elif auth_result == "no_user":
             await auth_logger.log_user_without_session(user_id, session_id)

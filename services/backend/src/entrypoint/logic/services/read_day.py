@@ -35,9 +35,7 @@ async def read_day(session_id: UUID, date_: date) -> Output:
         await aqua_logger.log_error(aqua_result)
 
     if aqua_result == "no_user":
-        await aqua_logger.log_no_user_from_other_parts(
-            aqua, auth_result.user_id
-        )
+        await aqua_logger.log_no_user_from_other_parts(auth_result.user_id)
 
     aqua_output: AquaOutput = None
 

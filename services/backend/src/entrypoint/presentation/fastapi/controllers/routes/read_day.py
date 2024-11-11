@@ -7,18 +7,22 @@ from entrypoint.presentation.fastapi.controllers import cookies
 from entrypoint.presentation.fastapi.controllers.parsers import valid_id_of
 from entrypoint.presentation.fastapi.controllers.routers import router
 from entrypoint.presentation.fastapi.controllers.tags import Tag
-from entrypoint.presentation.fastapi.views.bad.fault import fault_response_model
-from entrypoint.presentation.fastapi.views.bad.invalid_session_id_hex import (
+from entrypoint.presentation.fastapi.views.responses.bad.fault import (
+    fault_response_model,
+)
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_session_id_hex import (  # noqa: E501
     invalid_session_id_hex_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.not_authenticated import (
+from entrypoint.presentation.fastapi.views.responses.bad.not_authenticated import (  # noqa: E501
     not_authenticated_response_model,
 )
-from entrypoint.presentation.fastapi.views.common.model import (
+from entrypoint.presentation.fastapi.views.responses.common.model import (
     to_doc,
 )
-from entrypoint.presentation.fastapi.views.common.record import RecordSchema
-from entrypoint.presentation.fastapi.views.ok.day.day import (
+from entrypoint.presentation.fastapi.views.responses.common.record import (
+    RecordSchema,
+)
+from entrypoint.presentation.fastapi.views.responses.ok.day.day import (
     DaySchema,
     day_response_model,
 )
@@ -57,13 +61,14 @@ async def read_day(
 
     target = result.aqua_output.target_water_balance_milliliters
     body = DaySchema(
+        user_id=result.aqua_output.user_id,
         target_water_balance_milliliters=target,
-        date_=result.other.date_,
-        water_balance_milliliters=result.other.water_balance_milliliters,
-        result_code=result.other.result_code,
-        real_result_code=result.other.real_result_code,
-        is_result_pinned=result.other.is_result_pinned,
-        records=tuple(map(RecordSchema.of, result.other.records)),
+        date_=result.aqua_output.date_,
+        water_balance_milliliters=result.aqua_output.water_balance_milliliters,
+        result_code=result.aqua_output.result_code,
+        real_result_code=result.aqua_output.real_result_code,
+        is_result_pinned=result.aqua_output.is_result_pinned,
+        records=tuple(map(RecordSchema.of, result.aqua_output.records)),
     )
 
     return day_response_model.to_response(body)

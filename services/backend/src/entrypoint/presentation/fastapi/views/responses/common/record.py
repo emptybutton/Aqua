@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from entrypoint.infrastructure.clients.aqua import RecordData
+from entrypoint.infrastructure.facades.clients.aqua import RecordData
 
 
 class RecordSchema(BaseModel):

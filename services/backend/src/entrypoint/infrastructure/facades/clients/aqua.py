@@ -239,8 +239,8 @@ class CancelRecordOutputData:
     result_code: int
     real_result_code: int
     is_result_pinned: bool
-    day_records: tuple[RecordData, ...]
     cancelled_record: RecordData
+    other_records: tuple[RecordData, ...]
 
 
 @asynccontextmanager
@@ -257,13 +257,13 @@ async def cancel_record(
                 yield "no_record"
                 return
 
-            day_records = tuple(
+            other_records = tuple(
                 RecordData(
                     record_id=record.record_id,
                     drunk_water_milliliters=record.drunk_water_milliliters,
                     recording_time=record.recording_time,
                 )
-                for record in result.day_records
+                for record in result.other_records
             )
 
             drunk_water = result.cancelled_record.drunk_water_milliliters
@@ -282,8 +282,8 @@ async def cancel_record(
                 result_code=result.result_code,
                 real_result_code=result.real_result_code,
                 is_result_pinned=result.is_result_pinned,
-                day_records=day_records,
                 cancelled_record=cancelled_record,
+                other_records=other_records,
             )
     except Exception as error:
         yield Error(unexpected_error=error)

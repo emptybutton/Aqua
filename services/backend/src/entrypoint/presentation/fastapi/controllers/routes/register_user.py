@@ -4,40 +4,43 @@ from pydantic import BaseModel
 from entrypoint.logic.services.register_user import register_user as service
 from entrypoint.presentation.fastapi.controllers import cookies
 from entrypoint.presentation.fastapi.controllers.parsers import (
+    InvalidHexError,
     optional_valid_id_of,
 )
 from entrypoint.presentation.fastapi.controllers.routers import router
 from entrypoint.presentation.fastapi.controllers.tags import Tag
-from entrypoint.presentation.fastapi.views.bad.empty_username import (
+from entrypoint.presentation.fastapi.views.cookies import SessionCookie
+from entrypoint.presentation.fastapi.views.responses.bad.empty_username import (
     empty_username_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.extreme_weight_for_water_balance import (  # noqa: E501
+from entrypoint.presentation.fastapi.views.responses.bad.extreme_weight_for_water_balance import (  # noqa: E501
     extreme_weight_for_water_balance_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.fault import fault_response_model
-from entrypoint.presentation.fastapi.views.bad.invalid_session_id_hex import (
+from entrypoint.presentation.fastapi.views.responses.bad.fault import (
+    fault_response_model,
+)
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_session_id_hex import (  # noqa: E501
     invalid_session_id_hex_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.invalid_water_amount import (
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_water_amount import (  # noqa: E501
     invalid_water_amount_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.invalid_weight_amount import (
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_weight_amount import (  # noqa: E501
     invalid_weight_amount_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.no_weight_for_water_balance import (  # noqa: E501
+from entrypoint.presentation.fastapi.views.responses.bad.no_weight_for_water_balance import (  # noqa: E501
     no_weight_for_water_balance_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.taken_username import (
+from entrypoint.presentation.fastapi.views.responses.bad.taken_username import (
     taken_username_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.week_password import (
+from entrypoint.presentation.fastapi.views.responses.bad.week_password import (
     week_password_response_model,
 )
-from entrypoint.presentation.fastapi.views.common.model import (
+from entrypoint.presentation.fastapi.views.responses.common.model import (
     to_doc,
 )
-from entrypoint.presentation.fastapi.views.cookies import SessionCookie
-from entrypoint.presentation.fastapi.views.ok.user.registered_user import (
+from entrypoint.presentation.fastapi.views.responses.ok.user.registered_user import (  # noqa: E501
     RegisteredUserSchema,
     registered_user_response_model,
 )
@@ -74,7 +77,7 @@ async def register_user(
 ) -> Response:
     session_id = optional_valid_id_of(session_id_hex)
 
-    if session_id == "invalid_hex":
+    if isinstance(session_id, InvalidHexError):
         return invalid_session_id_hex_response_model.to_response()
 
     result = await service(

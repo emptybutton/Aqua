@@ -10,7 +10,7 @@ type Output = bool | Literal["error"]
 async def user_exists(username: str) -> Output:
     result = await auth.user_exists(username)
 
-    if isinstance(result, auth.AuthError):
+    if isinstance(result, auth.Error):
         await auth_logger.log_error(result)
         return "error"
 

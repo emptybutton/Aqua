@@ -14,6 +14,6 @@ class EmptyUsernameSchema(BaseModel):
     detail: Detail = [DetailPartSchema(type="EmptyUsernameError", msg="")]
 
 
-empty_username_response_response_model = ResponseModel(
+empty_username_response_model = ResponseModel(
     EmptyUsernameSchema, status.HTTP_400_BAD_REQUEST
 )

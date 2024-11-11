@@ -19,7 +19,7 @@ class InMemoryCancellationViewOf(CancellationViewOf[InMemoryCancellationView]):
             user=deepcopy(user),
             day=deepcopy(output.day),
             cancelled_record=deepcopy(output.cancelled_record),
-            records=self.__viewable(user.records),
+            other_records=self.__viewable(user.records),
         )
 
     def __viewable(self, records: Iterable[Record]) -> tuple[Record, ...]:

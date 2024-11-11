@@ -1,8 +1,8 @@
 from typing import Literal
 from uuid import UUID
 
-from entrypoint.application.facades.clients import auth
-from entrypoint.application.facades.loggers import auth_logger
+from entrypoint.infrastructure.facades.clients import auth
+from entrypoint.infrastructure.facades.loggers import auth_logger
 
 
 type Output = (

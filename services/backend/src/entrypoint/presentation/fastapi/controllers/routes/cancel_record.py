@@ -8,21 +8,25 @@ from entrypoint.presentation.fastapi.controllers import cookies
 from entrypoint.presentation.fastapi.controllers.parsers import valid_id_of
 from entrypoint.presentation.fastapi.controllers.routers import router
 from entrypoint.presentation.fastapi.controllers.tags import Tag
-from entrypoint.presentation.fastapi.views.bad.fault import fault_response_model
-from entrypoint.presentation.fastapi.views.bad.invalid_session_id_hex import (
+from entrypoint.presentation.fastapi.views.responses.bad.fault import (
+    fault_response_model,
+)
+from entrypoint.presentation.fastapi.views.responses.bad.invalid_session_id_hex import (  # noqa: E501
     invalid_session_id_hex_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.no_record import (
+from entrypoint.presentation.fastapi.views.responses.bad.no_record import (
     no_record_response_model,
 )
-from entrypoint.presentation.fastapi.views.bad.not_authenticated import (
+from entrypoint.presentation.fastapi.views.responses.bad.not_authenticated import (  # noqa: E501
     not_authenticated_response_model,
 )
-from entrypoint.presentation.fastapi.views.common.model import (
+from entrypoint.presentation.fastapi.views.responses.common.model import (
     to_doc,
 )
-from entrypoint.presentation.fastapi.views.common.record import RecordSchema
-from entrypoint.presentation.fastapi.views.ok.record.cancelled_record import (
+from entrypoint.presentation.fastapi.views.responses.common.record import (
+    RecordSchema,
+)
+from entrypoint.presentation.fastapi.views.responses.ok.record.cancelled_record import (  # noqa: E501
     CancelledRecordSchema,
     cancelled_record_response_model,
 )

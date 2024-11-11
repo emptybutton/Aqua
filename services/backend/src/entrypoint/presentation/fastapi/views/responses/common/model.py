@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Callable, Mapping, Union
+from typing import Any, Callable, Generic, Mapping, TypeVar, Union
 
 from fastapi import BackgroundTasks, status
 from fastapi.responses import Response
@@ -9,10 +9,13 @@ from pydantic import BaseModel
 type _Doc = dict[int | str, dict[str, Any]]
 
 
-class ResponseModel[BaseModelT: BaseModel]:
+BaseModelT_co = TypeVar("BaseModelT_co", bound=BaseModel, covariant=True)
+
+
+class ResponseModel(Generic[BaseModelT_co]):
     def __init__(
         self,
-        body_type: type[BaseModelT],
+        body_type: type[BaseModelT_co],
         status_code: int = status.HTTP_200_OK,
         extended: Callable[[Response], Response] = lambda v: v,
     ) -> None:
@@ -21,7 +24,7 @@ class ResponseModel[BaseModelT: BaseModel]:
         self.__extended = extended
 
     @property
-    def body_type(self) -> type[BaseModelT]:
+    def body_type(self) -> type[BaseModelT_co]:
         return self.__body_type
 
     @property
@@ -30,7 +33,7 @@ class ResponseModel[BaseModelT: BaseModel]:
 
     def to_response(
         self,
-        model: BaseModelT | None = None,
+        model: BaseModelT_co | None = None,
         *,
         headers: Mapping[str, str] | None = None,
         background: BackgroundTasks | None = None,

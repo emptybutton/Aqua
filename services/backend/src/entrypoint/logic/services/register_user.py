@@ -59,4 +59,6 @@ async def register_user(
                     await aqua_logger.log_error(aqua_result)
                     return "error"
 
+                return aqua_result
+
             return OutputData(auth_output=auth_result, aqua_output=aqua_result)
