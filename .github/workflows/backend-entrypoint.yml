@@ -31,5 +31,8 @@ jobs:
       - name: remove mongo1 server
         run: docker rename aqua-mongo1 removed-aqua-mongo1
 
+      - name: set `postgres` table structure
+        run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua alembic -c src/auth/alembic.ini upgrade head
+
       - name: pytest
         run: docker compose -f ./services/backend/docker-compose.dev.yml run aqua pytest src/entrypoint
