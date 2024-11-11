@@ -19,9 +19,7 @@ class OutputData:
     aqua_output: AquaOutput
 
 
-type Output = (
-    OutputData | Literal["error"] | Literal["not_authenticated"]
-)
+type Output = OutputData | Literal["error"] | Literal["not_authenticated"]
 
 
 async def write_water(session_id: UUID, milliliters: int | None) -> Output:

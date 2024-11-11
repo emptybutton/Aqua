@@ -7,9 +7,7 @@ from entrypoint.infrastructure.facades.loggers import auth_logger
 
 
 type AuthOutput = (
-    auth.ChangePasswordOutputData
-    | Literal["error"]
-    | Literal["week_password"]
+    auth.ChangePasswordOutputData | Literal["error"] | Literal["week_password"]
 )
 
 

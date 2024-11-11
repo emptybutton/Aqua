@@ -33,11 +33,13 @@ class DBGateway(_gateway.Gateway):
         session_id: UUID,
         account_name_text: str,
     ) -> _gateway.SessionAndPresenceOfAccountNameWithText:
-        presence_stmt = select(exists(
-            select(1)
-            .where(tables.account_name_table.c.text == account_name_text)
-            .with_for_update()
-        ))
+        presence_stmt = select(
+            exists(
+                select(1)
+                .where(tables.account_name_table.c.text == account_name_text)
+                .with_for_update()
+            )
+        )
         session_stmt = (
             select(
                 tables.session_table.c.account_id,

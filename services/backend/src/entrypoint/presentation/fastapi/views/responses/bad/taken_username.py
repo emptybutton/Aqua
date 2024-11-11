@@ -13,8 +13,7 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 class TakenUsernameSchema(BaseModel):
     detail: Detail = [
         DetailPartSchema(
-            type="UsernameTakenError",
-            msg="another user already owns this name"
+            type="UsernameTakenError", msg="another user already owns this name"
         )
     ]
 

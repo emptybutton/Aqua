@@ -11,13 +11,15 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 
 
 class ExtremeWeightForWaterBalanceSchema(BaseModel):
-    detail: Detail = [DetailPartSchema(
-        type="ExtremeWeightForWaterBalanceError",
-        msg=(
-            "weight must be between 30 and 150 kg inclusive to"
-            " calculate water balance"
-        ),
-    )]
+    detail: Detail = [
+        DetailPartSchema(
+            type="ExtremeWeightForWaterBalanceError",
+            msg=(
+                "weight must be between 30 and 150 kg inclusive to"
+                " calculate water balance"
+            ),
+        )
+    ]
 
 
 extreme_weight_for_water_balance_response_model = ResponseModel(

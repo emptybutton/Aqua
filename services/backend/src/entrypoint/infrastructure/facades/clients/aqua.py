@@ -154,11 +154,7 @@ class ReadDayOutputData:
 
 async def read_day(
     user_id: UUID, date_: date
-) -> (
-    ReadDayOutputData
-    | Error
-    | Literal["no_user"]
-):
+) -> ReadDayOutputData | Error | Literal["no_user"]:
     try:
         result = await aqua.read_day.perform(user_id, date_)
     except aqua.read_day.NoUserError:
@@ -202,12 +198,8 @@ class ReadUserOutputData:
 
 
 async def read_user(
-    user_id: UUID
-) -> (
-    ReadUserOutputData
-    | Error
-    | Literal["no_user"]
-):
+    user_id: UUID,
+) -> ReadUserOutputData | Error | Literal["no_user"]:
     try:
         result = await aqua.read_user.perform(user_id)
     except Exception as error:
@@ -255,11 +247,7 @@ class CancelRecordOutputData:
 @asynccontextmanager
 async def cancel_record(
     user_id: UUID, record_id: UUID
-) -> AsyncIterator[
-    CancelRecordOutputData
-    | Error
-    | Literal["no_record"]
-]:
+) -> AsyncIterator[CancelRecordOutputData | Error | Literal["no_record"]]:
     try:
         async with aqua.cancel_record.perform(user_id, record_id) as result:
             try:

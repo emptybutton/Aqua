@@ -11,14 +11,16 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 
 
 class WeekPasswordSchema(BaseModel):
-    detail: Detail = [DetailPartSchema(
-        type="WeekPasswordError",
-        msg=(
-            "password must not contain only numbers or only letters, "
-            "but must contain both upper and lower case letters and be 8 "
-            "or more characters long"
-        ),
-    )]
+    detail: Detail = [
+        DetailPartSchema(
+            type="WeekPasswordError",
+            msg=(
+                "password must not contain only numbers or only letters, "
+                "but must contain both upper and lower case letters and be 8 "
+                "or more characters long"
+            ),
+        )
+    ]
 
 
 week_password_response_model = ResponseModel(

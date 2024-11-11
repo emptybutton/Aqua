@@ -11,10 +11,12 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 
 
 class InvalidSessionIDHEXSchema(BaseModel):
-    detail: Detail = [DetailPartSchema(
-        type="InvalidSessionIDHEXError",
-        msg="session id hex must be a 32-character hexadecimal string",
-    )]
+    detail: Detail = [
+        DetailPartSchema(
+            type="InvalidSessionIDHEXError",
+            msg="session id hex must be a 32-character hexadecimal string",
+        )
+    ]
 
 
 invalid_session_id_hex_response_model = ResponseModel(

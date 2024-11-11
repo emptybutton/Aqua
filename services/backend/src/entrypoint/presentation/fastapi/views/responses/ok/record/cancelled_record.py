@@ -25,5 +25,5 @@ class CancelledRecordSchema(BaseModel):
 
 
 cancelled_record_response_model = ResponseModel(
-   CancelledRecordSchema, status.HTTP_200_OK
+    CancelledRecordSchema, status.HTTP_200_OK
 )

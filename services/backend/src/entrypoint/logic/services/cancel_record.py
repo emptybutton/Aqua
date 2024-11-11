@@ -7,7 +7,7 @@ from entrypoint.infrastructure.facades.loggers import aqua_logger, auth_logger
 
 
 type AquaOutput = (
-   aqua.CancelRecordOutputData | Literal["error"] | Literal["no_record"]
+    aqua.CancelRecordOutputData | Literal["error"] | Literal["no_record"]
 )
 
 

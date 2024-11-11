@@ -11,10 +11,12 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 
 
 class InvalidWaterSchema(BaseModel):
-    detail: Detail = [DetailPartSchema(
-        type="InvalidWaterAmountError",
-        msg="the amount of water should be >= 0",
-    )]
+    detail: Detail = [
+        DetailPartSchema(
+            type="InvalidWaterAmountError",
+            msg="the amount of water should be >= 0",
+        )
+    ]
 
 
 invalid_water_amount_response_model = ResponseModel(

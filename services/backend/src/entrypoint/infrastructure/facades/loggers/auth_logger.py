@@ -17,9 +17,7 @@ async def log_no_user_from_other_parts(user_id: UUID) -> None:
     )
 
 
-async def log_user_without_session(
-    user_id: UUID, session_id: UUID
-) -> None:
+async def log_user_without_session(user_id: UUID, session_id: UUID) -> None:
     await get_logger().awarning(
         logs.user_without_session_log,
         user_id=user_id,

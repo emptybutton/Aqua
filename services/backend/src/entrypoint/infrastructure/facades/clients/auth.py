@@ -66,7 +66,7 @@ class AuthenticateUserOutputData:
 
 @asynccontextmanager
 async def authenticate_user(
-    session_id: UUID
+    session_id: UUID,
 ) -> AsyncIterator[
     AuthenticateUserOutputData
     | Error
@@ -104,12 +104,8 @@ class ReadUserOutputData:
 
 
 async def read_user(
-    user_id: UUID
-) -> (
-    ReadUserOutputData
-    | Error
-    | Literal["no_user"]
-):
+    user_id: UUID,
+) -> ReadUserOutputData | Error | Literal["no_user"]:
     try:
         result = await auth.read_user.perform(user_id)
     except Exception as error:
@@ -118,9 +114,7 @@ async def read_user(
     if result is None:
         return "no_user"
 
-    return ReadUserOutputData(
-        user_id=result.user_id, username=result.username
-    )
+    return ReadUserOutputData(user_id=result.user_id, username=result.username)
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

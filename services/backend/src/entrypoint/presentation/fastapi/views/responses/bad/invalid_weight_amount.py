@@ -11,10 +11,12 @@ from entrypoint.presentation.fastapi.views.responses.common.model import (
 
 
 class InvalidWeightSchema(BaseModel):
-    detail: Detail = [DetailPartSchema(
-        type="InvalidWeightAmountError",
-        msg="weight kilograms should be >= 0",
-    )]
+    detail: Detail = [
+        DetailPartSchema(
+            type="InvalidWeightAmountError",
+            msg="weight kilograms should be >= 0",
+        )
+    ]
 
 
 invalid_weight_amount_response_model = ResponseModel(
