@@ -52,7 +52,7 @@ class AuthorizeUserRequestModel(BaseModel):
 )
 async def authorize_user(
     request_model: AuthorizeUserRequestModel,
-    session_id_hex: cookies.optional_session_id_cookie,
+    session_id_hex: cookies.optional_session_id_cookie = None,
 ) -> Response:
     session_id = optional_valid_id_of(session_id_hex)
 

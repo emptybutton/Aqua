@@ -73,7 +73,7 @@ class RegisterUserRequestModel(BaseModel):
 )
 async def register_user(
     request_model: RegisterUserRequestModel,
-    session_id_hex: cookies.optional_session_id_cookie,
+    session_id_hex: cookies.optional_session_id_cookie = None,
 ) -> Response:
     session_id = optional_valid_id_of(session_id_hex)
 

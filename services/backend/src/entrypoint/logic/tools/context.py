@@ -29,13 +29,14 @@ class Context[EnterValueT]:
         return self.__enter_value
 
     async def __finalize_bad__(self) -> None:  # noqa: PLW3201
+        self.__is_completed = True
+
         error = BadFinalizationError()
         await self.__manager.__aexit__(
             BadFinalizationError,
             error,
             error.__traceback__,
         )
-        self.__is_completed = True
 
     async def __aenter__(self) -> EnterValueT:
         self.__enter_value = await self.__manager.__aenter__()

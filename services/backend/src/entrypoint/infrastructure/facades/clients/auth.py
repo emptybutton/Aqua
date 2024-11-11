@@ -37,17 +37,22 @@ async def register_user(
     register_user = auth.register_user.perform(session_id, name, password)
     try:
         async with register_user as result:
-            yield RegisterUserOutputData(
-                user_id=result.user_id,
-                username=result.username,
-                new_session_id=result.session_id,
-            )
+            try:
+                yield RegisterUserOutputData(
+                    user_id=result.user_id,
+                    username=result.username,
+                    new_session_id=result.session_id,
+                )
+            except Exception as error:
+                raise _ContextErrorWrapper(error) from None
     except auth.register_user.TakenUsernameError:
         yield "taken_username"
     except auth.register_user.EmptyUsernameError:
         yield "empty_username"
     except auth.register_user.WeekPasswordError:
         yield "week_password"
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -71,9 +76,12 @@ async def authenticate_user(
 ]:
     try:
         async with auth.authenticate_user.perform(session_id) as result:
-            yield AuthenticateUserOutputData(
-                user_id=result.user_id, session_id=result.session_id
-            )
+            try:
+                yield AuthenticateUserOutputData(
+                    user_id=result.user_id, session_id=result.session_id
+                )
+            except Exception as error:
+                raise _ContextErrorWrapper(error) from None
     except auth.authenticate_user.NoSessionError:
         yield "no_session"
     except auth.authenticate_user.ExpiredSessionError:
@@ -82,6 +90,8 @@ async def authenticate_user(
         yield "cancelled_session"
     except auth.authenticate_user.ReplacedSessionError:
         yield "replaced_session"
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -133,15 +143,20 @@ async def authorize_user(
     authorize_user = auth.authorize_user.perform(session_id, name, password)
     try:
         async with authorize_user as result:
-            yield AuthorizeUserOutputData(
-                user_id=result.user_id,
-                username=result.username,
-                new_session_id=result.session_id,
-            )
+            try:
+                yield AuthorizeUserOutputData(
+                    user_id=result.user_id,
+                    username=result.username,
+                    new_session_id=result.session_id,
+                )
+            except Exception as error:
+                raise _ContextErrorWrapper(error) from None
     except auth.authorize_user.NoUserError:
         yield "no_user"
     except auth.authorize_user.IncorrectPasswordError:
         yield "incorrect_password"
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -167,17 +182,22 @@ async def rename_user(
     rename_user = auth.rename_user.perform(user_id, new_username)
     try:
         async with rename_user as result:
-            yield RenameUserOutputData(
-                user_id=result.user_id,
-                new_username=result.new_username,
-                previous_username=result.previous_username,
-            )
+            try:
+                yield RenameUserOutputData(
+                    user_id=result.user_id,
+                    new_username=result.new_username,
+                    previous_username=result.previous_username,
+                )
+            except Exception as error:
+                raise _ContextErrorWrapper(error) from None
     except auth.rename_user.NoUserError:
         yield "no_user"
     except auth.rename_user.NewUsernameTakenError:
         yield "new_username_taken"
     except auth.rename_user.EmptyUsernameError:
         yield "empty_new_username"
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
@@ -207,21 +227,41 @@ async def change_password(
     )
     try:
         async with change_password as result:
-            yield ChangePasswordOutputData(
-                user_id=result.user_id,
-                username=result.username,
-                session_id=result.session_id,
-            )
+            try:
+                yield ChangePasswordOutputData(
+                    user_id=result.user_id,
+                    username=result.username,
+                    session_id=result.session_id,
+                )
+            except Exception as error:
+                raise _ContextErrorWrapper(error) from None
     except auth.change_password.NoUserError:
         yield "no_user"
     except auth.change_password.WeekPasswordError:
         yield "week_password"
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         yield Error(unexpected_error=error)
 
 
 async def user_exists(username: str) -> bool | Error:
     try:
-        return await auth.user_exists.perform(username)
+        try:
+            return await auth.user_exists.perform(username)
+        except Exception as error:
+            raise _ContextErrorWrapper(error) from None
+    except _ContextErrorWrapper as wrapper:
+        raise wrapper.error from wrapper.error
     except Exception as error:
         return Error(unexpected_error=error)
+
+
+class _ContextErrorWrapper[ErrorT: Exception](Exception):
+    def __init__(self, error: ErrorT) -> None:
+        super().__init__(str())
+        self.__error = error
+
+    @property
+    def error(self) -> ErrorT:
+        return self.__error
