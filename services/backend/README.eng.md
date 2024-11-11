@@ -28,8 +28,8 @@ docker exec aqua-mongo1 mognosh -f /scripts/init-cluster.js
 Used approaches:
 - Modular monolith
 - Clean architecture
+- Three-layer architecture
 - DDD patterns
-- `Result` monad
 
 ### General structure
 <picture>
@@ -49,4 +49,4 @@ Used approaches:
 </picture>
 
 > [!IMPORTANT]
-> Each module has its own individual device, but at the moment (06.11.2024) this scheme can generalize them all.
+> Each module has its own individual structure, but at the moment (11.11.2024) this scheme can generalize the `auth` and `aqua` modules.

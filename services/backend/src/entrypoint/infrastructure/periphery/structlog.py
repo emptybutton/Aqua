@@ -1,4 +1,8 @@
+from typing import Any
+
 import structlog
+
+from entrypoint.infrastructure.periphery import envs
 
 
 dev_logger = structlog.wrap_logger(
@@ -21,3 +25,10 @@ prod_logger = structlog.wrap_logger(
         structlog.processors.JSONRenderer(),
     ],
 )
+
+
+def get_logger() -> Any:  # noqa: ANN401
+    if envs.is_dev:
+        return dev_logger
+
+    return prod_logger

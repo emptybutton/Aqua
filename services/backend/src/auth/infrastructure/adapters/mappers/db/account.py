@@ -40,7 +40,7 @@ class DBAccountMapper(AccountMapper):
 
     def __values_of(self, accounts: frozenset[_Account]) -> _Values:
         return [
-            dict(id_=account.id, password_hash_=account.password_hash.text)
+            dict(id=account.id, password_hash=account.password_hash.text)
             for account in accounts
         ]
 

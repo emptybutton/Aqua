@@ -53,8 +53,8 @@ class Output:
     result_code: int
     real_result_code: int
     is_result_pinned: bool
-    day_records: tuple[RecordData, ...]
     cancelled_record: RecordData
+    other_records: tuple[RecordData, ...]
 
 
 @asynccontextmanager
@@ -83,7 +83,7 @@ async def perform(
                 user = view.user
                 day = view.day
                 cancelled_record = view.cancelled_record
-                records = view.records
+                other_records = view.other_records
 
         yield Output(
             user_id=user.id,
@@ -93,7 +93,7 @@ async def perform(
             result_code=old_result_view_of(day.result),
             real_result_code=old_result_view_of(day.correct_result),
             is_result_pinned=day.is_result_pinned,
-            day_records=tuple(map(_data_of, records)),
+            other_records=tuple(map(_data_of, other_records)),
             cancelled_record=_data_of(cancelled_record),
         )
 

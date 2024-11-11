@@ -11,5 +11,5 @@ from aqua.domain.model.core.aggregates.user.root import User
 class InMemoryCancellationView:
     user: User
     day: Day
-    records: tuple[Record, ...]
     cancelled_record: Record
+    other_records: tuple[Record, ...]

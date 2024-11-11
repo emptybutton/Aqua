@@ -35,7 +35,7 @@ class Output:
 class Error(Exception): ...
 
 
-class UserIsAlreadyRegisteredError(Error): ...
+class TakenUsernameError(Error): ...
 
 
 class EmptyUsernameError(Error): ...
@@ -82,6 +82,6 @@ async def perform(
             case Err("account_name_text_is_empty"):
                 raise EmptyUsernameError
             case Err("account_name_is_taken"):
-                raise UserIsAlreadyRegisteredError
+                raise TakenUsernameError
             case Err(_):
                 raise WeekPasswordError
